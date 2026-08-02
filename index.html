@@ -10,6 +10,8 @@
     <!-- jsPDF & html2canvas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- SheetJS (xlsx) untuk Fitur Impor Excel Kolektif -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -287,6 +289,40 @@
                     <button type="submit" class="w-1/2 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg">Simpan Data Siswa</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- MODAL IMPOR DATA SISWA KOLEKTIF VIA EXCEL -->
+    <div id="modal-impor-siswa" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="glow-card max-w-md w-full p-6 space-y-4 bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-slate-700">
+            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-3">
+                <h3 class="font-bold font-header text-base text-emerald-600 dark:text-emerald-400">📥 Impor Data Siswa Kolektif</h3>
+                <button onclick="closeModalImporSiswa()" class="text-slate-400 hover:text-rose-500 font-bold text-lg">&times;</button>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <p class="text-slate-600 dark:text-slate-300">
+                    Unggah file Excel (.xlsx / .xls) atau CSV yang berisi data siswa secara kolektif. Pastikan header kolom sesuai: <b>id, password, nama, kelas, sekolah, alamat, kelompok</b>.
+                </p>
+                
+                <div class="p-3 bg-blue-50 dark:bg-slate-800 rounded-xl border border-blue-200 dark:border-slate-700 flex justify-between items-center">
+                    <div>
+                        <span class="font-bold block text-blue-900 dark:text-blue-300">Unduh Format Contoh</span>
+                        <span class="text-[10px] text-slate-500">Gunakan file template standar untuk impor</span>
+                    </div>
+                    <button onclick="downloadTemplateExcel()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-lg shadow text-[11px]">Template Excel</button>
+                </div>
+
+                <div>
+                    <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Pilih File Excel / CSV</label>
+                    <input type="file" id="file-excel-siswa" accept=".xlsx, .xls, .csv" class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs">
+                </div>
+
+                <div class="flex gap-2 pt-3 border-t border-slate-200 dark:border-slate-700">
+                    <button type="button" onclick="closeModalImporSiswa()" class="w-1/2 py-2.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl">Batal</button>
+                    <button type="button" onclick="prosesImporExcelSiswa()" class="w-1/2 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg">Proses Impor</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -888,7 +924,12 @@
 
             if (menuId === 'data_siswa') {
                 titleEl.textContent = '🎓 Kelola Data Siswa Bimbel';
-                actionsEl.innerHTML = `<button onclick="tambahSiswaModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs shadow">+ Tambah Siswa Baru</button>`;
+                actionsEl.innerHTML = `
+                    <div class="flex gap-2">
+                        <button onclick="bukaModalImporSiswa()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs shadow flex items-center gap-1">📥 Impor Excel</button>
+                        <button onclick="tambahSiswaModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs shadow">+ Tambah Siswa Baru</button>
+                    </div>
+                `;
                 
                 bodyEl.innerHTML = `
                     <div class="overflow-x-auto">
@@ -1330,7 +1371,617 @@
             }
         }
 
-        // --- SISTEM GAME LEVEL LOCKING BERDASARKAN KKM ---
+        // --- FITUR ISOLASI BAGIAN: IMPOR DATA SISWA KOLEKTIF VIA EXCEL ---
+        function bukaModalImporSiswa() {
+            document.getElementById('file-excel-siswa').value = '';
+            document.getElementById('modal-impor-siswa').classList.remove('hidden');
+        }
+
+        function closeModalImporSiswa() {
+            document.getElementById('modal-impor-siswa').classList.add('hidden');
+        }
+
+        function downloadTemplateExcel() {
+            const templateData = [
+                { id: "SIS04", password: "123", nama: "Budi Santoso", kelas: "Kelas 8", sekolah: "SMPN 1 Jombang", alamat: "Jl. Merdeka No. 10", kelompok: "Reguler" },
+                { id: "SIS05", password: "123", nama: "Dewi Lestari", kelas: "Kelas 9", sekolah: "SMPN 2 Jombang", alamat: "Jl. Melati No. 5", kelompok: "Privat" }
+            ];
+            const worksheet = XLSX.utils.json_to_sheet(templateData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "DataSiswa");
+            XLSX.writeFile(workbook, "Template_Impor_Siswa_SLC.xlsx");
+        }
+
+        function prosesImporExcelSiswa() {
+            const fileInput = document.getElementById('file-excel-siswa');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert("Silakan pilih file Excel atau CSV terlebih dahulu.");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const jsonRows = XLSX.utils.sheet_to_json(worksheet);
+
+                    if (!jsonRows || jsonRows.length === 0) {
+                        alert("File Excel kosong atau format tidak dikenali.");
+                        return;
+                    }
+
+                    let dataSiswa = JSON.parse(localStorage.getItem('slc_siswa')) || [];
+                    let countAdded = 0;
+                    let countUpdated = 0;
+
+                    jsonRows.forEach(row => {
+                        const id = String(row.id || row.ID || row['No. Administrasi'] || '').trim();
+                        const nama = String(row.nama || row.Nama || row['Nama Lengkap'] || '').trim();
+                        if (!id || !nama) return;
+
+                        const password = String(row.password || row.Password || '123').trim();
+                        const kelas = String(row.kelas || row.Kelas || 'Kelas 7').trim();
+                        const sekolah = String(row.sekolah || row.Sekolah || row['Asal Sekolah'] || '-').trim();
+                        const alamat = String(row.alamat || row.Alamat || '-').trim();
+                        const kelompok = String(row.kelompok || row.Kelompok || row['Program Belajar'] || 'Reguler').trim();
+
+                        const existingIdx = dataSiswa.findIndex(s => s.id.toLowerCase() === id.toLowerCase());
+                        if (existingIdx !== -1) {
+                            dataSiswa[existingIdx] = { id, password, nama, kelas, sekolah, alamat, kelompok };
+                            countUpdated++;
+                        } else {
+                            dataSiswa.push({ id, password, nama, kelas, sekolah, alamat, kelompok });
+                            countAdded++;
+                        }
+                    });
+
+                    localStorage.setItem('slc_siswa', JSON.stringify(dataSiswa));
+                    closeModalImporSiswa();
+                    alert(`Berhasil mengimpor data siswa!\n- Ditambahkan baru: ${countAdded}\n- Diperbarui: ${countUpdated}`);
+                    renderView('data_siswa');
+                } catch (err) {
+                    console.error("Gagal membaca file Excel:", err);
+                    alert("Terjadi kesalahan saat membaca struktur file Excel. Pastikan format kolom valid.");
+                }
+            };
+
+            reader.readAsArrayBuffer(file);
+        }
+
+        // --- SISTEM CRUD DATA SISWA ---
+        function tambahSiswaModal() {
+            document.getElementById('modal-siswa-title').textContent = '🎓 Tambah Data Siswa Baru';
+            document.getElementById('modal-siswa-old-id').value = '';
+            document.getElementById('modal-siswa-id').value = '';
+            document.getElementById('modal-siswa-password').value = '123';
+            document.getElementById('modal-siswa-nama').value = '';
+            document.getElementById('modal-siswa-kelas').value = 'Kelas 7';
+            document.getElementById('modal-siswa-sekolah').value = '';
+            document.getElementById('modal-siswa-alamat').value = '';
+            document.getElementById('modal-siswa-kelompok').value = 'Reguler';
+            document.getElementById('modal-tambah-siswa').classList.remove('hidden');
+        }
+
+        function editSiswaModal(id) {
+            const dataSiswa = JSON.parse(localStorage.getItem('slc_siswa')) || [];
+            const s = dataSiswa.find(item => item.id === id);
+            if (!s) return;
+
+            document.getElementById('modal-siswa-title').textContent = '🎓 Edit Data Siswa';
+            document.getElementById('modal-siswa-old-id').value = s.id;
+            document.getElementById('modal-siswa-id').value = s.id;
+            document.getElementById('modal-siswa-password').value = s.password || '123';
+            document.getElementById('modal-siswa-nama').value = s.nama;
+            document.getElementById('modal-siswa-kelas').value = s.kelas;
+            document.getElementById('modal-siswa-sekolah').value = s.sekolah;
+            document.getElementById('modal-siswa-alamat').value = s.alamat;
+            document.getElementById('modal-siswa-kelompok').value = s.kelompok || 'Reguler';
+            document.getElementById('modal-tambah-siswa').classList.remove('hidden');
+        }
+
+        function closeModalSiswa() {
+            document.getElementById('modal-tambah-siswa').classList.add('hidden');
+        }
+
+        function simpanSiswaBaru(e) {
+            e.preventDefault();
+            const oldId = document.getElementById('modal-siswa-old-id').value.trim();
+            const id = document.getElementById('modal-siswa-id').value.trim();
+            const password = document.getElementById('modal-siswa-password').value.trim();
+            const nama = document.getElementById('modal-siswa-nama').value.trim();
+            const kelas = document.getElementById('modal-siswa-kelas').value;
+            const sekolah = document.getElementById('modal-siswa-sekolah').value.trim();
+            const alamat = document.getElementById('modal-siswa-alamat').value.trim();
+            const kelompok = document.getElementById('modal-siswa-kelompok').value;
+
+            let dataSiswa = JSON.parse(localStorage.getItem('slc_siswa')) || [];
+
+            if (oldId !== '') {
+                const idx = dataSiswa.findIndex(s => s.id === oldId);
+                if (idx !== -1) {
+                    dataSiswa[idx] = { id, password, nama, kelas, sekolah, alamat, kelompok };
+                }
+            } else {
+                if (dataSiswa.some(s => s.id.toLowerCase() === id.toLowerCase())) {
+                    alert('ID Siswa tersebut sudah terdaftar. Gunakan ID lain.');
+                    return;
+                }
+                dataSiswa.push({ id, password, nama, kelas, sekolah, alamat, kelompok });
+            }
+
+            localStorage.setItem('slc_siswa', JSON.stringify(dataSiswa));
+            closeModalSiswa();
+            renderView('data_siswa');
+        }
+
+        function hapusSiswa(id) {
+            if (!confirm(`Apakah Anda yakin ingin menghapus siswa dengan ID ${id}?`)) return;
+            let dataSiswa = JSON.parse(localStorage.getItem('slc_siswa')) || [];
+            dataSiswa = dataSiswa.filter(s => s.id !== id);
+            localStorage.setItem('slc_siswa', JSON.stringify(dataSiswa));
+            renderView('data_siswa');
+        }
+
+        // --- SISTEM CRUD HASIL BELAJAR & RAPOR SERTIFIKAT ---
+        function pilihSiswaSesuaiSelect() {
+            const selectEl = document.getElementById('select-admin-siswa');
+            const id = selectEl.value;
+            const dataSiswa = JSON.parse(localStorage.getItem('slc_siswa')) || [];
+            selectedSiswaAdmin = dataSiswa.find(s => s.id === id) || null;
+            renderView('hasil_belajar_admin');
+        }
+
+        function tambahNilaiModal() {
+            if (!selectedSiswaAdmin) {
+                alert('Pilih siswa terlebih dahulu.');
+                return;
+            }
+            document.getElementById('modal-nilai-title').textContent = `⭐ Input Hasil Belajar: ${selectedSiswaAdmin.nama}`;
+            document.getElementById('modal-nilai-index').value = '-1';
+            document.getElementById('modal-nilai-bab').value = '';
+            document.getElementById('modal-nilai-capaian').value = 'Tuntas';
+            document.getElementById('modal-nilai-angka').value = '';
+            document.getElementById('modal-nilai-siswa').classList.remove('hidden');
+        }
+
+        function editNilaiModal(index) {
+            const dataNilai = JSON.parse(localStorage.getItem('slc_nilai')) || [];
+            const n = dataNilai[index];
+            if (!n) return;
+
+            document.getElementById('modal-nilai-title').textContent = '⭐ Edit Hasil Belajar';
+            document.getElementById('modal-nilai-index').value = index;
+            document.getElementById('modal-nilai-mapel').value = n.mapel;
+            document.getElementById('modal-nilai-bab').value = n.bab;
+            document.getElementById('modal-nilai-capaian').value = n.capaian;
+            document.getElementById('modal-nilai-angka').value = n.nilai;
+            document.getElementById('modal-nilai-siswa').classList.remove('hidden');
+        }
+
+        function closeModalNilai() {
+            document.getElementById('modal-nilai-siswa').classList.add('hidden');
+        }
+
+        function simpanNilaiSiswa(e) {
+            e.preventDefault();
+            if (!selectedSiswaAdmin) return;
+
+            const index = parseInt(document.getElementById('modal-nilai-index').value);
+            const mapel = document.getElementById('modal-nilai-mapel').value;
+            const bab = document.getElementById('modal-nilai-bab').value.trim();
+            const capaian = document.getElementById('modal-nilai-capaian').value.trim();
+            const nilai = parseInt(document.getElementById('modal-nilai-angka').value);
+
+            let dataNilai = JSON.parse(localStorage.getItem('slc_nilai')) || [];
+
+            if (index !== -1) {
+                dataNilai[index] = { ...dataNilai[index], mapel, bab, capaian, nilai };
+            } else {
+                dataNilai.push({ idSiswa: selectedSiswaAdmin.id, nama: selectedSiswaAdmin.nama, mapel, bab, capaian, nilai });
+            }
+
+            localStorage.setItem('slc_nilai', JSON.stringify(dataNilai));
+            closeModalNilai();
+            renderView('hasil_belajar_admin');
+        }
+
+        function hapusNilai(index) {
+            if (!confirm('Hapus data nilai ini?')) return;
+            let dataNilai = JSON.parse(localStorage.getItem('slc_nilai')) || [];
+            dataNilai.splice(index, 1);
+            localStorage.setItem('slc_nilai', JSON.stringify(dataNilai));
+            renderView('hasil_belajar_admin');
+        }
+
+        function bukaRaporSertifikat(idSiswa) {
+            const dataSiswa = JSON.parse(localStorage.getItem('slc_siswa')) || [];
+            const dataNilai = JSON.parse(localStorage.getItem('slc_nilai')) || [];
+            const s = dataSiswa.find(item => item.id === idSiswa);
+            if (!s) {
+                alert('Data siswa tidak ditemukan.');
+                return;
+            }
+
+            document.getElementById('cert-doc-id').textContent = s.id;
+            document.getElementById('cert-nama-siswa').textContent = s.nama;
+            document.getElementById('cert-id-siswa').textContent = s.id;
+            document.getElementById('cert-kelas-siswa').textContent = s.kelas;
+            document.getElementById('cert-sekolah-siswa').textContent = s.sekolah;
+
+            const listNilai = dataNilai.filter(n => n.idSiswa === s.id);
+            const tbody = document.getElementById('cert-table-body');
+            tbody.innerHTML = listNilai.length === 0 ? `<tr><td colspan="4" class="p-3 text-center text-slate-400 italic">Belum ada rekap nilai.</td></tr>` : listNilai.map(n => `
+                <tr>
+                    <td class="p-2.5 border border-slate-300 font-bold">${n.mapel}</td>
+                    <td class="p-2.5 border border-slate-300">${n.bab}</td>
+                    <td class="p-2.5 border border-slate-300">${n.capaian}</td>
+                    <td class="p-2.5 border border-slate-300 text-center font-black">${n.nilai}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('modal-rapor-sertifikat').classList.remove('hidden');
+        }
+
+        function closeModalSertifikat() {
+            document.getElementById('modal-rapor-sertifikat').classList.add('hidden');
+        }
+
+        // --- SISTEM CRUD ABSENSI ---
+        function filterAbsenAdmin() {
+            const status = document.getElementById('filter-absen-status').value;
+            const keyword = document.getElementById('filter-absen-keyword').value.toLowerCase();
+            const dataAbsen = JSON.parse(localStorage.getItem('slc_absen')) || [];
+
+            const filtered = dataAbsen.filter(a => {
+                const matchStatus = status === 'ALL' || a.status === status;
+                const matchKeyword = a.nama.toLowerCase().includes(keyword) || a.idSiswa.toLowerCase().includes(keyword);
+                return matchStatus && matchKeyword;
+            });
+
+            const tbody = document.getElementById('absen-table-body');
+            tbody.innerHTML = filtered.length === 0 ? `<tr><td colspan="6" class="p-4 text-center text-slate-400 italic">Tidak ada data presensi.</td></tr>` : filtered.map((a) => {
+                const globalIndex = dataAbsen.findIndex(x => x.idSiswa === a.idSiswa && x.tanggal === a.tanggal && x.waktu === a.waktu);
+                return `
+                    <tr>
+                        <td class="p-2 font-mono">${a.tanggal} ${a.waktu}</td>
+                        <td class="p-2 font-bold text-blue-600">${a.idSiswa}</td>
+                        <td class="p-2 font-semibold">${a.nama}</td>
+                        <td class="p-2"><span class="px-2 py-0.5 rounded font-bold text-[10px] ${a.status === 'Hadir' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">${a.status}</span></td>
+                        <td class="p-2">${a.keterangan || '-'}</td>
+                        <td class="p-2 text-center space-x-2">
+                            <button onclick="editAbsenAdminModal(${globalIndex})" class="px-2 py-1 bg-amber-500/10 text-amber-600 rounded font-bold">Edit</button>
+                            <button onclick="hapusAbsenAdmin(${globalIndex})" class="px-2 py-1 bg-rose-500/10 text-rose-600 rounded font-bold">Hapus</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function tambahAbsenAdminModal() {
+            const dataSiswa = JSON.parse(localStorage.getItem('slc_siswa')) || [];
+            const select = document.getElementById('modal-absen-idsiswa');
+            select.innerHTML = dataSiswa.map(s => `<option value="${s.id}">${s.id} - ${s.nama}</option>`).join('');
+
+            document.getElementById('modal-absensi-title').textContent = '📋 Tambah Presensi Siswa';
+            document.getElementById('modal-absen-index').value = '-1';
+            document.getElementById('modal-absen-status').value = 'Hadir';
+            document.getElementById('modal-absen-keterangan').value = 'Input Manual Admin';
+            document.getElementById('modal-absensi-admin').classList.remove('hidden');
+        }
+
+        function editAbsenAdminModal(index) {
+            const dataAbsen = JSON.parse(localStorage.getItem('slc_absen')) || [];
+            const a = dataAbsen[index];
+            if (!a) return;
+
+            const dataSiswa = JSON.parse(localStorage.getItem('slc_siswa')) || [];
+            const select = document.getElementById('modal-absen-idsiswa');
+            select.innerHTML = dataSiswa.map(s => `<option value="${s.id}" ${s.id === a.idSiswa ? 'selected' : ''}>${s.id} - ${s.nama}</option>`).join('');
+
+            document.getElementById('modal-absensi-title').textContent = '📋 Edit Presensi Siswa';
+            document.getElementById('modal-absen-index').value = index;
+            document.getElementById('modal-absen-status').value = a.status;
+            document.getElementById('modal-absen-keterangan').value = a.keterangan;
+            document.getElementById('modal-absensi-admin').classList.remove('hidden');
+        }
+
+        function closeModalAbsenAdmin() {
+            document.getElementById('modal-absensi-admin').classList.add('hidden');
+        }
+
+        function simpanAbsenAdmin(e) {
+            e.preventDefault();
+            const index = parseInt(document.getElementById('modal-absen-index').value);
+            const idSiswa = document.getElementById('modal-absen-idsiswa').value;
+            const status = document.getElementById('modal-absen-status').value;
+            const keterangan = document.getElementById('modal-absen-keterangan').value.trim();
+
+            const dataSiswa = JSON.parse(localStorage.getItem('slc_siswa')) || [];
+            const s = dataSiswa.find(item => item.id === idSiswa);
+            if (!s) return;
+
+            let dataAbsen = JSON.parse(localStorage.getItem('slc_absen')) || [];
+            const now = new Date();
+            const tanggal = now.toISOString().split('T')[0];
+            const waktu = now.toLocaleTimeString('id-ID', { hour12: false }).replace(/:/g, '.');
+
+            if (index !== -1) {
+                dataAbsen[index] = { ...dataAbsen[index], idSiswa: s.id, nama: s.nama, status, keterangan };
+            } else {
+                dataAbsen.unshift({ idSiswa: s.id, nama: s.nama, tanggal, waktu, status, keterangan, lokasi: 'Admin Bimbel' });
+            }
+
+            localStorage.setItem('slc_absen', JSON.stringify(dataAbsen));
+            closeModalAbsenAdmin();
+            renderView('absensi_admin');
+        }
+
+        function hapusAbsenAdmin(index) {
+            if (!confirm('Hapus data absensi ini?')) return;
+            let dataAbsen = JSON.parse(localStorage.getItem('slc_absen')) || [];
+            dataAbsen.splice(index, 1);
+            localStorage.setItem('slc_absen', JSON.stringify(dataAbsen));
+            renderView('absensi_admin');
+        }
+
+        function prosesValidasiAbsensiSiswa() {
+            const status = document.getElementById('absen-input-status').value;
+            const keterangan = document.getElementById('absen-input-keterangan').value.trim() || 'Mandiri';
+            let dataAbsen = JSON.parse(localStorage.getItem('slc_absen')) || [];
+
+            const now = new Date();
+            const tanggal = now.toISOString().split('T')[0];
+            const waktu = now.toLocaleTimeString('id-ID', { hour12: false }).replace(/:/g, '.');
+
+            dataAbsen.unshift({
+                idSiswa: currentUser.id,
+                nama: currentUser.nama,
+                tanggal,
+                waktu,
+                status,
+                keterangan,
+                lokasi: 'Terverifikasi Mandiri'
+            });
+
+            localStorage.setItem('slc_absen', JSON.stringify(dataAbsen));
+            alert('Presensi berhasil dikirim!');
+            renderRiwayatAbsenSiswa();
+        }
+
+        function renderRiwayatAbsenSiswa() {
+            const dataAbsen = JSON.parse(localStorage.getItem('slc_absen')) || [];
+            const myAbsen = dataAbsen.filter(a => a.idSiswa === currentUser.id);
+            const tbody = document.getElementById('siswa-riwayat-absen-body');
+            if (!tbody) return;
+
+            tbody.innerHTML = myAbsen.length === 0 ? `<tr><td colspan="4" class="p-4 text-center text-slate-400 italic">Belum ada riwayat absensi.</td></tr>` : myAbsen.map(a => `
+                <tr>
+                    <td class="p-2 font-mono">${a.tanggal} ${a.waktu}</td>
+                    <td class="p-2"><span class="px-2 py-0.5 rounded font-bold text-[10px] bg-emerald-100 text-emerald-700">${a.status}</span></td>
+                    <td class="p-2">${a.keterangan}</td>
+                    <td class="p-2 font-bold text-blue-600">${a.lokasi || 'Terverifikasi'}</td>
+                </tr>
+            `).join('');
+        }
+
+        // --- SISTEM CRUD MATERI / PEMBELAJARAN ---
+        function filterMateriAdmin() {
+            const kategori = document.getElementById('filter-kategori').value;
+            const kelas = document.getElementById('filter-kelas').value;
+            const mapel = document.getElementById('filter-mapel').value;
+            const allSoal = JSON.parse(localStorage.getItem('slc_soal')) || [];
+
+            const filtered = allSoal.filter(s => {
+                const matchKat = kategori === 'ALL' || s.kategori === kategori;
+                const matchKelas = kelas === 'ALL' || s.kelas === kelas;
+                const matchMapel = mapel === 'ALL' || s.mapel === mapel;
+                return matchKat && matchKelas && matchMapel;
+            });
+
+            const tbody = document.getElementById('materi-table-body');
+            tbody.innerHTML = filtered.length === 0 ? `<tr><td colspan="7" class="p-4 text-center text-slate-400 italic">Belum ada data pembelajaran.</td></tr>` : filtered.map((s) => {
+                const globalIndex = allSoal.findIndex(x => x.id === s.id);
+                return `
+                    <tr>
+                        <td class="p-2 font-bold text-purple-600">${s.kategori}</td>
+                        <td class="p-2">${s.kelas}</td>
+                        <td class="p-2 font-semibold">${s.mapel}</td>
+                        <td class="p-2">${s.bab}</td>
+                        <td class="p-2 font-mono text-blue-500 truncate max-w-xs"><a href="${s.link}" target="_blank">${s.link || '-'}</a></td>
+                        <td class="p-2 font-black">${s.kkm || 75}</td>
+                        <td class="p-2 text-center space-x-2">
+                            <button onclick="editSoalModal(${globalIndex})" class="px-2 py-1 bg-amber-500/10 text-amber-600 rounded font-bold">Edit</button>
+                            <button onclick="hapusSoal(${globalIndex})" class="px-2 py-1 bg-rose-500/10 text-rose-600 rounded font-bold">Hapus</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function tambahSoalModal() {
+            document.getElementById('modal-soal-title').textContent = '➕ Tambah Pembelajaran / Level Game';
+            document.getElementById('modal-input-id').value = '';
+            document.getElementById('modal-input-bab').value = '';
+            document.getElementById('modal-input-kkm').value = '75';
+            document.getElementById('modal-input-link').value = '';
+            document.getElementById('modal-tambah-soal').classList.remove('hidden');
+        }
+
+        function editSoalModal(index) {
+            const allSoal = JSON.parse(localStorage.getItem('slc_soal')) || [];
+            const s = allSoal[index];
+            if (!s) return;
+
+            document.getElementById('modal-soal-title').textContent = '➕ Edit Pembelajaran';
+            document.getElementById('modal-input-id').value = s.id || index;
+            document.getElementById('modal-input-kategori').value = s.kategori;
+            document.getElementById('modal-input-kelas').value = s.kelas;
+            document.getElementById('modal-input-mapel').value = s.mapel;
+            document.getElementById('modal-input-bab').value = s.bab;
+            document.getElementById('modal-input-kkm').value = s.kkm || 75;
+            document.getElementById('modal-input-link').value = s.link || '';
+            document.getElementById('modal-tambah-soal').classList.remove('hidden');
+        }
+
+        function closeModalSoal() {
+            document.getElementById('modal-tambah-soal').classList.add('hidden');
+        }
+
+        function simpanSoalBaru(e) {
+            e.preventDefault();
+            const idVal = document.getElementById('modal-input-id').value;
+            const kategori = document.getElementById('modal-input-kategori').value;
+            const kelas = document.getElementById('modal-input-kelas').value;
+            const mapel = document.getElementById('modal-input-mapel').value;
+            const bab = document.getElementById('modal-input-bab').value.trim();
+            const kkm = parseInt(document.getElementById('modal-input-kkm').value);
+            const link = document.getElementById('modal-input-link').value.trim();
+
+            let allSoal = JSON.parse(localStorage.getItem('slc_soal')) || [];
+
+            if (idVal !== '') {
+                const idx = allSoal.findIndex(item => (item.id && item.id.toString() === idVal.toString()));
+                if (idx !== -1) {
+                    allSoal[idx] = { ...allSoal[idx], kategori, kelas, mapel, bab, kkm, link };
+                } else {
+                    allSoal.push({ id: Date.now(), kategori, kelas, mapel, bab, kkm, link });
+                }
+            } else {
+                allSoal.push({ id: Date.now(), kategori, kelas, mapel, bab, kkm, link });
+            }
+
+            localStorage.setItem('slc_soal', JSON.stringify(allSoal));
+            closeModalSoal();
+            renderView('pembelajaran_admin');
+        }
+
+        function hapusSoal(index) {
+            if (!confirm('Hapus pembelajaran ini?')) return;
+            let allSoal = JSON.parse(localStorage.getItem('slc_soal')) || [];
+            allSoal.splice(index, 1);
+            localStorage.setItem('slc_soal', JSON.stringify(allSoal));
+            renderView('pembelajaran_admin');
+        }
+
+        // --- SISTEM KELOLA ADMIN & PENGATURAN ---
+        function tambahAdminModal() {
+            document.getElementById('modal-admin-title').textContent = '🔑 Tambah Akun Admin Baru';
+            document.getElementById('modal-admin-old-id').value = '';
+            document.getElementById('modal-admin-id').value = '';
+            document.getElementById('modal-admin-password').value = '';
+            document.getElementById('modal-admin-nama').value = '';
+            document.getElementById('modal-admin-user').classList.remove('hidden');
+        }
+
+        function editAdminModal(id) {
+            const dataAdmins = JSON.parse(localStorage.getItem('slc_admins')) || [];
+            const a = dataAdmins.find(item => item.id === id);
+            if (!a) return;
+
+            document.getElementById('modal-admin-title').textContent = '🔑 Edit Akun Admin';
+            document.getElementById('modal-admin-old-id').value = a.id;
+            document.getElementById('modal-admin-id').value = a.id;
+            document.getElementById('modal-admin-password').value = a.password;
+            document.getElementById('modal-admin-nama').value = a.nama;
+            document.getElementById('modal-admin-user').classList.remove('hidden');
+        }
+
+        function closeModalAdmin() {
+            document.getElementById('modal-admin-user').classList.add('hidden');
+        }
+
+        function simpanAdmin(e) {
+            e.preventDefault();
+            const oldId = document.getElementById('modal-admin-old-id').value.trim();
+            const id = document.getElementById('modal-admin-id').value.trim();
+            const password = document.getElementById('modal-admin-password').value.trim();
+            const nama = document.getElementById('modal-admin-nama').value.trim();
+
+            let dataAdmins = JSON.parse(localStorage.getItem('slc_admins')) || [];
+
+            if (oldId !== '') {
+                const idx = dataAdmins.findIndex(a => a.id === oldId);
+                if (idx !== -1) {
+                    dataAdmins[idx] = { id, password, nama };
+                }
+            } else {
+                if (dataAdmins.some(a => a.id.toLowerCase() === id.toLowerCase())) {
+                    alert('ID Admin sudah digunakan.');
+                    return;
+                }
+                dataAdmins.push({ id, password, nama });
+            }
+
+            localStorage.setItem('slc_admins', JSON.stringify(dataAdmins));
+            closeModalAdmin();
+            renderView('pengaturan_admin');
+        }
+
+        function hapusAdmin(id) {
+            let dataAdmins = JSON.parse(localStorage.getItem('slc_admins')) || [];
+            if (dataAdmins.length <= 1) {
+                alert('Minimal harus ada 1 akun administrator.');
+                return;
+            }
+            if (!confirm(`Hapus admin ${id}?`)) return;
+            dataAdmins = dataAdmins.filter(a => a.id !== id);
+            localStorage.setItem('slc_admins', JSON.stringify(dataAdmins));
+            renderView('pengaturan_admin');
+        }
+
+        function previewImageFile(e, targetInputId) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                document.getElementById(targetInputId).value = evt.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function saveConfigAdmin(e) {
+            e.preventDefault();
+            const cfg = {
+                appName: document.getElementById('cfg-app-name').value.trim(),
+                schoolName: document.getElementById('cfg-school-name').value.trim(),
+                address: document.getElementById('cfg-address').value.trim(),
+                slogan: document.getElementById('cfg-slogan').value.trim(),
+                timeZone: document.getElementById('cfg-timezone').value,
+                logoUrl: document.getElementById('cfg-logourl').value,
+                glowColor: document.getElementById('cfg-glowcolor').value,
+                signatureUrl: document.getElementById('cfg-sigurl').value,
+                stampUrl: document.getElementById('cfg-stampurl').value,
+                themeOverall: document.getElementById('cfg-themeoverall').value,
+                paperSize: document.getElementById('cfg-papersize').value,
+                orientation: document.getElementById('cfg-orientation').value,
+                pdfMargin: document.getElementById('cfg-pdfmargin').value
+            };
+
+            localStorage.setItem('slc_config', JSON.stringify(cfg));
+            applyConfigToUI();
+            alert('Pengaturan aplikasi berhasil disimpan!');
+        }
+
+        function clearAllLocalStorageCache() {
+            if (confirm('PERINGATAN: Seluruh data penyimpanan lokal akan dihapus. Lanjutkan?')) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        function repairApplicationData() {
+            localStorage.removeItem('slc_config');
+            localStorage.setItem('slc_config', JSON.stringify(defaultConfig));
+            applyConfigToUI();
+            alert('Aplikasi berhasil diperbarui dan diperbaiki tanpa menghapus data utama.');
+            location.reload();
+        }
+
         function renderGameLevelsSiswa() {
             const mapel = document.getElementById('siswa-pilih-mapel').value;
             const container = document.getElementById('siswa-game-levels-container');
@@ -1343,7 +1994,6 @@
 
             const allSoal = JSON.parse(localStorage.getItem('slc_soal')) || [];
             const allNilai = JSON.parse(localStorage.getItem('slc_nilai')) || [];
-
             const filteredSoal = allSoal.filter(s => s.kelas === currentUser.kelas && s.mapel === mapel);
 
             if (filteredSoal.length === 0) {
@@ -1352,7 +2002,6 @@
             }
 
             let htmlList = `<div class="grid grid-cols-1 gap-3">`;
-            
             filteredSoal.forEach((item, index) => {
                 const kkm = item.kkm || 75;
                 const recordNilai = allNilai.find(n => n.idSiswa === currentUser.id && n.mapel === mapel && n.bab.toLowerCase() === item.bab.toLowerCase());
@@ -1373,7 +2022,7 @@
                     <div class="p-4 rounded-2xl border transition flex flex-col md:flex-row justify-between items-start md:items-center gap-3 ${isLocked ? 'bg-slate-100 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 opacity-60' : 'bg-white/80 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 shadow-sm'}">
                         <div class="space-y-1">
                             <div class="flex items-center gap-2">
-                                <span class="px-2 py-0.5 rounded text-[10px] font-bold ${item.kategori === 'Soal' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300' : 'bg-blue-100 text-blue-700 dark:text-blue-900/40 dark:text-blue-300'}">${item.kategori}</span>
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold ${item.kategori === 'Soal' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'}">${item.kategori}</span>
                                 <span class="text-xs font-mono font-bold text-slate-500">KKM: ${kkm}</span>
                             </div>
                             <h4 class="font-bold text-sm text-slate-800 dark:text-slate-100">${item.bab}</h4>
@@ -1393,12 +2042,10 @@
                     </div>
                 `;
             });
-
             htmlList += `</div>`;
             container.innerHTML = htmlList;
         }
 
-        // --- SISTEM DOWNLOAD PDF SERTIFIKAT DENGAN PENGATURAN UKURAN KERTAS & MARGIN ---
         async function unduhPDFSertifikat() {
             const element = document.getElementById('certificate-render-area');
             if (!element) return;
@@ -1422,8 +2069,6 @@
                 });
 
                 const pageWidth = pdf.internal.pageSize.getWidth();
-                const pageHeight = pdf.internal.pageSize.getHeight();
-
                 const usableWidth = pageWidth - (pdfMargin * 2);
                 const usableHeight = (canvas.height * usableWidth) / canvas.width;
 
@@ -1431,614 +2076,8 @@
                 pdf.save(`Sertifikat_SLC_${selectedSiswaAdmin ? selectedSiswaAdmin.id : 'Rapor'}.pdf`);
             } catch (err) {
                 console.error("Gagal mendownload PDF:", err);
-                alert("Terjadi kesalahan saat mengunduh PDF Sertifikat.");
+                alert("Terjadi kesalahan saat mengunduh dokumen PDF.");
             }
-        }
-
-        // --- SISTEM ABSENSI MANDIRI SISWA ---
-        function prosesValidasiAbsensiSiswa() {
-            const status = document.getElementById('absen-input-status').value;
-            const keterangan = document.getElementById('absen-input-keterangan').value.trim() || 'Hadir Sesuai Jadwal';
-            const todayStr = new Date().toISOString().split('T')[0];
-            const timeNow = new Date().toLocaleTimeString('id-ID', { hour12: false }).replace(/:/g, '.');
-
-            let dataAbsen = JSON.parse(localStorage.getItem('slc_absen')) || [];
-            
-            const existingAbsenIdx = dataAbsen.findIndex(a => a.idSiswa === currentUser.id && a.tanggal === todayStr);
-            if (existingAbsenIdx !== -1) {
-                dataAbsen[existingAbsenIdx].status = status;
-                dataAbsen[existingAbsenIdx].keterangan = keterangan;
-                dataAbsen[existingAbsenIdx].waktu = timeNow;
-            } else {
-                dataAbsen.unshift({
-                    idSiswa: currentUser.id,
-                    nama: currentUser.nama,
-                    tanggal: todayStr,
-                    waktu: timeNow,
-                    status: status,
-                    keterangan: keterangan,
-                    lokasi: 'Terverifikasi Mandiri'
-                });
-            }
-
-            localStorage.setItem('slc_absen', JSON.stringify(dataAbsen));
-            alert('Presensi kehadiran berhasil dikirim dan dicatat!');
-            renderRiwayatAbsenSiswa();
-        }
-
-        function renderRiwayatAbsenSiswa() {
-            const tbody = document.getElementById('siswa-riwayat-absen-body');
-            if (!tbody) return;
-
-            const dataAbsen = JSON.parse(localStorage.getItem('slc_absen')) || [];
-            const myAbsen = dataAbsen.filter(a => a.idSiswa === currentUser.id);
-
-            if (myAbsen.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400 italic">Belum ada riwayat presensi tercatat.</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = myAbsen.map(a => `
-                <tr>
-                    <td class="p-2 font-mono text-slate-600 dark:text-slate-300">${a.tanggal} ${a.waktu || ''}</td>
-                    <td class="p-2"><span class="px-2 py-0.5 rounded font-bold text-[10px] ${a.status === 'Hadir' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">${a.status}</span></td>
-                    <td class="p-2">${a.keterangan}</td>
-                    <td class="p-2 font-bold text-blue-600">Terverifikasi ✅</td>
-                </tr>
-            `).join('');
-        }
-
-        function bukaRaporSertifikat(idSiswa) {
-            const dataSiswa = JSON.parse(localStorage.getItem('slc_siswa')) || [];
-            const siswa = dataSiswa.find(s => s.id === idSiswa);
-            if (!siswa) {
-                alert("Data siswa tidak ditemukan.");
-                return;
-            }
-
-            selectedSiswaAdmin = siswa;
-
-            document.getElementById('cert-nama-siswa').textContent = siswa.nama;
-            document.getElementById('cert-id-siswa').textContent = siswa.id;
-            document.getElementById('cert-kelas-siswa').textContent = siswa.kelas;
-            document.getElementById('cert-sekolah-siswa').textContent = siswa.sekolah;
-            document.getElementById('cert-doc-id').textContent = siswa.id;
-
-            const dataNilai = JSON.parse(localStorage.getItem('slc_nilai')) || [];
-            const listNilaiSiswa = dataNilai.filter(n => n.idSiswa === siswa.id);
-
-            const tableBody = document.getElementById('cert-table-body');
-            if (!tableBody) return;
-
-            if (listNilaiSiswa.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500 italic">Belum ada data capaian / nilai mata pelajaran untuk siswa ini.</td></tr>`;
-            } else {
-                const groupedMapel = {};
-                listNilaiSiswa.forEach(item => {
-                    if (!groupedMapel[item.mapel]) {
-                        groupedMapel[item.mapel] = [];
-                    }
-                    groupedMapel[item.mapel].push(item);
-                });
-
-                let tableHtml = '';
-                Object.keys(groupedMapel).forEach(mapelName => {
-                    const items = groupedMapel[mapelName];
-                    const rowSpanCount = items.length;
-
-                    items.forEach((subItem, subIndex) => {
-                        tableHtml += `<tr class="hover:bg-slate-50">`;
-                        
-                        if (subIndex === 0) {
-                            tableHtml += `<td class="p-2.5 border border-slate-300 font-bold text-blue-900 bg-slate-50/50 text-center" rowspan="${rowSpanCount}" style="vertical-align: middle;">${mapelName}</td>`;
-                        }
-
-                        tableHtml += `<td class="p-2.5 border border-slate-300 font-medium">${subItem.bab}</td>`;
-                        tableHtml += `<td class="p-2.5 border border-slate-300"><span class="px-2 py-0.5 bg-indigo-50 text-indigo-700 font-bold rounded text-[10px]">${subItem.capaian || 'Tuntas'}</span></td>`;
-                        tableHtml += `<td class="p-2.5 border border-slate-300 text-center font-black">${subItem.nilai}</td>`;
-
-                        tableHtml += `</tr>`;
-                    });
-                });
-
-                tableBody.innerHTML = tableHtml;
-            }
-
-            document.getElementById('modal-rapor-sertifikat').classList.remove('hidden');
-        }
-
-        function closeModalSertifikat() {
-            document.getElementById('modal-rapor-sertifikat').classList.add('hidden');
-        }
-
-        // --- FUNGSI MODAL & MANIPULASI DATA SISWA ---
-        function tambahSiswaModal() {
-            document.getElementById('modal-siswa-title').textContent = '🎓 Tambah Data Siswa Baru';
-            document.getElementById('modal-siswa-old-id').value = '';
-            document.getElementById('modal-siswa-id').value = '';
-            document.getElementById('modal-siswa-password').value = '123';
-            document.getElementById('modal-siswa-nama').value = '';
-            document.getElementById('modal-siswa-sekolah').value = '';
-            document.getElementById('modal-siswa-alamat').value = '';
-            document.getElementById('modal-tambah-siswa').classList.remove('hidden');
-        }
-
-        function editSiswaModal(id) {
-            const dataSiswa = JSON.parse(localStorage.getItem('slc_siswa')) || [];
-            const s = dataSiswa.find(x => x.id === id);
-            if (!s) return;
-
-            document.getElementById('modal-siswa-title').textContent = '✏️ Edit Data Siswa';
-            document.getElementById('modal-siswa-old-id').value = s.id;
-            document.getElementById('modal-siswa-id').value = s.id;
-            document.getElementById('modal-siswa-password').value = s.password || '123';
-            document.getElementById('modal-siswa-nama').value = s.nama;
-            document.getElementById('modal-siswa-kelas').value = s.kelas;
-            document.getElementById('modal-siswa-sekolah').value = s.sekolah;
-            document.getElementById('modal-siswa-alamat').value = s.alamat;
-            document.getElementById('modal-siswa-kelompok').value = s.kelompok || 'Reguler';
-            document.getElementById('modal-tambah-siswa').classList.remove('hidden');
-        }
-
-        function closeModalSiswa() {
-            document.getElementById('modal-tambah-siswa').classList.add('hidden');
-        }
-
-        function simpanSiswaBaru(e) {
-            e.preventDefault();
-            const oldId = document.getElementById('modal-siswa-old-id').value;
-            const newId = document.getElementById('modal-siswa-id').value.trim();
-            const password = document.getElementById('modal-siswa-password').value;
-            const nama = document.getElementById('modal-siswa-nama').value.trim();
-            const kelas = document.getElementById('modal-siswa-kelas').value;
-            const sekolah = document.getElementById('modal-siswa-sekolah').value.trim();
-            const alamat = document.getElementById('modal-siswa-alamat').value.trim();
-            const kelompok = document.getElementById('modal-siswa-kelompok').value;
-
-            let dataSiswa = JSON.parse(localStorage.getItem('slc_siswa')) || [];
-
-            if (oldId) {
-                const idx = dataSiswa.findIndex(x => x.id === oldId);
-                if (idx !== -1) {
-                    dataSiswa[idx] = { id: newId, password, nama, kelas, sekolah, alamat, kelompok };
-                }
-            } else {
-                if (dataSiswa.some(x => x.id === newId)) {
-                    alert('ID Siswa sudah terdaftar. Gunakan ID lain.');
-                    return;
-                }
-                dataSiswa.push({ id: newId, password, nama, kelas, sekolah, alamat, kelompok });
-            }
-
-            localStorage.setItem('slc_siswa', JSON.stringify(dataSiswa));
-            closeModalSiswa();
-            renderView('data_siswa');
-            alert('Data siswa berhasil disimpan!');
-        }
-
-        function hapusSiswa(id) {
-            if (!confirm(`Yakin ingin menghapus data siswa dengan ID ${id}?`)) return;
-            let dataSiswa = JSON.parse(localStorage.getItem('slc_siswa')) || [];
-            dataSiswa = dataSiswa.filter(x => x.id !== id);
-            localStorage.setItem('slc_siswa', JSON.stringify(dataSiswa));
-            renderView('data_siswa');
-        }
-
-        // --- FUNGSI MODAL & MANIPULASI NILAI / HASIL BELAJAR ---
-        function pilihSiswaSesuaiSelect() {
-            const selectVal = document.getElementById('select-admin-siswa').value;
-            const dataSiswa = JSON.parse(localStorage.getItem('slc_siswa')) || [];
-            selectedSiswaAdmin = dataSiswa.find(s => s.id === selectVal) || null;
-            renderView('hasil_belajar_admin');
-        }
-
-        function tambahNilaiModal() {
-            if (!selectedSiswaAdmin) {
-                alert('Pilih siswa terlebih dahulu.');
-                return;
-            }
-            document.getElementById('modal-nilai-title').textContent = `⭐ Input Nilai untuk ${selectedSiswaAdmin.nama}`;
-            document.getElementById('modal-nilai-index').value = '-1';
-            document.getElementById('modal-nilai-bab').value = '';
-            document.getElementById('modal-nilai-capaian').value = 'Tuntas';
-            document.getElementById('modal-nilai-angka').value = '';
-            document.getElementById('modal-nilai-siswa').classList.remove('hidden');
-        }
-
-        function editNilaiModal(index) {
-            const dataNilai = JSON.parse(localStorage.getItem('slc_nilai')) || [];
-            const n = dataNilai[index];
-            if (!n) return;
-
-            document.getElementById('modal-nilai-title').textContent = '✏️ Edit Nilai Siswa';
-            document.getElementById('modal-nilai-index').value = index;
-            document.getElementById('modal-nilai-mapel').value = n.mapel;
-            document.getElementById('modal-nilai-bab').value = n.bab;
-            document.getElementById('modal-nilai-capaian').value = n.capaian;
-            document.getElementById('modal-nilai-angka').value = n.nilai;
-            document.getElementById('modal-nilai-siswa').classList.remove('hidden');
-        }
-
-        function closeModalNilai() {
-            document.getElementById('modal-nilai-siswa').classList.add('hidden');
-        }
-
-        function simpanNilaiSiswa(e) {
-            e.preventDefault();
-            const index = parseInt(document.getElementById('modal-nilai-index').value);
-            const mapel = document.getElementById('modal-nilai-mapel').value;
-            const bab = document.getElementById('modal-nilai-bab').value.trim();
-            const capaian = document.getElementById('modal-nilai-capaian').value.trim();
-            const nilai = parseInt(document.getElementById('modal-nilai-angka').value);
-
-            let dataNilai = JSON.parse(localStorage.getItem('slc_nilai')) || [];
-
-            if (index >= 0) {
-                dataNilai[index].mapel = mapel;
-                dataNilai[index].bab = bab;
-                dataNilai[index].capaian = capaian;
-                dataNilai[index].nilai = nilai;
-            } else {
-                if (!selectedSiswaAdmin) return;
-                dataNilai.push({
-                    idSiswa: selectedSiswaAdmin.id,
-                    nama: selectedSiswaAdmin.nama,
-                    mapel, bab, capaian, nilai
-                });
-            }
-
-            localStorage.setItem('slc_nilai', JSON.stringify(dataNilai));
-            closeModalNilai();
-            renderView('hasil_belajar_admin');
-            alert('Data nilai berhasil disimpan!');
-        }
-
-        function hapusNilai(index) {
-            if (!confirm('Yakin ingin menghapus data nilai ini?')) return;
-            let dataNilai = JSON.parse(localStorage.getItem('slc_nilai')) || [];
-            dataNilai.splice(index, 1);
-            localStorage.setItem('slc_nilai', JSON.stringify(dataNilai));
-            renderView('hasil_belajar_admin');
-        }
-
-        // --- FUNGSI MODAL & MANIPULASI ABSENSI ADMIN ---
-        function tambahAbsenAdminModal() {
-            const dataSiswa = JSON.parse(localStorage.getItem('slc_siswa')) || [];
-            const selectSiswa = document.getElementById('modal-absen-idsiswa');
-            selectSiswa.innerHTML = dataSiswa.map(s => `<option value="${s.id}">${s.id} - ${s.nama} (${s.kelas})</option>`).join('');
-
-            document.getElementById('modal-absen-index').value = '-1';
-            document.getElementById('modal-absen-keterangan').value = 'Hadir Sesuai Jadwal';
-            document.getElementById('modal-absensi-admin').classList.remove('hidden');
-        }
-
-        function editAbsenAdminModal(index) {
-            const dataAbsen = JSON.parse(localStorage.getItem('slc_absen')) || [];
-            const a = dataAbsen[index];
-            if (!a) return;
-
-            const dataSiswa = JSON.parse(localStorage.getItem('slc_siswa')) || [];
-            const selectSiswa = document.getElementById('modal-absen-idsiswa');
-            selectSiswa.innerHTML = dataSiswa.map(s => `<option value="${s.id}" ${s.id === a.idSiswa ? 'selected' : ''}>${s.id} - ${s.nama} (${s.kelas})</option>`).join('');
-
-            document.getElementById('modal-absen-index').value = index;
-            document.getElementById('modal-absen-status').value = a.status;
-            document.getElementById('modal-absen-keterangan').value = a.keterangan;
-            document.getElementById('modal-absensi-admin').classList.remove('hidden');
-        }
-
-        function closeModalAbsenAdmin() {
-            document.getElementById('modal-absensi-admin').classList.add('hidden');
-        }
-
-        function simpanAbsenAdmin(e) {
-            e.preventDefault();
-            const index = parseInt(document.getElementById('modal-absen-index').value);
-            const idSiswa = document.getElementById('modal-absen-idsiswa').value;
-            const status = document.getElementById('modal-absen-status').value;
-            const keterangan = document.getElementById('modal-absen-keterangan').value.trim();
-
-            const dataSiswa = JSON.parse(localStorage.getItem('slc_siswa')) || [];
-            const siswa = dataSiswa.find(s => s.id === idSiswa);
-            const nama = siswa ? siswa.nama : 'Siswa Bimbel';
-
-            const todayStr = new Date().toISOString().split('T')[0];
-            const timeNow = new Date().toLocaleTimeString('id-ID', { hour12: false }).replace(/:/g, '.');
-
-            let dataAbsen = JSON.parse(localStorage.getItem('slc_absen')) || [];
-
-            if (index >= 0) {
-                dataAbsen[index].idSiswa = idSiswa;
-                dataAbsen[index].nama = nama;
-                dataAbsen[index].status = status;
-                dataAbsen[index].keterangan = keterangan;
-            } else {
-                dataAbsen.unshift({
-                    idSiswa, nama,
-                    tanggal: todayStr,
-                    waktu: timeNow,
-                    status,
-                    keterangan,
-                    lokasi: 'Diinput Admin'
-                });
-            }
-
-            localStorage.setItem('slc_absen', JSON.stringify(dataAbsen));
-            closeModalAbsenAdmin();
-            filterAbsenAdmin();
-            alert('Presensi berhasil disimpan!');
-        }
-
-        function hapusAbsen(index) {
-            if (!confirm('Yakin ingin menghapus data presensi ini?')) return;
-            let dataAbsen = JSON.parse(localStorage.getItem('slc_absen')) || [];
-            dataAbsen.splice(index, 1);
-            localStorage.setItem('slc_absen', JSON.stringify(dataAbsen));
-            filterAbsenAdmin();
-        }
-
-        function filterAbsenAdmin() {
-            const tbody = document.getElementById('absen-table-body');
-            if (!tbody) return;
-
-            const statusFilter = document.getElementById('filter-absen-status').value;
-            const keyword = document.getElementById('filter-absen-keyword').value.toLowerCase();
-            const dataAbsen = JSON.parse(localStorage.getItem('slc_absen')) || [];
-
-            const filtered = dataAbsen.filter(a => {
-                const matchStatus = statusFilter === 'ALL' || a.status === statusFilter;
-                const matchKeyword = a.nama.toLowerCase().includes(keyword) || a.idSiswa.toLowerCase().includes(keyword);
-                return matchStatus && matchKeyword;
-            });
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400 italic">Tidak ada data presensi yang sesuai.</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = filtered.map((a) => {
-                const globalIndex = dataAbsen.findIndex(x => x.idSiswa === a.idSiswa && x.tanggal === a.tanggal && x.waktu === a.waktu);
-                return `
-                    <tr>
-                        <td class="p-2 font-mono text-slate-600 dark:text-slate-300">${a.tanggal} ${a.waktu || ''}</td>
-                        <td class="p-2 font-bold text-blue-600">${a.idSiswa}</td>
-                        <td class="p-2 font-semibold">${a.nama}</td>
-                        <td class="p-2"><span class="px-2 py-0.5 rounded font-bold text-[10px] ${a.status === 'Hadir' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">${a.status}</span></td>
-                        <td class="p-2">${a.keterangan}</td>
-                        <td class="p-2 text-center space-x-2">
-                            <button onclick="editAbsenAdminModal(${globalIndex})" class="px-2 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded hover:bg-amber-500/20 font-bold">Edit</button>
-                            <button onclick="hapusAbsen(${globalIndex})" class="px-2 py-1 bg-rose-500/10 text-rose-600 dark:text-rose-400 rounded hover:bg-rose-500/20 font-bold">Hapus</button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        // --- FUNGSI MODAL & MANIPULASI SOAL / PEMBELAJARAN ---
-        function tambahSoalModal() {
-            document.getElementById('modal-soal-title').textContent = '➕ Tambah Pembelajaran / Level Game';
-            document.getElementById('modal-input-id').value = '';
-            document.getElementById('modal-input-bab').value = '';
-            document.getElementById('modal-input-link').value = '';
-            document.getElementById('modal-input-kkm').value = '75';
-            document.getElementById('modal-tambah-soal').classList.remove('hidden');
-        }
-
-        function editSoalModal(id) {
-            const dataSoal = JSON.parse(localStorage.getItem('slc_soal')) || [];
-            const item = dataSoal.find(x => x.id === id);
-            if (!item) return;
-
-            document.getElementById('modal-soal-title').textContent = '✏️ Edit Pembelajaran';
-            document.getElementById('modal-input-id').value = item.id;
-            document.getElementById('modal-input-kategori').value = item.kategori;
-            document.getElementById('modal-input-kelas').value = item.kelas;
-            document.getElementById('modal-input-mapel').value = item.mapel;
-            document.getElementById('modal-input-bab').value = item.bab;
-            document.getElementById('modal-input-kkm').value = item.kkm || 75;
-            document.getElementById('modal-input-link').value = item.link || '';
-            document.getElementById('modal-tambah-soal').classList.remove('hidden');
-        }
-
-        function closeModalSoal() {
-            document.getElementById('modal-tambah-soal').classList.add('hidden');
-        }
-
-        function simpanSoalBaru(e) {
-            e.preventDefault();
-            const idVal = document.getElementById('modal-input-id').value;
-            const kategori = document.getElementById('modal-input-kategori').value;
-            const kelas = document.getElementById('modal-input-kelas').value;
-            const mapel = document.getElementById('modal-input-mapel').value;
-            const bab = document.getElementById('modal-input-bab').value.trim();
-            const kkm = parseInt(document.getElementById('modal-input-kkm').value) || 75;
-            const link = document.getElementById('modal-input-link').value.trim();
-
-            let dataSoal = JSON.parse(localStorage.getItem('slc_soal')) || [];
-
-            if (idVal) {
-                const idx = dataSoal.findIndex(x => x.id == idVal);
-                if (idx !== -1) {
-                    dataSoal[idx] = { id: parseInt(idVal), kategori, kelas, mapel, bab, kkm, link };
-                }
-            } else {
-                const newId = dataSoal.length > 0 ? Math.max(...dataSoal.map(x => x.id)) + 1 : 1;
-                dataSoal.push({ id: newId, kategori, kelas, mapel, bab, kkm, link });
-            }
-
-            localStorage.setItem('slc_soal', JSON.stringify(dataSoal));
-            closeModalSoal();
-            filterMateriAdmin();
-            alert('Data pembelajaran berhasil disimpan!');
-        }
-
-        function hapusSoal(id) {
-            if (!confirm('Yakin ingin menghapus modul / soal ini?')) return;
-            let dataSoal = JSON.parse(localStorage.getItem('slc_soal')) || [];
-            dataSoal = dataSoal.filter(x => x.id !== id);
-            localStorage.setItem('slc_soal', JSON.stringify(dataSoal));
-            filterMateriAdmin();
-        }
-
-        function filterMateriAdmin() {
-            const tbody = document.getElementById('materi-table-body');
-            if (!tbody) return;
-
-            const kat = document.getElementById('filter-kategori').value;
-            const klz = document.getElementById('filter-kelas').value;
-            const mpl = document.getElementById('filter-mapel').value;
-            const dataSoal = JSON.parse(localStorage.getItem('slc_soal')) || [];
-
-            const filtered = dataSoal.filter(s => {
-                const matchKat = kat === 'ALL' || s.kategori === kat;
-                const matchKlz = klz === 'ALL' || s.kelas === klz;
-                const matchMpl = mpl === 'ALL' || s.mapel === mpl;
-                return matchKat && matchKlz && matchMpl;
-            });
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400 italic">Tidak ada data materi pembelajaran.</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = filtered.map(s => `
-                <tr>
-                    <td class="p-2"><span class="px-2 py-0.5 rounded font-bold text-[10px] ${s.kategori === 'Soal' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}">${s.kategori}</span></td>
-                    <td class="p-2 font-semibold">${s.kelas}</td>
-                    <td class="p-2 font-bold text-blue-600">${s.mapel}</td>
-                    <td class="p-2">${s.bab}</td>
-                    <td class="p-2 max-w-[180px] truncate"><a href="${s.link}" target="_blank" class="text-blue-500 hover:underline font-mono">${s.link || '-'}</a></td>
-                    <td class="p-2 font-black">${s.kkm || 75}</td>
-                    <td class="p-2 text-center space-x-2">
-                        <button onclick="editSoalModal(${s.id})" class="px-2 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded hover:bg-amber-500/20 font-bold">Edit</button>
-                        <button onclick="hapusSoal(${s.id})" class="px-2 py-1 bg-rose-500/10 text-rose-600 dark:text-rose-400 rounded hover:bg-rose-500/20 font-bold">Hapus</button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        // --- FUNGSI MODAL & MANIPULASI AKUN ADMIN ---
-        function tambahAdminModal() {
-            document.getElementById('modal-admin-title').textContent = '🔑 Tambah Akun Admin Baru';
-            document.getElementById('modal-admin-old-id').value = '';
-            document.getElementById('modal-admin-id').value = '';
-            document.getElementById('modal-admin-password').value = '';
-            document.getElementById('modal-admin-nama').value = '';
-            document.getElementById('modal-admin-user').classList.remove('hidden');
-        }
-
-        function editAdminModal(id) {
-            const dataAdmins = JSON.parse(localStorage.getItem('slc_admins')) || [];
-            const a = dataAdmins.find(x => x.id === id);
-            if (!a) return;
-
-            document.getElementById('modal-admin-title').textContent = '✏️ Edit Akun Admin';
-            document.getElementById('modal-admin-old-id').value = a.id;
-            document.getElementById('modal-admin-id').value = a.id;
-            document.getElementById('modal-admin-password').value = a.password;
-            document.getElementById('modal-admin-nama').value = a.nama;
-            document.getElementById('modal-admin-user').classList.remove('hidden');
-        }
-
-        function closeModalAdmin() {
-            document.getElementById('modal-admin-user').classList.add('hidden');
-        }
-
-        function simpanAdmin(e) {
-            e.preventDefault();
-            const oldId = document.getElementById('modal-admin-old-id').value;
-            const newId = document.getElementById('modal-admin-id').value.trim();
-            const password = document.getElementById('modal-admin-password').value;
-            const nama = document.getElementById('modal-admin-nama').value.trim();
-
-            let dataAdmins = JSON.parse(localStorage.getItem('slc_admins')) || [];
-
-            if (oldId) {
-                const idx = dataAdmins.findIndex(x => x.id === oldId);
-                if (idx !== -1) {
-                    dataAdmins[idx] = { id: newId, password, nama };
-                }
-            } else {
-                if (dataAdmins.some(x => x.id === newId)) {
-                    alert('ID Admin sudah terdaftar.');
-                    return;
-                }
-                dataAdmins.push({ id: newId, password, nama });
-            }
-
-            localStorage.setItem('slc_admins', JSON.stringify(dataAdmins));
-            closeModalAdmin();
-            renderView('pengaturan_admin');
-            alert('Akun admin berhasil disimpan!');
-        }
-
-        function hapusAdmin(id) {
-            let dataAdmins = JSON.parse(localStorage.getItem('slc_admins')) || [];
-            if (dataAdmins.length <= 1) {
-                alert('Minimal harus ada 1 akun administrator.');
-                return;
-            }
-            if (!confirm(`Yakin ingin menghapus akun admin ${id}?`)) return;
-            dataAdmins = dataAdmins.filter(x => x.id !== id);
-            localStorage.setItem('slc_admins', JSON.stringify(dataAdmins));
-            renderView('pengaturan_admin');
-        }
-
-        // --- PENGATURAN APLIKASI & UTILITIES ---
-        function previewImageFile(e, targetInputId) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(uploadEvent) {
-                document.getElementById(targetInputId).value = uploadEvent.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function saveConfigAdmin(e) {
-            e.preventDefault();
-            const cfg = {
-                appName: document.getElementById('cfg-app-name').value.trim(),
-                schoolName: document.getElementById('cfg-school-name').value.trim(),
-                address: document.getElementById('cfg-address').value.trim(),
-                slogan: document.getElementById('cfg-slogan').value.trim(),
-                logoUrl: document.getElementById('cfg-logourl').value,
-                signatureUrl: document.getElementById('cfg-sigurl').value,
-                stampUrl: document.getElementById('cfg-stampurl').value,
-                glowColor: document.getElementById('cfg-glowcolor').value,
-                themeOverall: document.getElementById('cfg-themeoverall').value,
-                timeZone: document.getElementById('cfg-timezone').value,
-                paperSize: document.getElementById('cfg-papersize').value,
-                orientation: document.getElementById('cfg-orientation').value,
-                pdfMargin: document.getElementById('cfg-pdfmargin').value
-            };
-
-            localStorage.setItem('slc_config', JSON.stringify(cfg));
-            applyConfigToUI();
-            alert('Pengaturan aplikasi berhasil disimpan!');
-        }
-
-        function clearAllLocalStorageCache() {
-            if (confirm('PERINGATAN: Tindakan ini akan menghapus seluruh data local storage termasuk database siswa, nilai, dan absensi. Lanjutkan?')) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
-
-        function repairApplicationData() {
-            localStorage.setItem('slc_config', JSON.stringify(defaultConfig));
-            localStorage.setItem('slc_admins', JSON.stringify(defaultAdmins));
-            localStorage.setItem('slc_siswa', JSON.stringify(defaultSiswa));
-            localStorage.setItem('slc_soal', JSON.stringify(defaultMateriSoal));
-            localStorage.setItem('slc_nilai', JSON.stringify(defaultNilai));
-            localStorage.setItem('slc_absen', JSON.stringify(defaultAbsen));
-            applyConfigToUI();
-            alert('Perbaikan aplikasi selesai! Seluruh cache sistem dan data default telah dipulihkan dengan sempurna.');
-            location.reload();
-        }
-
-        function downloadPDFAbsensi() {
-            alert('Fitur download PDF rekapitulasi presensi siap dijalankan.');
         }
     </script>
 </body>
