@@ -2081,5 +2081,152 @@
             }
         }
     </script>
+<script>
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzEAUFFNzU4IcEATODXkAZxj23whrnBIrQFOEvnhMSHsaK8SYx5GuniI0oObe1UItat/exec";
+
+  // 1. Ambil Data saat Halaman Dimuat
+  async function ambilDataSiswa() {
+    try {
+      let response = await fetch(WEB_APP_URL);
+      let dataSiswa = await response.json();
+      tampilkanKeTabel(dataSiswa);
+    } catch (error) {
+      console.error("Gagal mengambil data:", error);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", ambilDataSiswa);
+
+  // 2. Tampilkan Data ke Tabel HTML
+  function tampilkanKeTabel(dataSiswa) {
+    const tbody = document.getElementById("tabel-data-siswa"); 
+    if (!tbody) return;
+    
+    tbody.innerHTML = "";
+    
+    if (!dataSiswa || dataSiswa.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-slate-400">Belum ada data siswa.</td></tr>`;
+      return;
+    }
+
+    dataSiswa.forEach((siswa) => {
+      let row = `
+        <tr>
+          <td>${siswa.no_administrasi || ''}</td>
+          <td>${siswa.password_login || ''}</td>
+          <td>${siswa.nama_lengkap || ''}</td>
+          <td>${siswa.kelas || ''}</td>
+          <td>${siswa.asal_sekolah || ''}</td>
+          <td>${siswa.alamat || ''}</td>
+          <td><span class="px-2 py-1 bg-blue-100 text-blue-600 rounded-lg text-xs font-semibold">${siswa.program_belajar || ''}</span></td>
+          <td>
+            <button onclick='bukaEditSiswa(${JSON.stringify(siswa)})' class="px-2.5 py-1 bg-amber-500 text-white rounded-lg text-xs font-bold mr-1">Edit</button>
+            <button onclick="hapusSiswa('${siswa.no_administrasi}')" class="px-2.5 py-1 bg-rose-500 text-white rounded-lg text-xs font-bold">Hapus</button>
+          </td>
+        </tr>
+      `;
+      tbody.innerHTML += row;
+    });
+  }
+
+  // 3. Kontrol Modal (Buka / Tutup)
+  function bukaModalTambah() {
+    document.getElementById("modal-siswa-title").innerText = "🎓 Tambah Data Siswa";
+    document.getElementById("modal-siswa-old-id").value = "";
+    document.getElementById("modal-siswa-id").value = "";
+    document.getElementById("modal-siswa-password").value = "";
+    document.getElementById("modal-siswa-nama").value = "";
+    document.getElementById("modal-siswa-sekolah").value = "";
+    document.getElementById("modal-siswa-alamat").value = "";
+    
+    const selectKelas = document.getElementById("modal-siswa-kelas");
+    selectKelas.innerHTML = `
+      <option value="Kelas 7">Kelas 7</option>
+      <option value="Kelas 8">Kelas 8</option>
+      <option value="Kelas 9">Kelas 9</option>
+    `;
+
+    document.getElementById("modal-tambah-siswa").classList.remove("hidden");
+  }
+
+  function closeModalSiswa() {
+    document.getElementById("modal-tambah-siswa").classList.add("hidden");
+  }
+
+  // 4. Buka Modal untuk Edit Data
+  function bukaEditSiswa(siswa) {
+    document.getElementById("modal-siswa-title").innerText = "✏️ Edit Data Siswa";
+    document.getElementById("modal-siswa-old-id").value = siswa.no_administrasi;
+    document.getElementById("modal-siswa-id").value = siswa.no_administrasi;
+    document.getElementById("modal-siswa-password").value = siswa.password_login;
+    document.getElementById("modal-siswa-nama").value = siswa.nama_lengkap;
+    document.getElementById("modal-siswa-sekolah").value = siswa.asal_sekolah;
+    document.getElementById("modal-siswa-alamat").value = siswa.alamat;
+    
+    const selectKelas = document.getElementById("modal-siswa-kelas");
+    selectKelas.innerHTML = `
+      <option value="Kelas 7" ${siswa.kelas === 'Kelas 7' ? 'selected' : ''}>Kelas 7</option>
+      <option value="Kelas 8" ${siswa.kelas === 'Kelas 8' ? 'selected' : ''}>Kelas 8</option>
+      <option value="Kelas 9" ${siswa.kelas === 'Kelas 9' ? 'selected' : ''}>Kelas 9</option>
+    `;
+
+    document.getElementById("modal-siswa-kelompok").value = siswa.program_belajar || "Reguler";
+    document.getElementById("modal-tambah-siswa").classList.remove("hidden");
+  }
+
+  // 5. Fungsi Simpan (Tambah / Edit ke Google Sheets)
+  async function simpanSiswaBaru(event) {
+    event.preventDefault();
+    
+    const formData = {
+      action: document.getElementById("modal-siswa-old-id").value ? "update" : "insert",
+      old_id: document.getElementById("modal-siswa-old-id").value,
+      no_administrasi: document.getElementById("modal-siswa-id").value,
+      password_login: document.getElementById("modal-siswa-password").value,
+      nama_lengkap: document.getElementById("modal-siswa-nama").value,
+      kelas: document.getElementById("modal-siswa-kelas").value,
+      asal_sekolah: document.getElementById("modal-siswa-sekolah").value,
+      alamat: document.getElementById("modal-siswa-alamat").value,
+      program_belajar: document.getElementById("modal-siswa-kelompok").value,
+    };
+
+    try {
+      alert("Menyimpan data ke Google Sheets...");
+      await fetch(WEB_APP_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData)
+      });
+
+      alert("Data berhasil diproses!");
+      closeModalSiswa();
+      setTimeout(ambilDataSiswa, 2000); // Refresh data otomatis setelah 2 detik
+    } catch (error) {
+      console.error("Gagal menyimpan:", error);
+      alert("Terjadi kesalahan saat menyimpan data.");
+    }
+  }
+
+  // 6. Fungsi Hapus Data dari Google Sheets
+  async function hapusSiswa(id) {
+    if (confirm(`Yakin ingin menghapus siswa dengan ID ${id}?`)) {
+      try {
+        await fetch(WEB_APP_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "delete", no_administrasi: id })
+        });
+
+        alert("Perintah hapus dikirim!");
+        setTimeout(ambilDataSiswa, 2000); // Refresh data otomatis
+      } catch (error) {
+        console.error("Gagal menghapus:", error);
+        alert("Terjadi kesalahan saat menghapus data.");
+      }
+    }
+  }
+</script>
 </body>
 </html>
