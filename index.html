@@ -6,6 +6,57 @@
     <title>SLC World - SHIHWA LEARNING CENTER</title>
     <!-- Google Fonts & Tailwind CSS CDN -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@600;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+    /* 1. Sembunyikan ikon rusak atau gambar placeholder di sebelah logo */
+    #login-logo-frame img:not(:last-child), 
+    #header-logo-frame img:not(:last-child),
+    .flex > img[alt=""]:first-child {
+        display: none !important;
+    }
+        @media print {
+    /* ... aturan lainnya ... */
+    
+    /* Perbarui aturan .logo-img dengan ukuran statis dan !important */
+    .logo-img {
+    width: 75px !important;
+    height: 75px !important;
+    object-fit: cover !important; /* Gunakan cover agar mengisi penuh lingkaran tanpa gepeng */
+    border-radius: 50% !important;
+    display: block !important;
+    margin: 0 auto !important;
+}
+    /* ... aturan lainnya ... */
+}
+        body, html { background-color: #ffffff !important; }
+        #modal-rapor-sertifikat { background-color: #ffffff !important; backdrop-filter: none !important; }
+        #certificate-render-area { background-color: #ffffff !important; box-shadow: none !important; }
+
+    /* 2. Gabungan Animasi Cahaya Warna-Warni + Detak Jantung Lembut */
+    @keyframes rainbowGlow {
+        0% {
+            transform: scale(1);
+            box-shadow: 0 0 15px rgba(236, 72, 153, 0.7), 0 0 30px rgba(168, 85, 247, 0.5);
+        }
+        33% {
+            transform: scale(1.06); /* Sedikit membesar lembut */
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.8), 0 0 40px rgba(14, 165, 233, 0.6);
+        }
+        66% {
+            transform: scale(1);    /* Kembali ke ukuran normal */
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.7), 0 0 30px rgba(52, 211, 153, 0.5);
+        }
+        100% {
+            transform: scale(1);
+            box-shadow: 0 0 15px rgba(236, 72, 153, 0.7), 0 0 30px rgba(168, 85, 247, 0.5);
+        }
+    }
+
+    /* 3. Terapkan animasinya ke bingkai logo */
+    #login-logo-frame, #header-logo-frame {
+        animation: rainbowGlow 4s infinite linear;
+        border-radius: 50%;
+    }
+</style>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- jsPDF & html2canvas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -189,12 +240,12 @@
                 </div>
                 
                 <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 sm:py-3 rounded-xl shadow-lg transition transform active:scale-95 font-header text-xs sm:text-sm tracking-wider mt-2">
-                    MASUK PORTAL SLC WORLD
+                    MASUK PORTAL SHIHWA CENTER
                 </button>
             </form>
 
             <div class="pt-2 text-[10px] text-slate-400 text-center flex-shrink-0">
-                &copy; 2026 SLC World. All Rights Reserved.
+                &copy; 2026 Shihwa Center. All Rights Reserved.
             </div>
         </div>
     </section>
@@ -403,7 +454,7 @@
         <div class="glow-card max-w-4xl w-full p-6 space-y-4 bg-white text-slate-800 shadow-2xl rounded-2xl border border-amber-300 my-auto">
             <div class="flex justify-between items-center border-b pb-3">
                 <h3 class="font-bold font-header text-base text-blue-700 flex items-center gap-2">
-                    📜 Preview Rapor Sertifikat Hasil Belajar
+                    📜 Preview Rapor Rapor Hasil Belajar
                 </h3>
                 <div class="flex gap-2">
                     <button onclick="unduhPDFSertifikat()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs shadow flex items-center gap-1">
@@ -413,30 +464,39 @@
                 </div>
             </div>
 
-            <div id="certificate-render-area" class="p-6 bg-white certificate-border rounded-xl space-y-4 text-slate-900 relative">
-                <div class="flex items-center justify-between border-b-2 border-amber-500 pb-4">
-                    <div id="sertifikat-logo-frame" class="w-16 h-16 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-black text-xl border-2 border-amber-400 shadow flex-shrink-0 font-header overflow-hidden">
-                        SLC
-                    </div>
-                    <div class="text-center flex-1 px-4">
-                        <h2 id="cert-school-name" class="font-black text-xl text-blue-950 uppercase tracking-wide font-serifHeader">SHIHWA LEARNING CENTER</h2>
-                        <p id="cert-slogan" class="text-xs font-bold text-amber-600">Lembaga Bimbingan Belajar Interaktif, Modern & Bermutu</p>
-                        <p id="cert-address" class="text-[10px] text-slate-500">Perum. Puri Astapada Indah 1 Gang Kavling Barat Tambakrejo Jombang</p>
-                    </div>
-                    <div class="w-16 text-right"><span class="text-3xl">🏅</span></div>
-                </div>
+            <div id="certificate-render-area" class="p-8 relative overflow-hidden" style="background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); border: 4px solid #312e81; border-radius: 16px; box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.08), 0 10px 25px rgba(49, 46, 129, 0.15);">
+        
+        <!-- Garis Bingkai Dalam Bergaya Cekungan Elegan -->
+        <div style="position: absolute; inset: 10px; border: 1.5px solid rgba(49, 46, 129, 0.2); border-radius: 12px; pointer-events: none;"></div>
+        <!-- Bagian Header ala Sertifikat Elegan -->
+        <div class="flex items-center justify-between border-b-2 border-purple-900/30 pb-4 w-full">
+            <!-- Logo di Kiri (Geser Sedikit ke Kanan) -->
+            <div id="cert-logo-frame" style="width: 64px; height: 64px; display: flex; justify-content: center; align-items: center;" class="relative flex-shrink-0 ml-4">
+                <img src="..." style="width: 100%; height: 100%; object-fit: contain; object-position: center;" class="absolute inset-0">
+            </div>
 
-                <div class="text-center space-y-1">
-                    <h3 class="font-black text-lg text-blue-900 font-serifHeader uppercase tracking-wider">SERTIFIKAT HASIL BELAJAR</h3>
-                    <p class="text-[11px] text-slate-500 font-mono">No. Dokumen: SLC/RAPOR/<span id="cert-doc-id">SIS01</span>/2026</p>
-                </div>
+            <!-- Teks Informasi Lembaga di Tengah -->
+            <div class="text-center flex-1 px-4">
+                <h2 id="cert-school-name" class="font-bold text-lg text-purple-950 uppercase tracking-widest font-serif"></h2>
+                <p id="cert-school-slogan" class="text-xs text-purple-800/80 italic"></p>
+                <p id="cert-school-address" class="text-[11px] text-slate-500 mt-0.5"></p>
+            </div>
 
-                <div class="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-3 rounded-lg border border-slate-200">
-                    <div><b>Nama Siswa:</b> <span id="cert-nama-siswa">-</span></div>
-                    <div><b>Nomor ID:</b> <span id="cert-id-siswa">-</span></div>
-                    <div><b>Kelas:</b> <span id="cert-kelas-siswa">-</span></div>
-                    <div><b>Asal Sekolah:</b> <span id="cert-sekolah-siswa">-</span></div>
-                </div>
+            <!-- Piala di Kanan -->
+            <div class="w-16 text-right flex-shrink-0 flex items-center justify-end"><span class="text-3xl"></span></div>
+        </div>
+<!-- Judul Sertifikat -->
+        <div class="text-center space-y-1.5 my-2 w-full">
+            <h3 class="font-extrabold text-2xl text-purple-900 tracking-wider uppercase font-serif">RAPOR HASIL BELAJAR</h3>
+            <p class="text-[11px] text-purple-700 font-mono tracking-wide" style="margin-bottom: 20px; display: block;">No. Dokumen: <span id="cert-doc-id"></span></p>
+        </div>
+    <!-- Informasi Siswa -->
+    <div class="grid grid-cols-2 gap-3 text-xs bg-purple-900/5 p-4 rounded-xl border border-purple-900/10 w-full">
+        <div><b>Nama Siswa:</b> <span id="cert-nama-siswa"></span></div>
+        <div><b>Nomor ID:</b> <span id="cert-id-siswa"></span></div>
+        <div><b>Kelas:</b> <span id="cert-kelas-siswa"></span></div>
+        <div><b>Asal Sekolah:</b> <span id="cert-sekolah-siswa"></span></div>
+    </div>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-xs border border-slate-400">
@@ -452,32 +512,35 @@
                     </table>
                 </div>
 
-                <div class="p-3 bg-amber-50 rounded-lg border border-amber-200 space-y-1">
-                    <label class="block font-bold text-xs text-amber-900">💬 Catatan & Apresiasi Evaluasi Bimbel:</label>
-                    <textarea id="cert-catatan" rows="2" class="w-full text-xs p-2 rounded bg-white border border-amber-300 text-slate-700 font-medium focus:outline-none">Siswa menunjukkan perkembangan yang sangat baik dan aktif selama bimbingan belajar. Pertahankan prestasi!</textarea>
-                </div>
-
-                <div class="flex justify-between items-end pt-4 text-xs">
-                    <div class="text-center space-y-8">
-                        <p>Orang Tua / Wali Siswa</p>
-                        <p class="font-bold underline">( .................................... )</p>
-                    </div>
-                    <div class="text-center space-y-1 min-w-[200px]">
-                        <p id="cert-date-place">Jombang, 31 Juli 2026</p>
-                        <p class="font-bold">Kepala Lembaga SLC</p>
-                        
-                        <div class="relative w-48 h-20 mx-auto flex items-center justify-center my-1 overflow-visible">
-                            <div id="cert-stamp-container" class="absolute left-1 top-0 w-20 h-20 pointer-events-none z-10 flex items-center justify-center"></div>
-                            <div id="cert-sign-container" class="relative z-0 w-full h-full flex items-center justify-center font-serifHeader text-base font-black italic text-blue-600"></div>
-                        </div>
-
-                        <p class="font-bold underline">Management SLC World</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+                <!-- Bagian Catatan & Apresiasi Otomatis -->
+<div class="mt-4 p-3 bg-amber-50/70 border border-amber-200 rounded-lg w-full">
+    <div class="flex items-center gap-1.5 text-xs font-semibold text-amber-900 mb-1">
+        <span>💬</span>
+        <span>Catatan & Apresiasi Evaluasi Bimbel (Rata-rata: <span id="cert-avg-score">0</span> | KKM: 75):</span>
     </div>
+    <div id="cert-auto-note" class="text-xs text-slate-700 leading-relaxed italic bg-white/60 p-2 rounded border border-amber-100">
+        <!-- Catatan terisi otomatis -->
+    </div>
+</div>
+                <!-- Kontainer Tanda Tangan & Tanggal (Sejajar Sempurna) -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 45px; width: 100%; font-size: 13px;">
+        
+        <!-- Bagian Kiri: Orang Tua / Wali Siswa -->
+        <div style="text-align: center; width: 40%;">
+            <!-- Spasi kosong pengimbang baris tanggal di kanan -->
+            <div style="visibility: hidden; margin-bottom: 4px;">&nbsp;</div>
+            <div style="margin-bottom: 75px;">Orang Tua / Wali Siswa</div>
+            <div>( ....................................................... )</div>
+        </div>
 
+        <!-- Bagian Kanan: Tanggal & Kepala Lembaga -->
+        <div style="text-align: center; width: 40%;">
+            <div id="tanggal-terbit" style="margin-bottom: 4px;">Jombang, 15 Agustus 2026</div>
+            <div style="font-weight: bold; margin-bottom: 75px;">Kepala Lembaga SLC</div>
+            <div style="font-weight: 500;">Management SLC World</div>
+        </div>
+
+    </div>
     <!-- MODAL INPUT / EDIT PEMBELAJARAN & GAME -->
     <div id="modal-tambah-soal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="glow-card max-w-lg w-full p-6 space-y-4 bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-slate-700">
@@ -572,7 +635,18 @@
         const SUPABASE_ANON_KEY = 'sb_publishable_M6eU4z56rBzvllh9AheItg_gV7sCJ6d';
         
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Cek sesi aktif Supabase saat halaman dimuat/refresh agar tidak kembali ke login
+supabaseClient.auth.getSession().then(({ data: { session } }) => {
+    if (session) {
+        currentUser = session.user;
+    }
+});
 
+supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (session) {
+        currentUser = session.user;
+    }
+});
         /* --- ENGINE BACKGROUND ANIMASI CANVAS 3D INTERAKTIF --- */
         (function init3dCanvas() {
             const canvas = document.getElementById('canvas-3d-bg');
@@ -723,40 +797,32 @@
             }
         }
 
-        async function saveConfig(cfg) {
-            try {
-                const payload = {
-                    id: 1,
-                    app_name: cfg.appName,
-                    school_name: cfg.schoolName,
-                    address: cfg.address,
-                    slogan: cfg.slogan,
-                    logo_url: cfg.logoUrl,
-                    signature_url: cfg.signatureUrl,
-                    stamp_url: cfg.stampUrl,
-                    glow_color: cfg.glowColor,
-                    theme_overall: cfg.themeOverall,
-                    time_zone: cfg.timeZone,
-                    paper_size: cfg.paperSize,
-                    orientation: cfg.orientation,
-                    pdf_margin: cfg.pdfMargin
-                };
-                await supabaseClient.from('slc_config').upsert(payload);
-            } catch (e) {
-                console.error("Gagal menyimpan config ke Supabase", e);
-            }
-        }
 async function saveConfig(cfg) {
     try {
         const payload = {
             id: 1,
-            // ... (kode bawaan Anda yang lain)
+            app_name: cfg.appName,
+            school_name: cfg.schoolName,
+            address: cfg.address,
+            slogan: cfg.slogan,
+            logo_url: cfg.logoUrl,
+            signature_url: cfg.signatureUrl,
+            stamp_url: cfg.stampUrl,
+            glow_color: cfg.glowColor,
+            theme_overall: cfg.themeOverall,
+            time_zone: cfg.timeZone,
+            paper_size: cfg.paperSize,
+            orientation: cfg.orientation,
+            pdf_margin: cfg.pdfMargin
         };
+        
         await supabaseClient.from('slc_config').upsert(payload);
+        alert("Pengaturan berhasil disimpan!");
     } catch (e) {
         console.error("Gagal menyimpan config ke Supabase", e);
+        alert("Terjadi kesalahan saat menyimpan pengaturan.");
     }
-} // <-- TUTUP FUNGSI SAVECONFIG DI SINI
+}
 
 // TEMPEL FUNGSI DOWNLOAD SERTIFIKAT DI BARIS KOSONG DI BAWAH INI:
 async function unduhPDFSertifikat() {
@@ -766,33 +832,97 @@ async function unduhPDFSertifikat() {
         return;
     }
 
-    // Mengambil nilai langsung dari elemen form
+    // 1. UPDATE TANGGAL OTOMATIS BERDASARKAN ID
+    const tanggalEl = document.getElementById('tanggal-terbit');
+    if (tanggalEl) {
+        const today = new Date();
+        const formattedDate = "Jombang, " + today.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        tanggalEl.innerText = formattedDate;
+    }
+
+    // 2. Ambil nama siswa secara akurat untuk nama file PDF
+    let namaSiswa = "Sertifikat_Siswa";
+    let foundName = "";
+    
+    const allInputs = document.querySelectorAll('input[type="text"]');
+    allInputs.forEach(inp => {
+        const idName = (inp.id || "").toLowerCase();
+        const nameAttr = (inp.name || "").toLowerCase();
+        if ((idName.includes('nama') || nameAttr.includes('nama')) && 
+            !idName.includes('lembaga') && !idName.includes('sekolah') && 
+            !nameAttr.includes('lembaga') && !nameAttr.includes('sekolah')) {
+            if (inp.value && inp.value.trim() !== "") {
+                foundName = inp.value.trim();
+            }
+        }
+    });
+
+    if (!foundName) {
+        const nameEl = element.querySelector('.nama-siswa, [id*="nama"]');
+        if (nameEl) foundName = nameEl.innerText.trim();
+    }
+
+    if (foundName) {
+        namaSiswa = foundName.replace(/[^a-zA-Z0-9\s]/g, '').trim().replace(/\s+/g, '_');
+    }
+
+    // 3. Ambil nilai pengaturan form
     const paperSizeEl = document.getElementById('cfg-papersize');
     const orientationEl = document.getElementById('cfg-orientation');
     const pdfMarginEl = document.getElementById('cfg-pdfmargin');
 
     const paperSize = paperSizeEl ? paperSizeEl.value : 'a4';
     const orientation = orientationEl ? orientationEl.value : 'portrait';
-    const pdfMargin = pdfMarginEl ? parseFloat(pdfMarginEl.value) : 13;
+    const baseMargin = pdfMarginEl ? parseFloat(pdfMarginEl.value) : 10;
 
-    console.log("Mencetak dengan:", { paperSize, orientation, pdfMargin });
+    // 4. Terapkan latar belakang putih bersih sementara
+    element.classList.remove('bg-gradient-to-br', 'from-purple-50/50', 'via-white', 'to-amber-50/30');
+    element.style.backgroundColor = '#ffffff';
+
+    const customMargin = [baseMargin, baseMargin + 6, baseMargin, baseMargin];
 
     const opt = {
-        margin:       pdfMargin,
-        filename:     'Sertifikat-SLC.pdf',
+        margin:       customMargin,
+        filename:     `${namaSiswa}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 1, useCORS: true },
+        html2canvas:  { 
+            scale: 2, 
+            useCORS: true, 
+            letterRendering: true,
+            windowWidth: element.scrollWidth + 40 
+        },
         jsPDF:        { unit: 'mm', format: paperSize, orientation: orientation }
     };
 
-    try {
-        await html2pdf().from(element).set(opt).save();
-    } catch (err) {
-        console.error("Gagal mendownload PDF:", err);
-        alert("Gagal mendownload sertifikat.");
-    }
-}
+    setTimeout(() => {
+        html2canvas(element, opt.html2canvas).then(canvas => {
+            const imgData = canvas.toDataURL('image/jpeg', 0.98);
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF(orientation, 'mm', paperSize);
+            
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const imgWidth = pdfWidth - (customMargin[1] + customMargin[3]);
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            
+            pdf.addImage(imgData, 'JPEG', customMargin[3], customMargin[0], imgWidth, imgHeight);
+            pdf.save(`${namaSiswa}.pdf`);
 
+            location.reload();
+        }).catch(err => {
+            console.error("Gagal mendownload PDF:", err);
+            alert("Gagal mendownload sertifikat.");
+            location.reload();
+        });
+    }, 300);
+}
+// Skrip agar tanggal langsung otomatis hari ini saat halaman dibuka
+document.addEventListener("DOMContentLoaded", function() {
+    const tanggalEl = document.getElementById('tanggal-terbit');
+    if (tanggalEl) {
+        const today = new Date();
+        tanggalEl.innerText = "Jombang, " + today.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+});
 function getDirectImageUrl(url) {
     if (!url) return '';
     if (url.includes('drive.google.com')) {
@@ -810,7 +940,7 @@ function getDirectImageUrl(url) {
     const logoFrame = document.getElementById('sertifikat-logo-frame');
     if (logoInput && logoFrame && logoInput.value) {
         const directUrl = getDirectImageUrl(logoInput.value);
-        logoFrame.innerHTML = `<img src="${directUrl}" alt="Logo" class="w-full h-full object-cover rounded-xl">`;
+        logoFrame.innerHTML = `<div class="w-full h-full flex items-center justify-center overflow-hidden"><img src="${directUrl}" alt="Logo" class="logo-img w-full h-full object-contain rounded-full"></div>`;
     }
             initModalOptions();
         });
@@ -850,12 +980,19 @@ function getDirectImageUrl(url) {
 
             document.getElementById('app-name-header').textContent = `${cfg.appName} - ${cfg.schoolName}`;
             document.getElementById('slogan-header').textContent = cfg.slogan ? `"${cfg.slogan}"` : '';
-            document.getElementById('pdf-school-name').textContent = cfg.schoolName;
-            document.getElementById('pdf-slogan').textContent = cfg.slogan;
-            document.getElementById('pdf-address').textContent = cfg.address;
-            document.getElementById('cert-school-name').textContent = cfg.schoolName;
-            document.getElementById('cert-slogan').textContent = cfg.slogan;
-            document.getElementById('cert-address').textContent = cfg.address;
+            const pdfSchoolName = document.getElementById('pdf-school-name');
+        if (pdfSchoolName) pdfSchoolName.textContent = cfg.schoolName;
+        const pdfSlogan = document.getElementById('pdf-slogan');
+        if (pdfSlogan) pdfSlogan.textContent = cfg.slogan;
+        const pdfAddress = document.getElementById('pdf-address');
+        if (pdfAddress) pdfAddress.textContent = cfg.address;
+        
+        const certSchoolName = document.getElementById('cert-school-name');
+        if (certSchoolName) certSchoolName.textContent = cfg.schoolName;
+        const certSlogan = document.getElementById('cert-school-slogan');
+        if (certSlogan) certSlogan.textContent = cfg.slogan;
+        const certAddress = document.getElementById('cert-school-address');
+        if (certAddress) certAddress.textContent = cfg.address;
 
             if (cfg.glowColor) {
                 document.documentElement.style.setProperty('--glow-border', cfg.glowColor);
@@ -868,17 +1005,17 @@ function getDirectImageUrl(url) {
             }
 
             if (cfg.logoUrl) {
-                const imgTag = `<img src="${cfg.logoUrl}" class="w-full h-full object-cover">`;
-                document.getElementById('login-logo-frame').innerHTML = imgTag;
-                document.getElementById('header-logo-frame').innerHTML = imgTag;
-                document.getElementById('pdf-logo-frame').innerHTML = imgTag;
-                document.getElementById('sertifikat-logo-frame').innerHTML = imgTag;
-            } else {
-                document.getElementById('login-logo-frame').innerHTML = '<span id="login-logo-text">SLC</span>';
-                document.getElementById('header-logo-frame').innerHTML = '<span id="header-logo-text">SLC</span>';
-                document.getElementById('pdf-logo-frame').innerHTML = 'SLC';
-                document.getElementById('sertifikat-logo-frame').innerHTML = 'SLC';
-            }
+            const imgTag = `<img src="${cfg.logoUrl}" class="w-full h-full object-cover">`;
+            document.getElementById('login-logo-frame').innerHTML = imgTag;
+            document.getElementById('header-logo-frame').innerHTML = imgTag;
+            document.getElementById('pdf-logo-frame').innerHTML = imgTag;
+            document.getElementById('cert-logo-frame').innerHTML = imgTag;
+        } else {
+            document.getElementById('login-logo-frame').innerHTML = '<span id="login-logo-text">SLC</span>';
+            document.getElementById('header-logo-frame').innerHTML = '<span id="header-logo-text">SLC</span>';
+            document.getElementById('pdf-logo-frame').innerHTML = 'SLC';
+            document.getElementById('cert-logo-frame').innerHTML = 'SLC';
+        }
 
             const stampContainer = document.getElementById('cert-stamp-container');
             const signContainer = document.getElementById('cert-sign-container');
@@ -1005,7 +1142,38 @@ function getDirectImageUrl(url) {
             }
             renderView(menuId);
         }
+async function saveConfigAdmin(e) {
+    if (e && typeof e.preventDefault === 'function') {
+        e.preventDefault();
+    }
+    
+    const cfg = {
+        appName: document.getElementById('cfg-app-name') ? document.getElementById('cfg-app-name').value.trim() : '',
+        schoolName: document.getElementById('cfg-school-name') ? document.getElementById('cfg-school-name').value.trim() : '',
+        slogan: document.getElementById('cfg-slogan') ? document.getElementById('cfg-slogan').value.trim() : '',
+        timeZone: document.getElementById('cfg-timezone') ? document.getElementById('cfg-timezone').value : 'WIB',
+        logoUrl: document.getElementById('cfg-logourl') ? document.getElementById('cfg-logourl').value.trim() : '',
+        glowColor: document.getElementById('cfg-glowcolor') ? document.getElementById('cfg-glowcolor').value : '#3b82f6',
+        signatureUrl: document.getElementById('cfg-sigurl') ? document.getElementById('cfg-sigurl').value.trim() : (document.getElementById('cfg-signatureurl') ? document.getElementById('cfg-signatureurl').value.trim() : ''),
+        stampUrl: document.getElementById('cfg-stampurl') ? document.getElementById('cfg-stampurl').value.trim() : '',
+        themeOverall: document.getElementById('cfg-themeoverall') ? document.getElementById('cfg-themeoverall').value : '',
+        address: document.getElementById('cfg-address') ? document.getElementById('cfg-address').value.trim() : '',
+        paperSize: document.getElementById('cfg-papersize') ? document.getElementById('cfg-papersize').value : 'a4',
+        orientation: document.getElementById('cfg-orientation') ? document.getElementById('cfg-orientation').value : 'portrait',
+        pdfMargin: document.getElementById('cfg-pdfmargin') ? document.getElementById('cfg-pdfmargin').value : '10'
+    };
 
+    try {
+        await saveConfig(cfg);
+        if (typeof applyConfigToUI === 'function') {
+            applyConfigToUI(cfg);
+        }
+        alert('Pengaturan berhasil disimpan!');
+    } catch (err) {
+        console.error("Gagal menyimpan:", err);
+        alert('Gagal menyimpan pengaturan.');
+    }
+}
         async function renderView(menuId) {
             const titleEl = document.getElementById('dynamic-title');
             const actionsEl = document.getElementById('dynamic-actions');
@@ -1088,7 +1256,8 @@ function getDirectImageUrl(url) {
     } else {
         const { data: nilaiList } = await supabaseClient.from('slc_nilai').select('*').eq('id_siswa', selectedSiswaAdmin.id);
         const listNilaiSiswa = nilaiList || [];
-                    bodyEl.innerHTML = htmlHeaderPilihan + `
+                   
+        bodyEl.innerHTML = htmlHeaderPilihan + `
                         <div class="p-4 rounded-2xl bg-blue-50/50 dark:bg-slate-800/80 border border-blue-200 dark:border-slate-700 flex flex-wrap justify-between items-center gap-3 text-xs">
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1">
                                 <div><span class="text-slate-500 block font-semibold">Nama Lengkap</span><span class="font-bold text-slate-800 dark:text-slate-100 text-sm">${selectedSiswaAdmin.nama}</span></div>
@@ -1097,7 +1266,7 @@ function getDirectImageUrl(url) {
                             </div>
                             <div>
                                 <button onclick="bukaRaporSertifikat('${selectedSiswaAdmin.id}')" class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow flex items-center gap-1.5 transition">
-                                    📜 Cetak Rapor Sertifikat
+                                    📜 Cetak Rapor
                                 </button>
                             </div>
                         </div>
@@ -1137,10 +1306,11 @@ function getDirectImageUrl(url) {
                             </table>
                         </div>
                     `;
-                }
-            }
-            else if (menuId === 'absensi_admin') {
-    titleEl.textContent = '📋 Rekapitulasi Presensi Kehadiran Siswa (Admin)';
+    }
+
+    hitungRataRataDanCatatan(listNilaiSiswa);
+
+} else if (menuId === 'absensi_admin') {
     
     actionsEl.innerHTML = `
         <div class="flex gap-2">
@@ -1343,13 +1513,11 @@ function getDirectImageUrl(url) {
     </div>
 </div>                        
                         <div class="flex flex-wrap items-center gap-3 pt-2">
-                            <form onsubmit="simpanPengaturanKeSupabase(event)" class="space-y-4">
-    <!-- Elemen input margin/kertas Anda sudah ada di atasnya -->
-    
-    <div class="flex flex-wrap items-center gap-3 pt-2">
-        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 rounded-xl shadow-lg transition">Simpan Pengaturan</button>
-    </div>
-</form>
+                            <div class="flex flex-wrap items-center gap-3 pt-2">
+    <button type="button" onclick="saveConfigAdmin(event)" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 rounded-xl shadow-lg transition-all">
+        Simpan Pengaturan
+    </button>
+</div>
                 `;
             }
             else if (menuId === 'absensi_siswa') {
@@ -1420,7 +1588,7 @@ function getDirectImageUrl(url) {
             }
             else if (menuId === 'hasil_belajar_siswa') {
                 titleEl.textContent = '🏆 Capaian & Hasil Belajar Mandiri';
-                actionsEl.innerHTML = `<button onclick="bukaRaporSertifikat('${currentUser.id}')" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs shadow flex items-center gap-1">📜 Rapor Versi Sertifikat</button>`;
+                actionsEl.innerHTML = `<button onclick="bukaRaporSertifikat('${currentUser.id}')" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs shadow flex items-center gap-1">📜 Cetak Rapor</button>`;
 
                 const myNilai = nilaiList.filter(n => n.id_siswa === currentUser.id);
                 bodyEl.innerHTML = `
@@ -1434,7 +1602,7 @@ function getDirectImageUrl(url) {
                             <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                                 ${myNilai.length === 0 ? `<tr><td colspan="5" class="p-4 text-center text-slate-400 italic">Belum ada hasil belajar. Nilai hanya dapat diinput oleh Admin Bimbel.</td></tr>` : myNilai.map(n => `
                                     <tr>
-                                        <td class="p-2 font-semibold text-slate-700 dark:text-slate-300">${n.nama}</td>
+                                        <td class="p-2 font-semibold text-slate-700 dark:text-slate-300">${currentUser.nama || n.nama}</td>
                                         <td class="p-2 font-bold text-blue-600 dark:text-blue-400">${n.mapel}</td>
                                         <td class="p-2 font-semibold">${n.bab}</td>
                                         <td class="p-2"><span class="bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded font-bold text-[10px]">${n.capaian || 'Tuntas'}</span></td>
@@ -1445,6 +1613,7 @@ function getDirectImageUrl(url) {
                         </table>
                     </div>
                 `;
+            hitungRataRataDanCatatan(myNilai);
             }
         }
 
@@ -1760,12 +1929,16 @@ function getDirectImageUrl(url) {
 
       async function simpanPengaturan() {
     try {
-        // Membaca nilai dari ID form yang sesuai dengan HTML Anda
+        // Membaca nilai dari ID form pengaturan
         const configData = {
             id: 1,
             paper_size: document.getElementById('cfg-papersize')?.value || 'a4',
             orientation: document.getElementById('cfg-orientation')?.value || 'portrait',
-            pdf_margin: document.getElementById('cfg-pdfmargin')?.value || '10'
+            pdf_margin: document.getElementById('cfg-pdfmargin')?.value || '10',
+            address: document.getElementById('cfg-address')?.value || '',
+            logo_url: document.getElementById('cfg-logourl')?.value || '',
+            signature_url: document.getElementById('cfg-signatureurl')?.value || '',
+            stamp_url: document.getElementById('cfg-stampurl')?.value || ''
         };
 
         // Menyimpan permanen ke tabel slc_config di Supabase
@@ -1773,18 +1946,13 @@ function getDirectImageUrl(url) {
             .from('slc_config')
             .upsert(configData);
 
-        if (error) {
-            throw error;
-        }
+        if (error) throw error;
 
-        alert("Pengaturan berhasil disimpan permanen!");
-        
-        // Muat ulang konfigurasi
-        await getConfig();
-
+        alert('Pengaturan berhasil disimpan!');
+        location.reload();
     } catch (err) {
-        console.error("Gagal menyimpan pengaturan:", err);
-        alert("Gagal menyimpan pengaturan: " + err.message);
+        console.error('Gagal menyimpan pengaturan:', err);
+        alert('Gagal menyimpan pengaturan. Silakan coba lagi.');
     }
 }
 
@@ -2160,27 +2328,33 @@ async function prosesValidasiAbsensiSiswa() {
             renderView('pengaturan_admin');
         }
 
-        async function saveConfigAdmin(e) {
-            e.preventDefault();
-            const cfg = {
-                appName: document.getElementById('cfg-app-name').value.trim(),
-                schoolName: document.getElementById('cfg-school-name').value.trim(),
-                slogan: document.getElementById('cfg-slogan').value.trim(),
-                timeZone: document.getElementById('cfg-timezone').value,
-                logoUrl: document.getElementById('cfg-logourl').value.trim(),
-                glowColor: document.getElementById('cfg-glowcolor').value,
-                signatureUrl: document.getElementById('cfg-sigurl').value.trim(),
-                stampUrl: document.getElementById('cfg-stampurl').value.trim(),
-                themeOverall: document.getElementById('cfg-themeoverall').value,
-                address: document.getElementById('cfg-address').value.trim(),
-                paperSize: document.getElementById('cfg-papersize').value,
-                orientation: document.getElementById('cfg-orientation').value,
-                pdfMargin: document.getElementById('cfg-pdfmargin').value
-            };
-            await saveConfig(cfg);
-            await applyConfigToUI();
-            alert('Pengaturan berhasil disimpan!');
-        }
+        async function saveConfig(cfg) {
+    try {
+        const payload = {
+            id: 1,
+            app_name: cfg.appName || cfg.app_name || '',
+            school_name: cfg.schoolName || cfg.school_name || '',
+            address: cfg.address || '',
+            slogan: cfg.slogan || '',
+            logo_url: cfg.logoUrl || cfg.logo_url || '',
+            signature_url: cfg.signatureUrl || cfg.sigUrl || cfg.signature_url || '',
+            stamp_url: cfg.stampUrl || cfg.stamp_url || '',
+            glow_color: cfg.glowColor || cfg.glow_color || '#3b82f6',
+            theme_overall: cfg.themeOverall || cfg.theme_overall || '',
+            time_zone: cfg.timeZone || cfg.time_zone || 'WIB',
+            paper_size: cfg.paperSize || cfg.paper_size || 'a4',
+            orientation: cfg.orientation || 'portrait',
+            pdf_margin: cfg.pdfMargin || cfg.pdf_margin || '10'
+        };
+        
+        const { error } = await supabaseClient.from('slc_config').upsert(payload);
+        if (error) throw error;
+        
+    } catch (e) {
+        console.error("Gagal menyimpan config ke Supabase", e);
+        throw e;
+    }
+}
 
         async function renderGameLevelsSiswa() {
     const mapel = document.getElementById('siswa-pilih-mapel').value;
@@ -2359,55 +2533,63 @@ async function loadSavedConfig() {
             .eq('id', 1)
             .single();
 
+        if (error) {
+            console.error("Gagal memuat config:", error.message);
+            return;
+        }
+
         if (data) {
-            const paperEl = document.getElementById('cfg-papersize');
-            const orientEl = document.getElementById('cfg-orientation');
-            const marginEl = document.getElementById('cfg-pdfmargin');
+            // Masukkan data ke form pengaturan
+            if (document.getElementById('cfg-app-name')) document.getElementById('cfg-app-name').value = data.app_name || '';
+            if (document.getElementById('cfg-school-name')) document.getElementById('cfg-school-name').value = data.school_name || '';
+            if (document.getElementById('cfg-slogan')) document.getElementById('cfg-slogan').value = data.slogan || '';
+            if (document.getElementById('cfg-timezone')) document.getElementById('cfg-timezone').value = data.time_zone || '';
+            if (document.getElementById('cfg-logourl')) document.getElementById('cfg-logourl').value = data.logo_url || '';
+            if (document.getElementById('cfg-glowcolor')) document.getElementById('cfg-glowcolor').value = data.glow_color || '#3b82f6';
+            if (document.getElementById('cfg-sigurl')) document.getElementById('cfg-sigurl').value = data.signature_url || '';
+            if (document.getElementById('cfg-signatureurl')) document.getElementById('cfg-signatureurl').value = data.signature_url || '';
+            if (document.getElementById('cfg-stampurl')) document.getElementById('cfg-stampurl').value = data.stamp_url || '';
+            if (document.getElementById('cfg-themeoverall')) document.getElementById('cfg-themeoverall').value = data.theme_overall || '';
+            if (document.getElementById('cfg-address')) document.getElementById('cfg-address').value = data.address || '';
+            if (document.getElementById('cfg-papersize')) document.getElementById('cfg-papersize').value = data.paper_size || 'a4';
+            if (document.getElementById('cfg-orientation')) document.getElementById('cfg-orientation').value = data.orientation || 'portrait';
+            if (document.getElementById('cfg-pdfmargin')) document.getElementById('cfg-pdfmargin').value = data.pdf_margin || '10';
 
-            if (paperEl) paperEl.value = data.paper_size || 'a4';
-            if (orientEl) orientEl.value = data.orientation || 'portrait';
-            if (marginEl) marginEl.value = data.pdf_margin || '10';
-
-            console.log("Konfigurasi berhasil dimuat ke form:", data);
+            // Terapkan Logo secara otomatis ke Header & Halaman Login jika ada fungsi terkait
+            if (typeof applyConfigToUI === 'function') {
+                applyConfigToUI(data);
+            }
         }
     } catch (err) {
-        console.log("Belum ada data konfigurasi tersimpan.");
+        console.error("Gagal memuat konfigurasi:", err);
     }
 }
+function hitungRataRataDanCatatan(scores) {
+    let totalScore = 0;
+    let listScores = scores || [];
+    
+    listScores.forEach(item => {
+        totalScore += Number(item.nilai || item.score) || 0;
+    });
 
-// 3. Fungsi untuk menyimpan perubahan ke Supabase & localStorage
-async function saveConfig(event) {
-    if (event && typeof event.preventDefault === 'function') {
-        event.preventDefault();
+    let avgScore = listScores.length > 0 ? Math.round(totalScore / listScores.length) : 0;
+    
+    const avgEl = document.getElementById('cert-avg-score');
+    if (avgEl) avgEl.innerText = avgScore;
+
+    const noteEl = document.getElementById('cert-auto-note');
+    let kkm = 75;
+    let text = "";
+
+    if (avgScore >= 85) {
+        text = `Luar biasa! Siswa menunjukkan pemahaman yang sangat mendalam dan konsisten di atas KKM (${kkm}). Pertahankan prestasi cemerlang ini dan teruslah tingkatkan semangat belajar!`;
+    } else if (avgScore >= kkm) {
+        text = `Sangat baik! Siswa telah tuntas dan melampaui Standar KKM (${kkm}) dengan hasil yang memuaskan. Pertahankan kedisiplinan dan fokus belajar ke depannya!`;
+    } else {
+        text = `Siswa telah berusaha dengan baik dalam proses bimbingan. Mari tingkatkan kembali frekuensi latihan agar pada evaluasi berikutnya dapat melampaui KKM (${kkm}) dengan lebih baik lagi. Semangat!`;
     }
 
-    const paperSize = document.getElementById('cfg-papersize') ? document.getElementById('cfg-papersize').value : 'a4';
-    const orientation = document.getElementById('cfg-orientation') ? document.getElementById('cfg-orientation').value : 'portrait';
-    const pdfMargin = document.getElementById('cfg-pdfmargin') ? document.getElementById('cfg-pdfmargin').value : '10';
-
-    // Simpan ke localStorage browser
-    localStorage.setItem('slc_paper_size', paperSize);
-    localStorage.setItem('slc_orientation', orientation);
-    localStorage.setItem('slc_pdf_margin', pdfMargin);
-
-    try {
-        const { error } = await supabaseClient
-            .from('slc_config')
-            .upsert({
-                id: 1,
-                paper_size: paperSize,
-                orientation: orientation,
-                pdf_margin: pdfMargin
-            });
-
-        if (error) {
-            console.error("Gagal ke database:", error.message);
-        }
-    } catch (e) {
-        console.error("Kesalahan jaringan:", e);
-    }
-
-    alert("Pengaturan berhasil disimpan dan diterapkan!");
+    if (noteEl) noteEl.innerText = text;
 }
     </script>
 </body>
