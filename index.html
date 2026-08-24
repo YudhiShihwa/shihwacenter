@@ -1067,25 +1067,13 @@ function getDirectImageUrl(url) {
     }
     return url;
 }
-        // Tambahkan kode ini di dalam <script> file index 3.html Anda
-document.addEventListener('DOMContentLoaded', () => {
+       document.addEventListener('DOMContentLoaded', () => {
     const logoRaporInput = document.getElementById('cfg-logourl');
-
     if (logoRaporInput) {
-        // 1. Saat halaman dimuat, cek apakah ada cache tersimpan, jika ada masukkan ke kotak input
-        const savedLogo = localStorage.getItem('shihwa_logo_rapor_permanent');
-        if (savedLogo) {
-            logoRaporInput.value = savedLogo;
-        }
-
-        // 2. Setiap kali user mengetik/menempel link, langsung simpan secara permanen ke localStorage
-        logoRaporInput.addEventListener('input', function() {
-            localStorage.setItem('shihwa_logo_rapor_permanent', this.value);
-        });
-
-        // 3. Juga tangkap event 'change' atau 'blur' untuk memastikan
-        logoRaporInput.addEventListener('change', function() {
-            localStorage.setItem('shihwa_logo_rapor_permanent', this.value);
+        logoRaporInput.addEventListener('input', (e) => {
+            const val = e.target.value;
+            // Kirim langsung ke tabel slc_config kolom logo_rapor_url di Supabase
+            updateSettingsInSupabase('logo_rapor_url', val);
         });
     }
 });
