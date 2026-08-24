@@ -906,28 +906,29 @@ function init3dCanvas() {
         };
 
         async function getConfig() {
-            try {
-                const { data, error } = await supabaseClient.from('slc_config').select('*').single();
-                if (error || !data) return defaultConfig;
-                return {
-                    appName: data.app_name || defaultConfig.appName,
-                    schoolName: data.school_name || defaultConfig.schoolName,
-                    address: data.address || defaultConfig.address,
-                    slogan: data.slogan || defaultConfig.slogan,
-                    logoUrl: data.logo_url || '',
-                    signatureUrl: data.signature_url || '',
-                    stampUrl: data.stamp_url || '',
-                    glowColor: data.glow_color || defaultConfig.glowColor,
-                    themeOverall: data.theme_overall || defaultConfig.themeOverall,
-                    timeZone: data.time_zone || defaultConfig.timeZone,
-                    paperSize: data.paper_size || defaultConfig.paperSize,
-                    orientation: data.orientation || defaultConfig.orientation,
-                    pdfMargin: data.pdf_margin || defaultConfig.pdfMargin
-                };
-            } catch (e) {
-                return defaultConfig;
-            }
-        }
+    try {
+        const { data, error } = await supabaseClient.from('slc_config').select('*').single();
+        if (error || !data) return defaultConfig;
+        return {
+            appName: data.app_name || defaultConfig.appName,
+            schoolName: data.school_name || defaultConfig.schoolName,
+            address: data.address || defaultConfig.address,
+            slogan: data.slogan || defaultConfig.slogan,
+            logoUrl: data.logo_url || '',
+            logoRaporUrl: data.logo_rapor_url || '', // <--- PASTIKAN BARIS INI ADA
+            signatureUrl: data.signature_url || '',
+            stampUrl: data.stamp_url || '',
+            glowColor: data.glow_color || defaultConfig.glowColor,
+            themeOverall: data.theme_overall || defaultConfig.themeOverall,
+            timeZone: data.time_zone || defaultConfig.timeZone,
+            paperSize: data.paper_size || defaultConfig.paperSize,
+            orientation: data.orientation || defaultConfig.orientation,
+            pdfMargin: data.pdf_margin || defaultConfig.pdfMargin
+        };
+    } catch (e) {
+        return defaultConfig;
+    }
+}
 
 async function saveConfig(cfg) {
     try {
@@ -2894,27 +2895,21 @@ if (canvas3D) {
 
     renderMoleculeBG();
 }
-// --- SOLUSI TUNTAS LOGO RAPOR ---
+// --- SOLUSI TUNTAS LOGO RAPOR KE SUPABASE ---
 document.addEventListener('DOMContentLoaded', () => {
     const inputLogoRapor = document.getElementById('cfg-logourl');
     const certLogoFrame = document.getElementById('cert-logo-frame');
 
-    // 1. Saat halaman dimuat, langsung pasang data dari memori browser (localStorage)
-    const savedLogo = localStorage.getItem('shihwa_logo_rapor_fix');
-    if (savedLogo) {
-        if (inputLogoRapor) inputLogoRapor.value = savedLogo;
-        if (certLogoFrame) {
-            certLogoFrame.innerHTML = `<img src="${savedLogo}" class="w-full h-full object-contain" crossorigin="anonymous">`;
-        }
-    }
-
-    // 2. Jika user mengetik/menempel link baru, simpan otomatis secara instan
+    // 1. Saat diketik/tempel link baru, simpan otomatis ke Supabase
     if (inputLogoRapor) {
         inputLogoRapor.addEventListener('input', (e) => {
-            const url = e.target.value.trim();
-            localStorage.setItem('shihwa_logo_rapor_fix', url);
-            if (certLogoFrame && url) {
-                certLogoFrame.innerHTML = `<img src="${url}" class="w-full h-full object-contain" crossorigin="anonymous">`;
+            const val = e.target.value;
+            // Panggil fungsi Supabase yang sudah terbukti ada di file Anda
+            updateSettingsInSupabase('logo_rapor_url', val);
+            
+            // Preview langsung di layar rapor/sertifikat
+            if (certLogoFrame) {
+                certLogoFrame.innerHTML = val ? `<img src="${val}" class="w-full h-full object-contain" crossorigin="anonymous">` : '';
             }
         });
     }
