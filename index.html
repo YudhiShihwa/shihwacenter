@@ -7,14 +7,12 @@
     <!-- Google Fonts & Tailwind CSS CDN -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@600;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-    /* 1. Sembunyikan ikon rusak atau gambar placeholder di sebelah logo */
-    #login-logo-frame img:not(:last-child), 
-    #header-logo-frame img:not(:last-child),
-    .flex > img[alt=""]:first-child {
-        display: none !important;
-    }
-        @media print {
-    /* ... aturan lainnya ... */
+    /* Hapus atau nonaktifkan baris di bawah ini agar logo rapor tidak tersembunyi */
+/*
+.flex > img[alt=""]:first-child {
+    display: none !important;
+}
+*/
     
     /* Perbarui aturan .logo-img dengan ukuran statis dan !important */
     .logo-img {
@@ -110,7 +108,16 @@ h1, h2, h3, .animated-title {
     background-clip: text !important;
     animation: textShine 5s linear infinite;
 }
-
+/* Kecualikan judul di dalam area rapor/sertifikat agar tetap normal & tidak gradasi */
+#certificate-render-area h1, 
+#certificate-render-area h2, 
+#certificate-render-area h3 {
+    background: none !important;
+    color: #000000 !important;
+    -webkit-background-clip: initial !important;
+    background-clip: initial !important;
+    animation: none !important;
+}
 @keyframes textShine {
     to { background-position: 300% center; }
 }
@@ -269,30 +276,26 @@ canvasElement.style.pointerEvents = 'none';
 // 1. MEMUAT TEMA KESELURUHAN & WARNA GLOW DARI SUPABASE
 async function loadAppSettingsFromSupabase() {
     try {
-        const { data, error } = await supabase
-            .from('slc_config')
-            .select('*')
-            .single(); // Ambil baris konfigurasi utama
-
+        const { data, error } = await supabase.from('slc_config').select('*').single();
         if (error) throw error;
-
-        if (data) {
-            // 1. Masukkan ke input teks di menu pengaturan (sesuaikan ID input Anda jika berbeda)
-            const inputLogoRapor = document.getElementById('input-logo-rapor-url');
-            if (inputLogoRapor) {
-                inputLogoRapor.value = data.logo_rapor_url || '';
+        
+        if (data && data.logo_url) {
+            // A. Masukkan ke kotak input pengaturan logo
+            const inputLogo = document.getElementById('cfg-logourl');
+            if (inputLogo) {
+                inputLogo.value = data.logo_url;
             }
 
-            // 2. Tampilkan logo di area rapor/preview secara dinamis
-            const logoImg = document.getElementById('logo-header-rapor');
-            if (logoImg && data.logo_rapor_url) {
-                logoImg.crossOrigin = "anonymous"; // Penting agar gambar dari i.ibb.co.id diizinkan canvas
-                logoImg.src = data.logo_rapor_url;
-                logoImg.style.display = 'block';
-            }
+            // B. Tampilkan otomatis ke SEMUA elemen logo di aplikasi (Login, Header, & Rapor)
+            const allLogoImages = document.querySelectorAll('#logo-header-rapor, .logo-app-target, .app-logo-preview');
+            allLogoImages.forEach(img => {
+                img.crossOrigin = "anonymous";
+                img.src = data.logo_url;
+                img.style.display = 'block';
+            });
         }
     } catch (err) {
-        console.error("Gagal memuat konfigurasi dari Supabase:", err);
+        console.error("Gagal memuat konfigurasi logo:", err);
     }
 }
 
@@ -342,33 +345,31 @@ async function updateSettingsInSupabase(columnName, value) {
 }
 
 // 5. EVENT LISTENER
-document.addEventListener('DOMContentLoaded', () => {
-    loadAppSettingsFromSupabase();
+// --- PEMUAT LOGO RAPOR OTOMATIS ---
+    const logoRaporEl = document.getElementById('logo-header-rapor');
+    const inputLogoRapor = document.getElementById('cfg-logourl');
 
-    // Listener Tema Keseluruhan
-    const themeSelect = document.getElementById('themeOverallSelect');
-    if (themeSelect) {
-        themeSelect.addEventListener('change', (e) => {
-            const val = e.target.value;
-            applyOverallTheme(val);
-            updateSettingsInSupabase('theme_overall', val);
-        });
+    // Ambil dari localStorage atau input
+    const savedLogo = localStorage.getItem('shihwa_logo_rapor_cache') || (inputLogoRapor ? inputLogoRapor.value : '');
+    if (logoRaporEl && savedLogo) {
+        logoRaporEl.crossOrigin = "anonymous";
+        logoRaporEl.src = savedLogo;
+        logoRaporEl.style.display = 'block';
     }
 
-    // Listener Warna Glow Neon Kotak (menggunakan kolom glow_color)
-    const glowInput = document.getElementById('glowColorInput');
-    if (glowInput) {
-        glowInput.addEventListener('input', (e) => {
-            const val = e.target.value;
-            applyGlowColor(val);
-            updateSettingsInSupabase('glow_color', val);
-        });
+    if (inputLogoRapor && savedLogo) {
+        inputLogoRapor.value = savedLogo;
     }
-    const logoRaporInput = document.getElementById('cfg-logourl');
-    if (logoRaporInput) {
-        logoRaporInput.addEventListener('input', (e) => {
+
+    if (inputLogoRapor) {
+        inputLogoRapor.addEventListener('input', (e) => {
             const val = e.target.value;
-            updateSettingsInSupabase('logo_rapor_url', val);
+            localStorage.setItem('shihwa_logo_rapor_cache', val);
+            if (logoRaporEl) {
+                logoRaporEl.crossOrigin = "anonymous";
+                logoRaporEl.src = val;
+                logoRaporEl.style.display = 'block';
+            }
         });
     }
 
@@ -640,36 +641,40 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button onclick="closeModalSertifikat()" class="text-slate-400 hover:text-rose-500 font-bold text-xl px-2">&times;</button>
                 </div>
             </div>
-
-            <div id="certificate-render-area" class="p-8 relative overflow-hidden" style="background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); border: 4px solid #312e81; border-radius: 16px; box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.08), 0 10px 25px rgba(49, 46, 129, 0.15);">
-        
-        <!-- Garis Bingkai Dalam Bergaya Cekungan Elegan -->
-        <div style="position: absolute; inset: 10px; border: 1.5px solid rgba(49, 46, 129, 0.2); border-radius: 12px; pointer-events: none;"></div>
-        <!-- Bagian Header Kop Rapor Siswa yang Diperbaiki -->
-<div class="flex items-center justify-between border-b-2 border-purple-900/30 pb-4 w-full">
-    
+<!-- AREA RENDER PDF (BINGKAI & SELURUH ISI RAPOR LENGKAP) -->
+        <div id="certificate-render-area" class="p-6 space-y-4 bg-white rounded-2xl border-2 border-indigo-900/30 shadow-sm"> 
+            <!-- Garis Bingkai Dalam Bergaya Cekungan Elegan (IKUT TERCETAK CANTIK) -->
+            <div style="position: absolute; inset: -5px; border: 1.5px solid rgba(49, 46, 129, 0.2); border-radius: 12px; pointer-events: none; z-index: 10;"></div>
+    <!-- KOP RAPOR -->
+    <div class="flex items-center justify-between border-b-2 border-indigo-900 pb-4 mb-4">
+              
     <!-- Logo di Kiri -->
-    <div style="width: 64px; height: 64px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">
-        <img id="logo-header-rapor" src="" crossorigin="anonymous" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-    </div>
-
+    <div style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; background-color: #ffffff; border: 2px solid #cbd5e1; border-radius: 50%; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); flex-shrink: 0; position: relative;">
+            <img id="logo-header-rapor" src="https://i.ibb.co.com/rfvfXtRx/LOGO-SLC-TENGAH-LINGKARAN.png" crossorigin="anonymous" style="max-width: 100%; max-height: 100%; object-fit: contain; display: block;" />
+        </div>
     <!-- Teks Lembaga di Tengah -->
-    <div class="text-center flex-1 px-4">
-        <h2 id="cert-school-name" class="font-bold text-lg text-purple-950 uppercase tracking-widest font-serif">SHIHWA LEARNING CENTER</h2>
-        <p id="cert-school-slogan" class="text-xs text-purple-800/80 italic">Homey and Enjoyable Learning</p>
-        <p id="cert-school-address" class="text-[11px] text-slate-500 mt-0.5">Dengan hati kami mengajari, Dengan Inspirasi kami memotivasi</p>
-    </div>
+    <div class="text-center flex-grow px-2">
+            <h1 style="color: #000000 !important;" class="text-xl md:text-2xl font-bold tracking-wide font-sans">
+                SHIHWA LEARNING CENTER
+            </h1>
+            <p class="text-xs italic text-slate-600 mt-0.5">Homey and Enjoyable Learning</p>
+            <p class="text-[11px] text-slate-500">Dengan hati kami mengajari, dengan inspirasi kami memotivasi</p>
+        </div>
 
     <!-- Hiasan Piala di Kanan -->
-    <div class="w-16 text-right flex-shrink-0 flex items-center justify-end">
+   <div class="w-16 text-right flex-shrink-0 flex items-center justify-end">
         <span class="text-3xl">🏆</span>
     </div>
 </div>
 <!-- Judul Sertifikat -->
-        <div class="text-center space-y-1.5 my-2 w-full">
-            <h3 class="font-extrabold text-2xl text-purple-900 tracking-wider uppercase font-serif">RAPOR HASIL BELAJAR</h3>
-            <p class="text-[11px] text-purple-700 font-mono tracking-wide" style="margin-bottom: 20px; display: block;">No. Dokumen: <span id="cert-doc-id"></span></p>
-        </div>
+        <div style="background-color: #ffffff !important; padding: 10px; text-align: center; border-bottom: none !important; margin-bottom: 15px;">
+    <h2 style="color: #000000 !important; font-size: 18px; font-weight: bold; text-transform: uppercase; margin: 0;">
+        RAPOR HASIL BELAJAR
+    </h2>
+    <p style="color: #333333 !important; font-size: 11px; margin-top: 5px; margin-bottom: 0;">
+        No. Dokumen: <span id="cert-doc-id"></span>
+    </p>
+</div>
     <!-- Informasi Siswa -->
     <div class="grid grid-cols-2 gap-3 text-xs bg-purple-900/5 p-4 rounded-xl border border-purple-900/10 w-full">
         <div><b>Nama Siswa:</b> <span id="cert-nama-siswa"></span></div>
@@ -959,6 +964,13 @@ async function saveConfig(cfg) {
 
 // TEMPEL FUNGSI DOWNLOAD SERTIFIKAT DI BARIS KOSONG DI BAWAH INI:
 async function unduhPDFSertifikat() {
+    const raporLogo = document.getElementById('logo-header-rapor');
+    const inputLogo = document.getElementById('cfg-logourl');
+    if (raporLogo && inputLogo) {
+        raporLogo.crossOrigin = "anonymous";
+        raporLogo.src = inputLogo.value || '';
+    }
+
     const element = document.getElementById('certificate-render-area');
     if (!element) {
         alert("Area sertifikat tidak ditemukan!");
@@ -1006,27 +1018,25 @@ async function unduhPDFSertifikat() {
 
     const paperSize = paperSizeEl ? paperSizeEl.value : 'a4';
     const orientation = orientationEl ? orientationEl.value : 'portrait';
-    const baseMargin = pdfMarginEl ? parseFloat(pdfMarginEl.value) : 10;
+    const baseMargin = pdfMarginEl ? parseFloat(pdfMarginEl.value) : 5;
 
-    // 4. Terapkan latar belakang putih bersih sementara
-    element.classList.remove('bg-gradient-to-br', 'from-purple-50/50', 'via-white', 'to-amber-50/30');
-    element.style.backgroundColor = '#ffffff';
+    
+    const customMargin = [5, baseMargin + 1, baseMargin, baseMargin];
 
-    const customMargin = [baseMargin, baseMargin + 6, baseMargin, baseMargin];
-
-    const opt = {
-        margin: [30, 5, 10, 30], // [Atas, Kanan, Bawah, Kiri] -> Perbesar angka terakhir untuk menggeser ke kanan
-        filename: 'Rapor_Hasil_Belajar_Shihwa.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: {
-            scale: 2,
-            useCORS: true,
-            allowTaint: true,
-            letterRendering: true,
-            windowWidth: 794
-        },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
+    // Paksa langsung nilai margin atas menjadi 15 mm (1,5 cm)
+const opt = {
+  margin: [15, 10, 10, 10], // [Atas, Kanan, Bawah, Kiri] dalam milimeter
+  filename: 'Rapor_Hasil_Belajar_Shihwa.pdf',
+  image: { type: 'jpeg', quality: 0.98 },
+  html2canvas: { 
+    scale: 2, 
+    useCORS: true, 
+    allowTaint: true, 
+    letterRendering: true, 
+    windowWidth: 794 
+  },
+  jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+};
 
     setTimeout(() => {
         html2canvas(element, opt.html2canvas).then(canvas => {
@@ -1067,16 +1077,7 @@ function getDirectImageUrl(url) {
     }
     return url;
 }
-       document.addEventListener('DOMContentLoaded', () => {
-    const logoRaporInput = document.getElementById('cfg-logourl');
-    if (logoRaporInput) {
-        logoRaporInput.addEventListener('input', (e) => {
-            const val = e.target.value;
-            // Kirim langsung ke tabel slc_config kolom logo_rapor_url di Supabase
-            updateSettingsInSupabase('logo_rapor_url', val);
-        });
-    }
-});
+       
     async function saveLogoToDatabase(url) {
     const { data, error } = await supabase
         .from('configurations')
@@ -1607,7 +1608,7 @@ async function saveConfigAdmin(e) {
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-slate-700 mb-1">URL Logo Rapor</label>
-                                <input type="text" id="input-logo-rapor-url" value="${cfg.logo_rapor_url || ''}" class="w-full px-3 py-2 border rounded-lg text-xs" placeholder="https://...">
+                                <input type="text" id="input-logo-rapor-url" value="${cfg.logo_rapor_url || ''}" placeholder="https://..." class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-800 text-xs">
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold mb-1">URL Stempel Resmi Lembaga (PNG Transparan)</label>
@@ -2883,25 +2884,7 @@ if (canvas3D) {
 
     renderMoleculeBG();
 }
-// --- SOLUSI TUNTAS LOGO RAPOR KE SUPABASE ---
-document.addEventListener('DOMContentLoaded', () => {
-    const inputLogoRapor = document.getElementById('cfg-logourl');
-    const certLogoFrame = document.getElementById('cert-logo-frame');
 
-    // 1. Saat diketik/tempel link baru, simpan otomatis ke Supabase
-    if (inputLogoRapor) {
-        inputLogoRapor.addEventListener('input', (e) => {
-            const val = e.target.value;
-            // Panggil fungsi Supabase yang sudah terbukti ada di file Anda
-            updateSettingsInSupabase('logo_rapor_url', val);
-            
-            // Preview langsung di layar rapor/sertifikat
-            if (certLogoFrame) {
-                certLogoFrame.innerHTML = val ? `<img src="${val}" class="w-full h-full object-contain" crossorigin="anonymous">` : '';
-            }
-        });
-    }
-});
 </script>
 </body>
 </html>
