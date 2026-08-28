@@ -27,7 +27,20 @@
 }
         body, html { background-color: #ffffff !important; }
         #modal-rapor-sertifikat { background-color: #ffffff !important; backdrop-filter: none !important; }
+        #modal-rapor-sertifikat > div {
+    background-color: #ffffff !important;
+}
         #certificate-render-area { background-color: #ffffff !important; box-shadow: none !important; }
+        #certificate-render-area tr, 
+#certificate-render-area td, 
+#certificate-render-area th {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  text-align: left !important;
+  vertical-align: middle !important;
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+}
 
     /* 2. Gabungan Animasi Cahaya Warna-Warni + Detak Jantung Lembut */
     @keyframes rainbowGlow {
@@ -93,6 +106,11 @@
     <!-- Three.js CDN -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
+        input[type="text"], input[type="password"] {
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+  border-color: #334155 !important;
+}
         :root {
             --glow-color: rgba(59, 130, 246, 0.6);
             --glow-border: #3b82f6;
@@ -241,13 +259,170 @@ body.dark table:hover {
 }
 }
     </style>
+    <style>
+ /* 1. Halaman Pengaturan (Mode Terang Normal) */
+input[type="text"]:not(#login-id),
+input[type="url"]:not(#login-id),
+input:not([type="checkbox"]):not([type="radio"]):not(#login-id):not(#login-password),
+select {
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+  border-color: #cbd5e1 !important; /* Border disamakan agar mirip elemen zona waktu */
+}
+
+/* 2. Halaman Pengaturan khusus saat Mode Gelap */
+.dark input[type="text"]:not(#login-id),
+.dark input[type="url"]:not(#login-id),
+.dark input:not([type="checkbox"]):not([type="radio"]):not(#login-id):not(#login-password),
+.dark select,
+html.dark input[type="text"]:not(#login-id),
+html.dark input[type="url"]:not(#login-id),
+html.dark input:not([type="checkbox"]):not([type="radio"]):not(#login-id):not(#login-password),
+html.dark select {
+  background-color: rgba(15, 23, 42, 0.8) !important; /* Hitam disamakan persis dengan tabel nama aplikasi */
+  color: #ffffff !important;
+  border-color: #334155 !important;
+}
+
+  /* 3. Trik khusus HANYA di dalam area form login (#login-section) */
+  #login-section #login-id,
+  #login-section #login-password {
+    -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.9) inset !important;
+    box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.9) inset !important;
+    -webkit-text-fill-color: #1e293b !important;
+    color: #1e293b !important;
+    border: 1px solid #cbd5e1 !important;
+  }
+
+  /* Mode Gelap khusus untuk area login */
+  .dark #login-section #login-id,
+  .dark #login-section #login-password,
+  html.dark #login-section #login-id,
+  html.dark #login-section #login-password {
+    -webkit-box-shadow: 0 0 0 1000px rgba(15, 23, 42, 0.9) inset !important;
+    box-shadow: 0 0 0 1000px rgba(15, 23, 42, 0.9) inset !important;
+    -webkit-text-fill-color: #ffffff !important;
+    color: #ffffff !important;
+    border: 1px solid #334155 !important;
+  }
+
+  /* Tombol Close Modal */
+  .dark button[onclick*="closeModal"],
+  html.dark button[onclick*="closeModal"] {
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 8px !important;
+    padding: 2px 6px !important;
+  }
+  .dark button[onclick*="closeModal"]:hover,
+  html.dark button[onclick*="closeModal"]:hover {
+    color: #f43f5e !important;
+    background-color: rgba(244, 63, 94, 0.2) !important;
+  }
+</style>
 </head>
-<body class="p-3 md:p-6 text-sm flex flex-col justify-center min-h-screen">
-   
+<body class="dark p-3 md:p-6 text-sm flex flex-col justify-center min-h-screen">
+    <canvas id="canvas-3d-bg" class="fixed inset-0 z-[-1] pointer-events-none"></canvas>
+
+
+    <div id="modal-tambah-soal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="glow-card max-w-lg w-full p-6 space-y-4 bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-slate-700">
+            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-3">
+                <h3 id="modal-soal-title" class="font-bold font-header text-base text-blue-600 dark:text-blue-400">➕ Tambah Pembelajaran / Level Game</h3>
+                <button onclick="closeModalSoal()" class="text-slate-400 hover:text-rose-500 font-bold text-lg">&times;</button>
+            </div>
+
+            <form onsubmit="simpanSoalBaru(event)" class="space-y-3 text-xs">
+                <input type="hidden" id="modal-input-id" value="">
+                <div>
+                    <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">1. Kategori File</label>
+                    <select id="modal-input-kategori" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-semibold">
+                        <option value="Soal">Soal (Game Level)</option>
+                        <option value="Modul">Modul</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">2. Tingkat Kelas</label>
+                    <select id="modal-input-kelas" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-semibold">
+                <option value="Kelas 1">Kelas 1</option>
+    <option value="Kelas 2">Kelas 2</option>
+    <option value="Kelas 3">Kelas 3</option>
+    <option value="Kelas 4">Kelas 4</option>
+    <option value="Kelas 5">Kelas 5</option>
+    <option value="Kelas 6">Kelas 6</option>
+    <option value="Kelas 7">Kelas 7</option>
+    <option value="Kelas 8">Kelas 8</option>
+    <option value="Kelas 9">Kelas 9</option>
+    <option value="Kelas 10">Kelas 10</option>
+    <option value="Kelas 11">Kelas 11</option>
+    <option value="Kelas 12">Kelas 12</option>
+</select>
+                </div>
+                <div>
+                    <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">3. Mata Pelajaran</label>
+                    <select id="modal-input-mapel" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-semibold">
+                        <option value="Matematika">Matematika</option>
+                        <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+                        <option value="Bahasa Inggris">Bahasa Inggris</option>
+                        <option value="IPA">IPA</option>
+                        <option value="IPS">IPS</option>
+                        <option value="Pendidikan Pancasila">Pendidikan Pancasila</option>
+                        <option value="IPAS">IPAS</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">4. Nama Bab / Level / Sub Materi</label>
+                    <input type="text" id="modal-input-bab" placeholder="Contoh: Bab 1 - Level 1 Aljabar" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                </div>
+                <div>
+                    <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">5. Ambang Batas Nilai / KKM</label>
+                    <input type="number" id="modal-input-kkm" min="0" max="100" value="75" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-bold">
+                </div>
+                <div>
+                    <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">6. Link Akses Game / Modul / Soal (URL)</label>
+                    <input type="url" id="modal-input-link" placeholder="https://..." class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                </div>
+                <div class="flex gap-2 pt-3 border-t border-slate-200 dark:border-slate-700">
+                    <button type="button" onclick="closeModalSoal()" class="w-1/2 py-2.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl">Batal</button>
+                    <button type="submit" class="w-1/2 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg">Simpan Data</button>
+                </div>
+            </form>
+        </div>
+    </div>   
 
     <!-- CANVAS BACKGROUND ANIMASI 3D BERGERAK -->
     <!-- Background Container -->
 <div id="molecule-bg"></div>
+
+<!-- MODAL KELOLA ADMIN -->
+    <div id="modal-admin-user" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="glow-card max-w-md w-full p-6 space-y-4 bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-slate-700">
+            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-3">
+                <h3 id="modal-admin-title" class="font-bold font-header text-base text-blue-600 dark:text-blue-400">🔑 Kelola Akun Admin</h3>
+                <button onclick="closeModalAdmin()" class="text-slate-400 hover:text-rose-500 font-bold text-lg">&times;</button>
+            </div>
+
+            <form onsubmit="simpanAdmin(event)" class="space-y-3 text-xs">
+                <input type="hidden" id="modal-admin-old-id" value="">
+                <div>
+                    <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">1. No. Administrasi</label>
+                    <input type="text" id="modal-admin-id" placeholder="ADM01" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono">
+                </div>
+                <div>
+                    <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">2. Password Login</label>
+                    <input type="text" id="modal-admin-password" placeholder="Password" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono">
+                </div>
+                <div>
+                    <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">3. Nama Admin</label>
+                    <input type="text" id="modal-admin-nama" placeholder="Nama administrator" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                </div>
+                <div class="flex gap-2 pt-3 border-t border-slate-200 dark:border-slate-700">
+                    <button type="button" onclick="closeModalAdmin()" class="w-1/2 py-2.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl">Batal</button>
+                    <button type="submit" class="w-1/2 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg">Simpan Admin</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
 <script>
     // Inisialisasi Scene, Camera, dan Renderer Three.js
@@ -402,11 +577,11 @@ async function updateSettingsInSupabase(columnName, value) {
                 </div>
                 <div>
                     <label class="block text-[11px] sm:text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">ID Registrasi</label>
-                    <input type="text" id="login-id" required placeholder="Masukkan ID Registrasi" class="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs">
+                    <input type="text" id="login-id" required placeholder="Masukkan ID Registrasi" class="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-slate-700 text-white" style="background-color: #1e293b !important; color: #ffffff !important; color-scheme: dark !important;">
                 </div>
                 <div>
                     <label class="block text-[11px] sm:text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">Password</label>
-                    <input type="password" id="login-password" required placeholder="••••••••" class="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs">
+                    <input type="password" id="login-password" required placeholder="••••••••" class="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-slate-700 text-white" style="background-color: #1e293b !important; color: #ffffff !important; color-scheme: dark !important;">
                 </div>
                 
                 <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 sm:py-3 rounded-xl shadow-lg transition transform active:scale-95 font-header text-xs sm:text-sm tracking-wider mt-2">
@@ -475,7 +650,7 @@ async function updateSettingsInSupabase(columnName, value) {
 
     <!-- MODAL INPUT / EDIT SISWA -->
     <div id="modal-tambah-siswa" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="glow-card max-w-lg w-full p-6 space-y-4 bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-slate-700">
+        <div class="glow-card max-w-md w-full px-3 py-1 space-y-0.5 bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-slate-800 rounded-xl">
             <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-3">
                 <h3 id="modal-siswa-title" class="font-bold font-header text-base text-blue-600 dark:text-blue-400">🎓 Tambah Data Siswa</h3>
                 <button onclick="closeModalSiswa()" class="text-slate-400 hover:text-rose-500 font-bold text-lg">&times;</button>
@@ -485,23 +660,36 @@ async function updateSettingsInSupabase(columnName, value) {
                 <input type="hidden" id="modal-siswa-old-id" value="">
                 <div>
                     <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">1. No. Administrasi / ID Login Siswa</label>
-                    <input type="text" id="modal-siswa-id" placeholder="Contoh: SIS03" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                    <input type="text" id="modal-siswa-id" placeholder="Contoh: SIS03" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-semibold">
                 </div>
                 <div>
                     <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">2. Password Akun Siswa</label>
-                    <input type="text" id="modal-siswa-password" placeholder="Masukkan password" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono">
+                    <input type="text" id="modal-siswa-password" placeholder="Masukkan password" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-semibold">
                 </div>
                 <div>
                     <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">3. Nama Lengkap Siswa</label>
-                    <input type="text" id="modal-siswa-nama" placeholder="Masukkan nama lengkap" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                    <input type="text" id="modal-siswa-nama" placeholder="Masukkan nama lengkap" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-semibold">
                 </div>
                 <div>
                     <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">4. Kelas</label>
-                    <select id="modal-siswa-kelas" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-semibold"></select>
+                    <select id="modal-siswa-kelas" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-semibold">
+                        <option value="Kelas 1">Kelas 1</option>
+                        <option value="Kelas 2">Kelas 2</option>
+                        <option value="Kelas 3">Kelas 3</option>
+                        <option value="Kelas 4">Kelas 4</option>
+                        <option value="Kelas 5">Kelas 5</option>
+                        <option value="Kelas 6">Kelas 6</option>
+                        <option value="Kelas 7">Kelas 7</option>
+                        <option value="Kelas 8">Kelas 8</option>
+                        <option value="Kelas 9">Kelas 9</option>
+                        <option value="Kelas 10">Kelas 10</option>
+                        <option value="Kelas 11">Kelas 11</option>
+                        <option value="Kelas 12">Kelas 12</option>
+                    </select>
                 </div>
                 <div>
                     <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">5. Asal Sekolah</label>
-                    <input type="text" id="modal-siswa-sekolah" placeholder="Contoh: SMPN 1 Jombang" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                    <input type="text" id="modal-siswa-sekolah" placeholder="Contoh: SMPN 1 Jombang" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-semibold">
                 </div>
                 <div>
                     <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">6. Alamat</label>
@@ -605,9 +793,16 @@ async function updateSettingsInSupabase(columnName, value) {
                 <input type="hidden" id="modal-nilai-id" value="">
                 <div>
                     <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">1. Mata Pelajaran</label>
-                    <select id="modal-nilai-mapel" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-semibold"></select>
-                </div>
-                <div>
+                    <select id="modal-nilai-mapel" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-semibold">
+    <option value="">Pilih Mata Pelajaran</option>
+    <option value="Matematika">Matematika</option>
+    <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+    <option value="Bahasa Inggris">Bahasa Inggris</option>
+    <option value="IPA">IPA</option>
+    <option value="IPS">IPS</option>
+    <option value="Pendidikan Pancasila">Pendidikan Pancasila</option>
+    <option value="IPAS">IPAS</option>
+</select>
                     <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">2. Bab / Materi / Level Game</label>
                     <input type="text" id="modal-nilai-bab" placeholder="Contoh: Bab 1 - Aljabar" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
                 </div>
@@ -629,7 +824,7 @@ async function updateSettingsInSupabase(columnName, value) {
 
     <!-- MODAL PREVIEW & DOWNLOAD RAPOR SERTIFIKAT -->
     <div id="modal-rapor-sertifikat" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md hidden flex items-center justify-center p-2 md:p-6 overflow-y-auto">
-        <div class="glow-card max-w-4xl w-full p-6 space-y-4 bg-white text-slate-800 shadow-2xl rounded-2xl border border-amber-300 my-auto">
+        <div class="bg-white max-w-4xl w-full p-6 space-y-4 bg-white text-slate-800 shadow-2xl rounded-2xl border border-amber-300 my-auto">
             <div class="flex justify-between items-center border-b pb-3">
                 <h3 class="font-bold font-header text-base text-blue-700 flex items-center gap-2">
                     📜 Preview Rapor Rapor Hasil Belajar
@@ -638,15 +833,17 @@ async function updateSettingsInSupabase(columnName, value) {
                     <button onclick="unduhPDFSertifikat()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs shadow flex items-center gap-1">
                         📥 Download PDF Sertifikat
                     </button>
-                    <button onclick="closeModalSertifikat()" class="text-slate-400 hover:text-rose-500 font-bold text-xl px-2">&times;</button>
+                    <button onclick="closeModalSertifikat()" class="px-3 py-1.5 bg-red-600 text-white font-bold rounded-lg shadow-md inline-block opacity-100 visible">
+    ✕
+</button>
                 </div>
             </div>
 <!-- AREA RENDER PDF (BINGKAI & SELURUH ISI RAPOR LENGKAP) -->
-        <div id="certificate-render-area" class="p-6 space-y-4 bg-white rounded-2xl border-2 border-indigo-900/30 shadow-sm"> 
+        <div id="certificate-render-area" class="px-4 pb-4 pt-2 space-y-1.5 rounded-2xl border-2 border-indigo-900/30 shadow-sm" style="background-color: #ffffff !important;">
             <!-- Garis Bingkai Dalam Bergaya Cekungan Elegan (IKUT TERCETAK CANTIK) -->
             <div style="position: absolute; inset: -5px; border: 1.5px solid rgba(49, 46, 129, 0.2); border-radius: 12px; pointer-events: none; z-index: 10;"></div>
     <!-- KOP RAPOR -->
-    <div class="flex items-center justify-between border-b-2 border-indigo-900 pb-4 mb-4">
+    <div class="flex items-center justify-between border-b-2 border-indigo-900 pb-2 mb-2">
               
     <!-- Logo di Kiri -->
     <div style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; background-color: #ffffff; border: 2px solid #cbd5e1; border-radius: 50%; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); flex-shrink: 0; position: relative;">
@@ -667,16 +864,16 @@ async function updateSettingsInSupabase(columnName, value) {
     </div>
 </div>
 <!-- Judul Sertifikat -->
-        <div style="background-color: #ffffff !important; padding: 10px; text-align: center; border-bottom: none !important; margin-bottom: 15px;">
-    <h2 style="color: #000000 !important; font-size: 18px; font-weight: bold; text-transform: uppercase; margin: 0;">
+        <div style="background-color: #ffffff !important; padding: 10px; text-align: center; border-bottom: none !important;">
+  <h2 style="color: #000000 !important; font-size: 18px; font-weight: bold; text-transform: uppercase; margin: 0;">
         RAPOR HASIL BELAJAR
     </h2>
-    <p style="color: #333333 !important; font-size: 11px; margin-top: 5px; margin-bottom: 0;">
+    <p style="display: none !important; color: #333333 !important; font-size: 11px; margin-top: 5px; margin-bottom: 0;">
         No. Dokumen: <span id="cert-doc-id"></span>
     </p>
 </div>
     <!-- Informasi Siswa -->
-    <div class="grid grid-cols-2 gap-3 text-xs bg-purple-900/5 p-4 rounded-xl border border-purple-900/10 w-full">
+    <div class="grid grid-cols-2 gap-2 text-xs rounded-xl border-2 border-purple-900/10 w-full" style="background-color: #ffffff !important; padding: 6px 12px !important;">
         <div><b>Nama Siswa:</b> <span id="cert-nama-siswa"></span></div>
         <div><b>Nomor ID:</b> <span id="cert-id-siswa"></span></div>
         <div><b>Kelas:</b> <span id="cert-kelas-siswa"></span></div>
@@ -708,98 +905,26 @@ async function updateSettingsInSupabase(columnName, value) {
     </div>
 </div>
                 <!-- Kontainer Tanda Tangan & Tanggal (Sejajar Sempurna) -->
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 45px; width: 100%; font-size: 13px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 20px; width: 100%; font-size: 13px;">
         
         <!-- Bagian Kiri: Orang Tua / Wali Siswa -->
         <div style="text-align: center; width: 40%;">
             <!-- Spasi kosong pengimbang baris tanggal di kanan -->
             <div style="visibility: hidden; margin-bottom: 4px;">&nbsp;</div>
-            <div style="margin-bottom: 75px;">Orang Tua / Wali Siswa</div>
+            <div style="margin-bottom: 40px;">Orang Tua / Wali Siswa</div>
             <div>( ....................................................... )</div>
         </div>
 
         <!-- Bagian Kanan: Tanggal & Kepala Lembaga -->
         <div style="text-align: center; width: 40%;">
             <div id="tanggal-terbit" style="margin-bottom: 4px;">Jombang, 15 Agustus 2026</div>
-            <div style="font-weight: bold; margin-bottom: 75px;">Kepala Lembaga SLC</div>
+            <div style="font-weight: bold; margin-bottom: 40px;">Kepala Lembaga SLC</div>
             <div style="font-weight: 500;">Management SLC World</div>
         </div>
 
     </div>
-    <!-- MODAL INPUT / EDIT PEMBELAJARAN & GAME -->
-    <div id="modal-tambah-soal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="glow-card max-w-lg w-full p-6 space-y-4 bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-slate-700">
-            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-3">
-                <h3 id="modal-soal-title" class="font-bold font-header text-base text-blue-600 dark:text-blue-400">➕ Tambah Pembelajaran / Level Game</h3>
-                <button onclick="closeModalSoal()" class="text-slate-400 hover:text-rose-500 font-bold text-lg">&times;</button>
-            </div>
 
-            <form onsubmit="simpanSoalBaru(event)" class="space-y-3 text-xs">
-                <input type="hidden" id="modal-input-id" value="">
-                <div>
-                    <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">1. Kategori File</label>
-                    <select id="modal-input-kategori" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-semibold">
-                        <option value="Soal">Soal (Game Level)</option>
-                        <option value="Modul">Modul</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">2. Tingkat Kelas</label>
-                    <select id="modal-input-kelas" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-semibold"></select>
-                </div>
-                <div>
-                    <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">3. Mata Pelajaran</label>
-                    <select id="modal-input-mapel" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-semibold"></select>
-                </div>
-                <div>
-                    <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">4. Nama Bab / Level / Sub Materi</label>
-                    <input type="text" id="modal-input-bab" placeholder="Contoh: Bab 1 - Level 1 Aljabar" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
-                </div>
-                <div>
-                    <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">5. Ambang Batas Nilai / KKM</label>
-                    <input type="number" id="modal-input-kkm" min="0" max="100" value="75" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-bold">
-                </div>
-                <div>
-                    <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">6. Link Akses Game / Modul / Soal (URL)</label>
-                    <input type="url" id="modal-input-link" placeholder="https://..." class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
-                </div>
-                <div class="flex gap-2 pt-3 border-t border-slate-200 dark:border-slate-700">
-                    <button type="button" onclick="closeModalSoal()" class="w-1/2 py-2.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl">Batal</button>
-                    <button type="submit" class="w-1/2 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg">Simpan Data</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL KELOLA ADMIN -->
-    <div id="modal-admin-user" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="glow-card max-w-md w-full p-6 space-y-4 bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-slate-700">
-            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-3">
-                <h3 id="modal-admin-title" class="font-bold font-header text-base text-blue-600 dark:text-blue-400">🔑 Kelola Akun Admin</h3>
-                <button onclick="closeModalAdmin()" class="text-slate-400 hover:text-rose-500 font-bold text-lg">&times;</button>
-            </div>
-
-            <form onsubmit="simpanAdmin(event)" class="space-y-3 text-xs">
-                <input type="hidden" id="modal-admin-old-id" value="">
-                <div>
-                    <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">1. No. Administrasi</label>
-                    <input type="text" id="modal-admin-id" placeholder="ADM01" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono">
-                </div>
-                <div>
-                    <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">2. Password Login</label>
-                    <input type="text" id="modal-admin-password" placeholder="Password" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono">
-                </div>
-                <div>
-                    <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">3. Nama Admin</label>
-                    <input type="text" id="modal-admin-nama" placeholder="Nama administrator" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
-                </div>
-                <div class="flex gap-2 pt-3 border-t border-slate-200 dark:border-slate-700">
-                    <button type="button" onclick="closeModalAdmin()" class="w-1/2 py-2.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl">Batal</button>
-                    <button type="submit" class="w-1/2 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg">Simpan Admin</button>
-                </div>
-            </form>
-        </div>
-    </div>
+    
 
    
     <!-- JAVASCRIPT ANIMASI 3D & ENGINE APLIKASI SUPABASE -->
@@ -828,6 +953,9 @@ function init3dCanvas() {
     const ctx = canvas.getContext('2d');
     let width, height, particles = [];
 
+    // Menyimpan posisi kursor real-time
+    let mouse = { x: null, y: null, radius: 450 };
+
     function resize() {
         width = canvas.width = window.innerWidth;
         height = canvas.height = window.innerHeight;
@@ -835,55 +963,76 @@ function init3dCanvas() {
     window.addEventListener('resize', resize);
     resize();
 
-    // Membuat titik-titik partikel molekul
-    for (let i = 0; i < 75; i++) {
+    // Lacak posisi kursor mouse secara aktif di seluruh layar
+    window.addEventListener('mousemove', function(e) {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+    });
+
+    // Kosongkan posisi kursor saat keluar dari jendela browser
+    window.addEventListener('mouseout', function() {
+        mouse.x = null;
+        mouse.y = null;
+    });
+
+    // Membuat partikel dengan kecepatan penuh 100
+    for (let i = 0; i < 85; i++) {
         particles.push({
             x: Math.random() * width,
             y: Math.random() * height,
-            radius: Math.random() * 2.5 + 1,
-            vx: (Math.random() - 0.5) * 0.6,
-            vy: (Math.random() - 0.5) * 0.6
+            radius: Math.random() * 3.5 + 2, // Ukuran lebih besar agar bersinar terang merona
+            vx: (Math.random() - 0.5) * 100, // Kecepatan full 100
+            vy: (Math.random() - 0.5) * 100
         });
     }
 
     function animate() {
         ctx.clearRect(0, 0, width, height);
-        
-        // Deteksi apakah Mode Gelap aktif
+
         const isDark = document.body.classList.contains('dark');
         
-        // Warna titik dan garis (menyesuaikan tema terang/gelap)
-        ctx.fillStyle = isDark ? 'rgba(99, 102, 241, 0.5)' : 'rgba(59, 130, 246, 0.4)';
-        ctx.strokeStyle = isDark ? 'rgba(99, 102, 241, 0.15)' : 'rgba(59, 130, 246, 0.15)';
+        // Warna titik bersinar terang merona
+        ctx.fillStyle = isDark ? 'rgba(165, 180, 252, 1)' : 'rgba(29, 78, 238, 1)';
+        ctx.strokeStyle = isDark ? 'rgba(165, 180, 252, 0.5)' : 'rgba(29, 78, 238, 0.5)';
 
-        particles.forEach((p, index) => {
+        particles.forEach((p) => {
             p.x += p.vx;
             p.y += p.vy;
 
-            // Pantulkan kembali jika menyentuh tepi layar
+            // Pantulan tepi layar
             if (p.x < 0 || p.x > width) p.vx *= -1;
             if (p.y < 0 || p.y > height) p.vy *= -1;
 
-            // Gambar titik partikel
+            // --- INTERAKSI SENTUHAN KURSOR MAKSIMAL ---
+            if (mouse.x !== null && mouse.y !== null) {
+                let dx = mouse.x - p.x;
+                let dy = mouse.y - p.y;
+                let dist = Math.sqrt(dx * dx + dy * dy);
+                
+                // Jika kursor mendekati partikel, tarik/dorong dengan sangat responsif dan kuat
+                if (dist < mouse.radius) {
+                    let force = (mouse.radius - dist) / mouse.radius;
+                    // Partikel akan bergeser mengikuti atau terdorong oleh sentuhan kursor secara instan
+                    p.x += (dx * force) * 0.08;
+                    p.y += (dy * force) * 0.08;
+                }
+            }
+
+            // --- EFEK CAHAYA BERSINAR TERANG MERONA (GLOW) ---
+            ctx.shadowBlur = 65; // Efek glow maksimal yang sangat terang merona
+            ctx.shadowColor = isDark ? 'rgba(199, 210, 254, 1)' : 'rgba(37, 99, 235, 1)';
+
             ctx.beginPath();
             ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
             ctx.fill();
 
-            // Hubungkan garis antar partikel terdekat (efek jaring molekul)
-            for (let j = index + 1; j < particles.length; j++) {
-                let p2 = particles[j];
-                let dist = Math.hypot(p.x - p2.x, p.y - p2.y);
-                if (dist < 120) {
-                    ctx.beginPath();
-                    ctx.moveTo(p.x, p.y);
-                    ctx.lineTo(p2.x, p2.y);
-                    ctx.stroke();
-                }
-            }
+            // Reset shadowBlur
+            ctx.shadowBlur = 0;
         });
 
         requestAnimationFrame(animate);
     }
+
     animate();
 }
 
@@ -1430,6 +1579,7 @@ async function saveConfigAdmin(e) {
                             <button onclick="tambahNilaiModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs shadow">+ Input Nilai Baru</button>
                         </div>
 
+                        
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse text-xs">
                                 <thead>
@@ -1597,7 +1747,7 @@ async function saveConfigAdmin(e) {
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold mb-1">Zona Waktu</label>
-                                <select id="cfg-timezone" class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-800 text-xs font-semibold">
+                                <select id="cfg-timezone" class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-800 text-xs">
                                     <option value="WIB" selected>WIB</option>
                                 </select>
                             </div>
@@ -1630,7 +1780,7 @@ async function saveConfigAdmin(e) {
 
                             <div>
                                 <label class="block text-xs font-semibold mb-1">Pilih Tema Tampilan Keseluruhan</label>
-                                <select id="themeOverallSelect" class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-800 text-xs font-semibold">
+                                <select id="themeOverallSelect" class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-800 text-xs">
                                     <option value="default" ${cfg.themeOverall === 'default' ? 'selected' : ''}>Default Gradient Modern</option>
                                     <option value="pastel" ${cfg.themeOverall === 'pastel' ? 'selected' : ''}>Warm Pastel Soft</option>
                                     <option value="cyberpunk" ${cfg.themeOverall === 'cyberpunk' ? 'selected' : ''}>Cyberpunk Dark Tech</option>
@@ -1652,7 +1802,7 @@ async function saveConfigAdmin(e) {
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
             <label class="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-200 whitespace-nowrap">Ukuran Kertas</label>
-            <select id="cfg-papersize" class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100">
+            <select id="cfg-papersize" class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-800 text-xs">
                 <option value="a4" ${cfg.paper_size === 'a4' ? 'selected' : ''}>A4</option>
                 <option value="letter" ${cfg.paper_size === 'letter' ? 'selected' : ''}>Letter</option>
                 <option value="legal" ${cfg.paper_size === 'legal' ? 'selected' : ''}>Legal</option>
@@ -1660,14 +1810,14 @@ async function saveConfigAdmin(e) {
         </div>
         <div>
             <label class="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-200 whitespace-nowrap">Orientasi Cetak</label>
-            <select id="cfg-orientation" class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100">
+            <select id="cfg-orientation" class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-800 text-xs">
                 <option value="landscape" ${cfg.orientation === 'landscape' ? 'selected' : ''}>Landscape (Mendatar)</option>
                 <option value="portrait" ${cfg.orientation === 'portrait' ? 'selected' : ''}>Portrait (Menegak)</option>
             </select>
         </div>
         <div>
             <label class="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-200 whitespace-nowrap">Margin / Padding (mm)</label>
-            <input type="number" id="cfg-pdfmargin" min="0" max="30" value="${cfg.pdf_margin || '10'}" class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100">
+            <input type="number" id="cfg-pdfmargin" min="0" max="30" value="${cfg.pdf_margin || '10'}" class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-800 text-xs">
         </div>
     </div>
 
@@ -2829,27 +2979,33 @@ if (canvas3D) {
         w3D = canvas3D.width = window.innerWidth;
         h3D = canvas3D.height = window.innerHeight;
     });
+let mouseX = 0;
+let mouseY = 0;
+window.addEventListener('mousemove', (e) => {
+    mouseX = (e.clientX - w3D / 2) * 0.025;
+    mouseY = (e.clientY - h3D / 2) * 0.025;
+});
 
-    const particles3D = [];
-    for (let i = 0; i < 70; i++) {
-        particles3D.push({
-            x: Math.random() * w3D,
-            y: Math.random() * h3D,
-            z: Math.random() * 500,
-            vx: (Math.random() - 0.5) * 0.8,
-            vy: (Math.random() - 0.5) * 0.8,
-            vz: (Math.random() - 0.5) * 0.8,
-            radius: Math.random() * 2.5 + 1
-        });
-    }
+const particles3D = [];
+for (let i = 0; i < 70; i++) {
+    particles3D.push({
+        x: Math.random() * w3D,
+        y: Math.random() * h3D,
+        z: Math.random() * 500,
+        vx: (Math.random() - 0.5) * 10.0,
+        vy: (Math.random() - 0.5) * 10.0,
+        vz: (Math.random() - 0.5) * 10.0,
+        radius: Math.random() * 2.5 + 1
+    });
+}
 
     function renderMoleculeBG() {
         ctx3D.clearRect(0, 0, w3D, h3D);
 
         for (let i = 0; i < particles3D.length; i++) {
             let p = particles3D[i];
-            p.x += p.vx;
-            p.y += p.vy;
+            p.x += p.vx + (mouseX * 100);
+            p.y += p.vy + (mouseY * 100);
             p.z += p.vz;
 
             if (p.x < 0 || p.x > w3D) p.vx *= -1;
@@ -2858,9 +3014,9 @@ if (canvas3D) {
 
             ctx3D.beginPath();
             ctx3D.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-            ctx3D.fillStyle = 'rgba(59, 130, 246, 0.8)';
-            ctx3D.shadowBlur = 10;
-            ctx3D.shadowColor = '#ec4899';
+            ctx3D.fillStyle = 'rgba(120, 160, 255, 1)';
+            ctx3D.shadowBlur = 25;
+            ctx3D.shadowColor = '#60a5fa';
             ctx3D.fill();
 
             for (let j = i + 1; j < particles3D.length; j++) {
@@ -2873,8 +3029,8 @@ if (canvas3D) {
                     ctx3D.beginPath();
                     ctx3D.moveTo(p.x, p.y);
                     ctx3D.lineTo(p2.x, p2.y);
-                    ctx3D.strokeStyle = `rgba(139, 92, 246, ${1 - dist / 120})`;
-                    ctx3D.lineWidth = 0.5;
+                    ctx3D.strokeStyle = `rgba(160, 200, 255, ${1 - dist / 120})`;
+                    ctx3D.lineWidth = 1.2;
                     ctx3D.stroke();
                 }
             }
@@ -2886,5 +3042,7 @@ if (canvas3D) {
 }
 
 </script>
+
 </body>
+
 </html>
