@@ -328,7 +328,7 @@ html.dark select {
     <div id="modal-tambah-soal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="glow-card max-w-lg w-full p-6 space-y-4 bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-slate-700">
             <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-3">
-                <h3 id="modal-soal-title" class="font-bold font-header text-base text-blue-600 dark:text-blue-400">➕ Tambah Pembelajaran / Level Game</h3>
+                <h3 id="modal-soal-title" class="font-bold font-header text-base text-blue-600 dark:text-blue-400">➕ Tambah Pembelajaran</h3>
                 <button onclick="closeModalSoal()" class="text-slate-400 hover:text-rose-500 font-bold text-lg">&times;</button>
             </div>
 
@@ -337,7 +337,7 @@ html.dark select {
                 <div>
                     <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">1. Kategori File</label>
                     <select id="modal-input-kategori" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-semibold">
-                        <option value="Soal">Soal (Game Level)</option>
+                        <option value="Soal">Soal</option>
                         <option value="Modul">Modul</option>
                     </select>
                 </div>
@@ -584,8 +584,8 @@ async function updateSettingsInSupabase(columnName, value) {
                     <input type="password" id="login-password" required placeholder="••••••••" class="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-slate-700 text-white" style="background-color: #1e293b !important; color: #ffffff !important; color-scheme: dark !important;">
                 </div>
                 
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 sm:py-3 rounded-xl shadow-lg transition transform active:scale-95 font-header text-xs sm:text-sm tracking-wider mt-2">
-                    MASUK PORTAL SHIHWA CENTER
+                <button type="submit" class="px-12 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg hover:shadow-[0_0_25px_rgba(59,130,246,0.9)] active:scale-95 transition-all duration-300 mx-auto block">
+                    LOGIN
                 </button>
             </form>
 
@@ -787,22 +787,33 @@ async function updateSettingsInSupabase(columnName, value) {
             <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-3">
                 <h3 id="modal-nilai-title" class="font-bold font-header text-base text-blue-600 dark:text-blue-400">⭐ Kelola Hasil Belajar</h3>
                 <button onclick="closeModalNilai()" class="text-slate-400 hover:text-rose-500 font-bold text-lg">&times;</button>
-            </div>
-
             <form onsubmit="simpanNilaiSiswa(event)" class="space-y-3 text-xs">
-                <input type="hidden" id="modal-nilai-id" value="">
-                <div>
-                    <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">1. Mata Pelajaran</label>
-                    <select id="modal-nilai-mapel" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-semibold">
-    <option value="">Pilih Mata Pelajaran</option>
-    <option value="Matematika">Matematika</option>
-    <option value="Bahasa Indonesia">Bahasa Indonesia</option>
-    <option value="Bahasa Inggris">Bahasa Inggris</option>
-    <option value="IPA">IPA</option>
-    <option value="IPS">IPS</option>
-    <option value="Pendidikan Pancasila">Pendidikan Pancasila</option>
-    <option value="IPAS">IPAS</option>
+    <input type="hidden" id="modal-nilai-id" value="">
+    
+    <div>
+        <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Periode / Bulan Laporan</label>
+        <select id="filter-periode" class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-white text-xs">
+    <option value="Agustus 2026">Agustus 2026</option>
+    <option value="September 2026">September 2026</option>
+    <option value="Oktober 2026">Oktober 2026</option>
+    <option value="November 2026">November 2026</option>
+    <option value="Desember 2026">Desember 2026</option>
 </select>
+    </div>
+
+    <div>
+        <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">1. Mata Pelajaran</label>
+        <select id="modal-nilai-mapel" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-white">
+            <option value="">Pilih Mata Pelajaran</option>
+            <option value="Matematika">Matematika</option>
+            <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+            <option value="Bahasa Inggris">Bahasa Inggris</option>
+            <option value="IPA">IPA</option>
+            <option value="IPS">IPS</option>
+            <option value="Pendidikan Pancasila">Pendidikan Pancasila</option>
+            <option value="IPAS">IPAS</option>
+        </select>
+    </div>
                     <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">2. Bab / Materi / Level Game</label>
                     <input type="text" id="modal-nilai-bab" placeholder="Contoh: Bab 1 - Aljabar" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
                 </div>
@@ -822,16 +833,16 @@ async function updateSettingsInSupabase(columnName, value) {
         </div>
     </div>
 
-    <!-- MODAL PREVIEW & DOWNLOAD RAPOR SERTIFIKAT -->
+    <!-- MODAL PREVIEW & DOWNLOAD LAPORAN HASIL BELAJAR -->
     <div id="modal-rapor-sertifikat" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md hidden flex items-center justify-center p-2 md:p-6 overflow-y-auto">
         <div class="bg-white max-w-4xl w-full p-6 space-y-4 bg-white text-slate-800 shadow-2xl rounded-2xl border border-amber-300 my-auto">
             <div class="flex justify-between items-center border-b pb-3">
                 <h3 class="font-bold font-header text-base text-blue-700 flex items-center gap-2">
-                    📜 Preview Rapor Rapor Hasil Belajar
+                    📜 Preview Laporan Hasil Belajar
                 </h3>
                 <div class="flex gap-2">
                     <button onclick="unduhPDFSertifikat()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs shadow flex items-center gap-1">
-                        📥 Download PDF Sertifikat
+                        📥 Download Laporan
                     </button>
                     <button onclick="closeModalSertifikat()" class="px-3 py-1.5 bg-red-600 text-white font-bold rounded-lg shadow-md inline-block opacity-100 visible">
     ✕
@@ -855,7 +866,7 @@ async function updateSettingsInSupabase(columnName, value) {
                 SHIHWA LEARNING CENTER
             </h1>
             <p class="text-xs italic text-slate-600 mt-0.5">Homey and Enjoyable Learning</p>
-            <p class="text-[11px] text-slate-500">Dengan hati kami mengajari, dengan inspirasi kami memotivasi</p>
+            <p class="text-[11px] text-slate-500">Perum. Puri Astapada Indah 1 Gang Kavling Barat Tambakrejo Jombang</p>
         </div>
 
     <!-- Hiasan Piala di Kanan -->
@@ -866,19 +877,20 @@ async function updateSettingsInSupabase(columnName, value) {
 <!-- Judul Sertifikat -->
         <div style="background-color: #ffffff !important; padding: 10px; text-align: center; border-bottom: none !important;">
   <h2 style="color: #000000 !important; font-size: 18px; font-weight: bold; text-transform: uppercase; margin: 0;">
-        RAPOR HASIL BELAJAR
+        LAPORAN HASIL BELAJAR
     </h2>
     <p style="display: none !important; color: #333333 !important; font-size: 11px; margin-top: 5px; margin-bottom: 0;">
         No. Dokumen: <span id="cert-doc-id"></span>
     </p>
 </div>
-    <!-- Informasi Siswa -->
-    <div class="grid grid-cols-2 gap-2 text-xs rounded-xl border-2 border-purple-900/10 w-full" style="background-color: #ffffff !important; padding: 6px 12px !important;">
-        <div><b>Nama Siswa:</b> <span id="cert-nama-siswa"></span></div>
-        <div><b>Nomor ID:</b> <span id="cert-id-siswa"></span></div>
-        <div><b>Kelas:</b> <span id="cert-kelas-siswa"></span></div>
-        <div><b>Asal Sekolah:</b> <span id="cert-sekolah-siswa"></span></div>
-    </div>
+    <!-- Informasi Siswa & Periode -->
+<div class="grid grid-cols-2 gap-2 text-xs rounded-xl border-2 border-purple-900/10 w-full p-3" style="background-color: #f8fafc !important;">
+    <div><b>Nama Siswa:</b> <span id="cert-nama-siswa"></span></div>
+    <div><b>Nomor ID:</b> <span id="cert-id-siswa"></span></div>
+    <div><b>Kelas:</b> <span id="cert-kelas-siswa"></span></div>
+    <div><b>Asal Sekolah:</b> <span id="cert-sekolah-siswa"></span></div>
+    <div class="col-span-2 mt-1 pt-1 border-t border-slate-200"><b>Periode Laporan:</b> <span id="cert-periode-teks" class="color: #000000 !important; font-weight: bold;"></span></div>
+</div>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-xs border border-slate-400">
@@ -911,8 +923,8 @@ async function updateSettingsInSupabase(columnName, value) {
         <div style="text-align: center; width: 40%;">
             <!-- Spasi kosong pengimbang baris tanggal di kanan -->
             <div style="visibility: hidden; margin-bottom: 4px;">&nbsp;</div>
-            <div style="margin-bottom: 40px;">Orang Tua / Wali Siswa</div>
-            <div>( ....................................................... )</div>
+            <div style="margin-bottom: 40px;"></div>
+            <div></div>
         </div>
 
         <!-- Bagian Kanan: Tanggal & Kepala Lembaga -->
@@ -1353,7 +1365,7 @@ function getDirectImageUrl(url) {
             ],
             siswa: [
                 { id: 'absensi_siswa', label: '📋 ABSENSI' },
-                { id: 'pembelajaran_siswa', label: '🎮 PEMBELAJARAN (GAME)' },
+                { id: 'pembelajaran_siswa', label: '🎮 PEMBELAJARAN' },
                 { id: 'hasil_belajar_siswa', label: '🏆 HASIL BELAJAR' }
             ]
         };
@@ -1546,7 +1558,7 @@ async function saveConfigAdmin(e) {
                     <div class="p-4 rounded-2xl bg-white/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3">
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-200">🔍 Pilih Data Siswa:</label>
                         <div class="flex flex-wrap md:flex-nowrap gap-2">
-                            <select id="select-admin-siswa" onchange="pilihSiswaSesuaiSelect()" class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-bold">
+                            <select id="select-admin-siswa" onchange="pilihSiswaSesuaiSelect()" class="w-full p-2.5 rounded-xl border border-slate-700 bg-slate-800 text-white font-medium text-xs focus:ring-2 focus:ring-indigo-500 outline-none">
                                 <option value="">-- Pilih dari Daftar Siswa --</option>
                                 ${siswaList.map(s => `<option value="${s.id}" ${selectedSiswaAdmin && selectedSiswaAdmin.id === s.id ? 'selected' : ''}>${s.id} - ${s.nama} (${s.kelas})</option>`).join('')}
                             </select>
@@ -1561,24 +1573,28 @@ async function saveConfigAdmin(e) {
         const listNilaiSiswa = nilaiList || [];
                    
         bodyEl.innerHTML = htmlHeaderPilihan + `
-                        <div class="p-4 rounded-2xl bg-blue-50/50 dark:bg-slate-800/80 border border-blue-200 dark:border-slate-700 flex flex-wrap justify-between items-center gap-3 text-xs">
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1">
-                                <div><span class="text-slate-500 block font-semibold">Nama Lengkap</span><span class="font-bold text-slate-800 dark:text-slate-100 text-sm">${selectedSiswaAdmin.nama}</span></div>
-                                <div><span class="text-slate-500 block font-semibold">Kelas</span><span class="font-bold text-slate-800 dark:text-slate-100 text-sm">${selectedSiswaAdmin.kelas}</span></div>
-                                <div><span class="text-slate-500 block font-semibold">Asal Sekolah</span><span class="font-bold text-slate-800 dark:text-slate-100 text-sm">${selectedSiswaAdmin.sekolah}</span></div>
-                            </div>
-                            <div>
-                                <button onclick="bukaRaporSertifikat('${selectedSiswaAdmin.id}')" class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow flex items-center gap-1.5 transition">
-                                    📜 Cetak Rapor
-                                </button>
-                            </div>
-                        </div>
+                        <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800/80 mb-4 shadow-xl backdrop-blur-md w-full">
+    <!-- Baris Judul Tabel & Kontrol Sejajar -->
+    <div class="flex flex-wrap justify-between items-center gap-4 mb-4">
+        <!-- Judul Tabel di Sisi Kiri Atas -->
+        <h3 class="font-bold font-header text-xs text-slate-300 uppercase tracking-wider">📊 Tabel Capaian & Nilai Mata Pelajaran</h3>
+        
+        <!-- Urutan Tombol di Sisi Kanan -->
+        <div class="flex items-center gap-2.5">
+            <button onclick="tambahNilaiModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3.5 py-2 rounded-xl text-xs shadow-lg transition">+ Input Nilai Baru</button>
+            <select id="pilih-periode-utama" class="bg-slate-800 text-white border border-slate-700 px-3 py-2 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 outline-none">
+                <option value="Agustus 2026">Agustus 2026</option>
+                <option value="September 2026">September 2026</option>
+                <option value="Oktober 2026">Oktober 2026</option>
+                <option value="November 2026">November 2026</option>
+                <option value="Desember 2026">Desember 2026</option>
+            </select>
+            <button onclick="bukaRaporSertifikat(selectedSiswaAdmin.id, document.getElementById('pilih-periode-utama').value)" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3.5 py-2 rounded-xl text-xs shadow-lg transition">Cetak Laporan</button>
+        </div>
+    </div>
 
-                        <div class="flex justify-between items-center pt-2">
-                            <h3 class="font-bold font-header text-xs text-slate-700 dark:text-slate-300 uppercase">📊 Tabel Capaian & Nilai Mata Pelajaran</h3>
-                            <button onclick="tambahNilaiModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs shadow">+ Input Nilai Baru</button>
-                        </div>
-
+    <!-- Area Tabel Full Lebar -->
+    <div class="overflow-x-auto w-full">
                         
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse text-xs">
@@ -1657,7 +1673,7 @@ async function saveConfigAdmin(e) {
                             <label class="block text-xs font-bold mb-1 text-slate-600 dark:text-slate-300">Kategori</label>
                             <select id="filter-kategori" onchange="filterMateriAdmin()" class="w-full p-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold">
                                 <option value="ALL">-- Semua Kategori --</option>
-                                <option value="Soal">Soal (Game Level)</option>
+                                <option value="Soal">Soal</option>
                                 <option value="Modul">Modul</option>
                             </select>
                         </div>
@@ -1831,7 +1847,7 @@ async function saveConfigAdmin(e) {
                 `;
             }
             else if (menuId === 'absensi_siswa') {
-                titleEl.textContent = '📋 Presensi Kehadiran Siswa Mandiri';
+                titleEl.textContent = '📋 Presensi Kehadiran Siswa';
                 bodyEl.innerHTML = `
                     <div class="max-w-3xl mx-auto space-y-6">
                         <div class="p-5 rounded-2xl bg-blue-50/70 dark:bg-slate-800/80 border border-blue-200 dark:border-slate-700 space-y-4 shadow-sm">
@@ -1861,7 +1877,7 @@ async function saveConfigAdmin(e) {
                         </div>
 
                         <div class="space-y-3">
-                            <h3 class="font-bold text-xs text-slate-700 dark:text-slate-300 uppercase tracking-wider">📊 Tabel Riwayat Presensi Anda</h3>
+                            <h3 class="font-bold text-xs text-slate-700 dark:text-slate-300 uppercase tracking-wider">📊 Tabel Riwayat Presensi Kehadiran Siswa</h3>
                             <div class="overflow-x-auto">
                                 <table class="w-full text-left border-collapse text-xs">
                                     <thead>
@@ -1881,24 +1897,24 @@ async function saveConfigAdmin(e) {
                 renderRiwayatAbsenSiswa();
             }
             else if (menuId === 'pembelajaran_siswa') {
-                titleEl.textContent = `🎮 Pembelajaran & Game Mandiri (${currentUser.kelas})`;
+                titleEl.textContent = `🎮 Pembelajaran Mandiri (${currentUser.kelas})`;
 
                 bodyEl.innerHTML = `
                     <div class="p-4 rounded-2xl bg-blue-50 dark:bg-slate-800/60 border border-blue-200 dark:border-slate-700 space-y-3">
-                        <label class="block font-bold text-xs text-blue-900 dark:text-blue-300">📚 Pilih Mata Pelajaran (Menampilkan Soal Sesuai Kelas Anda: <span class="text-emerald-600 font-black">${currentUser.kelas}</span>):</label>
+                        <label class="block font-bold text-xs text-blue-900 dark:text-blue-300">📚 Pilih Mata Pelajaran (<span class="text-emerald-600 font-black">${currentUser.kelas}</span>):</label>
                         <select id="siswa-pilih-mapel" onchange="renderGameLevelsSiswa()" class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-bold">
-                            <option value="">-- Pilih Mata Pelajaran Anda --</option>
+                            <option value="">-- Pilih Mata Pelajaran --</option>
                             ${listMapel.map(m => `<option value="${m}">${m}</option>`).join('')}
                         </select>
                     </div>
                     <div id="siswa-game-levels-container" class="space-y-3">
-                        <div class="text-center py-8 text-slate-400 italic text-xs">Silakan pilih Mata Pelajaran di atas untuk menampilkan modul dan level pembelajaran kelas ${currentUser.kelas}.</div>
+                        <div class="text-center py-8 text-slate-400 italic text-xs">Silakan pilih Mata Pelajaran di atas untuk menampilkan modul dan level pembelajaran ${currentUser.kelas}.</div>
                     </div>
                 `;
             }
             else if (menuId === 'hasil_belajar_siswa') {
-                titleEl.textContent = '🏆 Capaian & Hasil Belajar Mandiri';
-                actionsEl.innerHTML = `<button onclick="bukaRaporSertifikat('${currentUser.id}')" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs shadow flex items-center gap-1">📜 Cetak Rapor</button>`;
+                titleEl.textContent = '🏆 Capaian & Hasil Belajar';
+                actionsEl.innerHTML = `<button onclick="bukaRaporSertifikat('${currentUser.id}')" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs shadow flex items-center gap-1">📜 Cetak Laporan</button>`;
 
                 const myNilai = nilaiList.filter(n => n.id_siswa === currentUser.id);
                 bodyEl.innerHTML = `
@@ -2093,7 +2109,7 @@ async function saveConfigAdmin(e) {
         }
 
         async function hapusSiswa(id) {
-            if (!confirm(`Apakah Anda yakin ingin menghapus siswa dengan ID ${id}?`)) return;
+            if (!confirm(`Apakah kamu yakin ingin menghapus siswa dengan ID ${id}?`)) return;
             await supabaseClient.from('slc_siswa').delete().eq('id', id);
             renderView('data_siswa');
         }
@@ -2121,18 +2137,23 @@ async function saveConfigAdmin(e) {
         }
 
         async function editNilaiModal(id) {
-    const { data: n, error } = await supabaseClient.from('slc_nilai').select('*').eq('id', id).single();
-    if (error || !n) {
+    const { data, error } = await supabaseClient.from('slc_nilai').select('*').eq('id', id).single();
+    if (error || !data) {
         alert("Data nilai tidak ditemukan.");
         return;
     }
 
-    document.getElementById('modal-nilai-title').textContent = '⭐ Edit Hasil Belajar';
-    document.getElementById('modal-nilai-id').value = n.id;
-    document.getElementById('modal-nilai-mapel').value = n.mapel;
-    document.getElementById('modal-nilai-bab').value = n.bab;
-    document.getElementById('modal-nilai-capaian').value = n.capaian;
-    document.getElementById('modal-nilai-angka').value = n.nilai;
+    // Sinkronkan periode modal dengan periode yang sedang dipilih di halaman utama
+    const periodeUtama = document.getElementById('pilih-periode-utama');
+    if (periodeUtama) {
+        document.getElementById('filter-periode').value = data.periode || periodeUtama.value;
+    }
+
+    document.getElementById('modal-nilai-id').value = data.id;
+    document.getElementById('modal-nilai-mapel').value = data.mapel;
+    document.getElementById('modal-nilai-bab').value = data.bab;
+    document.getElementById('modal-nilai-capaian').value = data.capaian;
+    document.getElementById('modal-nilai-angka').value = data.nilai;
     document.getElementById('modal-nilai-siswa').classList.remove('hidden');
 }
 
@@ -2142,38 +2163,48 @@ async function saveConfigAdmin(e) {
 
         async function simpanNilaiSiswa(e) {
     e.preventDefault();
+    
+    if (!selectedSiswaAdmin) return;
 
-    const idVal = document.getElementById('modal-nilai-id').value;
-    if (!idVal && !selectedSiswaAdmin) return;
-
+    const periode = document.getElementById('filter-periode') ? document.getElementById('filter-periode').value : 'Agustus 2026';
     const mapel = document.getElementById('modal-nilai-mapel').value;
     const bab = document.getElementById('modal-nilai-bab').value.trim();
     const capaian = document.getElementById('modal-nilai-capaian').value.trim();
     const nilai = parseInt(document.getElementById('modal-nilai-angka').value);
 
+    // Cek apakah data untuk siswa, mapel, dan periode tersebut sudah ada
+    const { data: existingData } = await supabaseClient
+        .from('slc_nilai')
+        .select('id')
+        .eq('id_siswa', selectedSiswaAdmin.id)
+        .eq('mapel', mapel)
+        .eq('periode', periode)
+        .maybeSingle();
+
     let error;
 
-    if (idVal) {
-        // Proses EDIT (Update data yang sudah ada berdasarkan id)
-        const res = await supabaseClient.from('slc_nilai').update({
-            mapel: mapel,
-            bab: bab,
-            capaian: capaian,
-            nilai: nilai
-        }).eq('id', idVal);
+    if (existingData) {
+        // Update jika sudah ada di periode yang sama
+        const res = await supabaseClient
+            .from('slc_nilai')
+            .update({ bab, capaian, nilai, nama: selectedSiswaAdmin.nama, kelas: selectedSiswaAdmin.kelas })
+            .eq('id', existingData.id);
         error = res.error;
     } else {
-        // Proses TAMBAH DATA BARU (Insert)
-        const res = await supabaseClient.from('slc_nilai').insert([
-            {
+        // Insert baru sebagai arsip periode tersebut
+        const res = await supabaseClient
+            .from('slc_nilai')
+            .insert([{
                 id: 'NIL-' + Date.now(),
                 id_siswa: selectedSiswaAdmin.id,
+                nama: selectedSiswaAdmin.nama,
+                kelas: selectedSiswaAdmin.kelas,
+                periode: periode,
                 mapel: mapel,
                 bab: bab,
                 capaian: capaian,
                 nilai: nilai
-            }
-        ]);
+            }]);
         error = res.error;
     }
 
@@ -2181,7 +2212,7 @@ async function saveConfigAdmin(e) {
         console.error("Gagal menyimpan:", error);
         alert("Gagal menyimpan: " + error.message);
     } else {
-        alert("Berhasil menyimpan data!");
+        alert("Berhasil menyimpan arsip laporan periode " + periode + "!");
         closeModalNilai();
         renderView('hasil_belajar_admin');
     }
@@ -2207,12 +2238,12 @@ async function saveConfigAdmin(e) {
     // Memanggil fungsi modal yang benar
     tambahNilaiModal();
 }
-        async function bukaRaporSertifikat(siswaId) {
-            const { data: s } = await supabaseClient.from('slc_siswa').select('*').eq('id', siswaId).single();
-            if (!s) return;
+        async function bukaRaporSertifikat(siswaId, periodePilih = 'Agustus 2026') {
+    const { data: s } = await supabaseClient.from('slc_siswa').select('*').eq('id', siswaId).single();
+    if (!s) return;
 
-            const { data: nilaiList } = await supabaseClient.from('slc_nilai').select('*').eq('id_siswa', siswaId);
-            const listNilai = nilaiList || [];
+    const { data: nilailist } = await supabaseClient.from('slc_nilai').select('*').eq('id_siswa', siswaId).eq('periode', periodePilih);
+    const listNilai = nilailist || [];
 // --- PANGGIL FUNGSI CATATAN MENGGUNAKAN listNilai ---
     if (typeof hitungRataRataDanCatatan === 'function') {
         hitungRataRataDanCatatan(listNilai);
@@ -2222,7 +2253,7 @@ async function saveConfigAdmin(e) {
             document.getElementById('cert-id-siswa').textContent = s.id;
             document.getElementById('cert-kelas-siswa').textContent = s.kelas;
             document.getElementById('cert-sekolah-siswa').textContent = s.sekolah;
-
+document.getElementById('cert-periode-teks').textContent = periodePilih;
             const tbody = document.getElementById('cert-table-body');
             tbody.innerHTML = listNilai.length === 0 ? `<tr><td colspan="4" class="p-3 text-center text-slate-400 italic">Belum ada catatan nilai.</td></tr>` : listNilai.map(n => `
                 <tr>
@@ -2297,7 +2328,7 @@ async function saveConfigAdmin(e) {
         if (sudahAbsenHariIni) {
             btnKirim.disabled = true;
             btnKirim.className = "w-full py-2.5 bg-slate-300 dark:bg-slate-700 text-slate-500 rounded-xl font-bold text-xs cursor-not-allowed";
-            btnKirim.innerText = "✅ Anda Sudah Melakukan Presensi Hari Ini";
+            btnKirim.innerText = "✅ Kamu Sudah Melakukan Presensi Hari Ini";
         } else {
             btnKirim.disabled = false;
             btnKirim.className = "w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-lg transition";
@@ -2315,7 +2346,7 @@ async function prosesValidasiAbsensiSiswa() {
 
     const { data: existing } = await supabaseClient.from('slc_absen').select('*').eq('id_siswa', currentUser.id).eq('tanggal', tanggal);
     if (existing && existing.length > 0) {
-        alert("Anda sudah melakukan presensi hari ini!");
+        alert("Kamu sudah melakukan presensi hari ini!");
         renderRiwayatAbsenSiswa();
         return;
     }
@@ -2537,7 +2568,7 @@ async function prosesValidasiAbsensiSiswa() {
         }
 
         function tambahSoalModal() {
-            document.getElementById('modal-soal-title').textContent = '➕ Tambah Pembelajaran / Level Game';
+            document.getElementById('modal-soal-title').textContent = '➕ Tambah Pembelajaran';
             document.getElementById('modal-input-id').value = '';
             document.getElementById('modal-input-kategori').value = 'Soal';
             document.getElementById('modal-input-bab').value = '';
@@ -2549,7 +2580,7 @@ async function prosesValidasiAbsensiSiswa() {
         async function editSoalModal(id) {
             const { data: m } = await supabaseClient.from('slc_materi').select('*').eq('id', id).single();
             if (!m) return;
-            document.getElementById('modal-soal-title').textContent = '➕ Edit Pembelajaran / Level Game';
+            document.getElementById('modal-soal-title').textContent = '➕ Edit Pembelajaran';
             document.getElementById('modal-input-id').value = m.id;
             document.getElementById('modal-input-kategori').value = m.kategori;
             document.getElementById('modal-input-kelas').value = m.kelas;
@@ -2717,11 +2748,11 @@ async function prosesValidasiAbsensiSiswa() {
         }
 
         // Tampilan teks nilai & status tombol
-        let infoNilai = nilaiSiswa !== null ? `<span class="text-xs font-bold text-emerald-600">Nilai Anda: ${nilaiSiswa}</span>` : `<span class="text-xs text-amber-500 italic">Belum dikerjakan</span>`;
+        let infoNilai = nilaiSiswa !== null ? `<span class="text-xs font-bold text-emerald-600">Nilai: ${nilaiSiswa}</span>` : `<span class="text-xs text-amber-500 italic">Belum dikerjakan</span>`;
         
         let tombolHtml = '';
         if (statusBuka) {
-            tombolHtml = `<a href="${m.link || '#'}" target="_blank" class="block w-full text-center py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-bold text-xs transition">Mulai Akses / Mainkan</a>`;
+            tombolHtml = `<a href="${m.link || '#'}" target="_blank" class="block w-full text-center py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-bold text-xs transition">Mulai Pembelajaran</a>`;
         } else {
             tombolHtml = `<button disabled class="w-full text-center py-2 bg-slate-300 dark:bg-slate-700 text-slate-500 rounded font-bold text-xs cursor-not-allowed">🔒 Terkunci (Selesaikan Bab Sebelumnya)</button>`;
         }
@@ -2804,7 +2835,7 @@ async function renderRekapAbsen() {
 }
 
 async function hapusAbsenAdmin(idAbsen) {
-    if (confirm("Apakah Anda yakin ingin menghapus data presensi ini?")) {
+    if (confirm("Apakah Kamu yakin ingin menghapus data presensi ini?")) {
         const { error } = await supabaseClient.from('slc_absen').delete().eq('id', idAbsen);
         if (error) {
             alert("Gagal menghapus presensi: " + error.message);
@@ -3040,7 +3071,17 @@ for (let i = 0; i < 70; i++) {
 
     renderMoleculeBG();
 }
-
+function cetakLaporanDariPilihan() {
+    const periodeTerpilih = document.getElementById('pilih-periode-utama').value;
+    const siswaIdAktif = document.getElementById('id-siswa-aktif') ? document.getElementById('id-siswa-aktif').value : selectedSiswaAdmin.id; 
+    
+    if(!siswaIdAktif) {
+        alert('Silakan pilih data siswa terlebih dahulu!');
+        return;
+    }
+    
+    bukaRaporSertifikat(siswaIdAktif, periodeTerpilih);
+}
 </script>
 
 </body>
