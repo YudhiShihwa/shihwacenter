@@ -18,10 +18,13 @@
     .logo-img {
     width: 75px !important;
     height: 75px !important;
-    object-fit: cover !important; /* Gunakan cover agar mengisi penuh lingkaran tanpa gepeng */
+    object-fit: cover !important;
     border-radius: 50% !important;
     display: block !important;
     margin: 0 auto !important;
+    box-shadow: 0 0 35px 10px rgba(168, 85, 247, 0.95), 0 0 60px 20px rgba(216, 180, 254, 0.6) !important;
+    border: 2px solid rgba(233, 213, 255, 0.9) !important;
+    filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.9)) !important;
 }
     /* ... aturan lainnya ... */
 }
@@ -378,7 +381,11 @@ html.dark select {
       font-size: 0.85rem !important;
       resize: none !important;
     }
-
+/* 6. Cahaya Logo */
+  #login-logo-frame, [id*="logo-frame"] {
+    box-shadow: 0 0 25px rgba(168, 85, 247, 0.6), 0 0 50px rgba(59, 130, 246, 0.4) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  }
     /* ==========================================================
        KODE KHUSUS CETAK LAPORAN (Agar Teks & Tabel Kembali Normal)
        ========================================================== */
@@ -701,11 +708,11 @@ async function updateSettingsInSupabase(columnName, value) {
                 </div>
                 <div>
                     <label class="block text-[11px] sm:text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">ID Registrasi</label>
-                    <input type="text" id="login-id" required placeholder="Masukkan ID Registrasi" class="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-slate-700 text-white" style="background-color: #1e293b !important; color: #ffffff !important; color-scheme: dark !important;">
+                    <input type="text" id="login-id" required placeholder="Masukkan ID Registrasi" class="w-full px-3.5 py-2.5 pl-4 rounded-xl border border-slate-700 text-white" style="background-color: #1e293b !important; color: #ffffff !important; color-scheme: dark !important;">
                 </div>
                 <div>
                     <label class="block text-[11px] sm:text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">Password</label>
-                    <input type="password" id="login-password" required placeholder="••••••••" class="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-slate-700 text-white" style="background-color: #1e293b !important; color: #ffffff !important; color-scheme: dark !important;">
+                    <input type="password" id="login-password" required placeholder="••••••••" class="w-full px-3.5 py-2.5 pl-4 rounded-xl border border-slate-700 text-white" style="background-color: #1e293b !important; color: #ffffff !important; color-scheme: dark !important;">
                 </div>
                 
                 <button type="submit" class="px-12 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg hover:shadow-[0_0_25px_rgba(59,130,246,0.9)] active:scale-95 transition-all duration-300 mx-auto block">
@@ -726,12 +733,11 @@ async function updateSettingsInSupabase(columnName, value) {
   <!-- Kiri: Logo dan Teks Informasi Header -->
   <div class="flex items-center gap-4 w-full md:w-auto">
     <!-- Bingkai Logo Berputar -->
-    <div id="header-logo-frame" class="relative w-14 h-14 rounded-full p-[2px] overflow-hidden flex items-center justify-center shadow-lg flex-shrink-0">
-      <div class="absolute inset-0 bg-[conic-gradient(from_0deg,#ff0000,#ffa500,#ffff00,#008000,#0000ff,#4b0082,#ee82ee,#ff0000)] animate-spin-slow"></div>
-      <div class="relative w-full h-full bg-slate-900 dark:bg-zinc-950 rounded-full flex items-center justify-center text-white font-bold text-lg z-10 overflow-hidden">
-        <img src="..." alt="Logo" class="w-full h-full object-cover rounded-full" />
-      </div>
+    <div id="header-logo-frame" class="relative w-14 h-14 rounded-full p-[2px] flex items-center justify-center" style="box-shadow: 0 0 50px 20px rgba(168, 85, 247, 1), 0 0 100px 40px rgba(216, 180, 254, 0.7); background: rgba(168, 85, 247, 0.5); border: 2px solid rgba(255, 255, 255, 0.9);">
+    <div class="relative w-full h-full bg-slate-900 dark:bg-zinc-950 rounded-full flex items-center justify-center overflow-hidden">
+        <img src="..." alt="Logo" class="w-full h-full object-cover rounded-full logo-img" />
     </div>
+</div>
     
     <!-- Teks Judul & Detail Pengguna (Sama seperti Gambar 2) -->
     <div>
@@ -741,7 +747,7 @@ async function updateSettingsInSupabase(columnName, value) {
         <span id="header-user-role" class="text-blue-600 dark:text-blue-400 font-bold uppercase">ROLE</span>
         <span class="text-slate-300 dark:text-slate-700">|</span>
         <span class="text-blue-500 font-mono flex items-center gap-1 font-bold">🕒 <span id="realtime-clock">--:--:--</span></span>
-        <span id="slogan-header" class="italic text-[11px] text-slate-400 dark:text-slate-400">"Homey and Enjoyable Learning"</span>
+        <span id="slogan-header" class="italic text-[11px] !text-black dark:!text-slate-300">"Homey and Enjoyable Learning"</span>
       </div>
     </div>
   </div>
@@ -817,7 +823,7 @@ async function updateSettingsInSupabase(columnName, value) {
                 </div>
                 <div>
                     <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">6. Alamat</label>
-                    <textarea id="modal-siswa-alamat" rows="2" placeholder="Alamat lengkap" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"></textarea>
+                    <input type="text" id="modal-siswa-alamat" placeholder="Alamat lengkap" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500">
                 </div>
                 <div>
                     <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">7. Pilihan Program Belajar</label>
@@ -1506,50 +1512,58 @@ function getDirectImageUrl(url) {
         };
 
         async function handleLogin(e) {
-            e.preventDefault();
-            const role = document.getElementById('login-role').value;
-            const id = document.getElementById('login-id').value.trim();
-            const pass = document.getElementById('login-password').value;
+    e.preventDefault();
+    const role = document.getElementById('login-role').value;
+    const id = document.getElementById('login-id').value.trim();
+    const pass = document.getElementById('login-password').value;
 
-            try {
-                if (role === 'admin') {
-                    const { data: matchedAdmin, error } = await supabaseClient
-                        .from('slc_admins')
-                        .select('*')
-                        .ilike('id', id)
-                        .eq('password', pass)
-                        .single();
+    // 1. PINDAHKAN INI KE ATAS: Langsung buka dashboard secara instan agar tidak ada jeda di layar
+    document.getElementById('login-section').classList.add('hidden');
+    document.getElementById('app-section').classList.remove('hidden');
+    
+    // Set data sementara agar dashboard langsung termuat
+    currentUser = { role: role, id: id, nama: role === 'admin' ? 'Admin' : 'Siswa' };
+    setupDashboard();
 
-                    if (matchedAdmin && !error) {
-                        currentUser = { role: 'admin', id: matchedAdmin.id, nama: matchedAdmin.nama };
-                    } else {
-                        alert('ID Registrasi Admin atau Password Salah, atau pastikan tabel slc_admins sudah dibuat di Supabase!');
-                        return;
-                    }
-                } else if (role === 'siswa') {
-                    const { data: matchedSiswa, error } = await supabaseClient
-                        .from('slc_siswa')
-                        .select('*')
-                        .ilike('id', id)
-                        .eq('password', pass)
-                        .single();
+    try {
+        // 2. Lakukan pengecekan database Supabase di latar belakang (background)
+        if (role === 'admin') {
+            const { data: matchedAdmin, error } = await supabaseClient
+                .from('slc_admins')
+                .select('*')
+                .ilike('id', id)
+                .eq('password', pass)
+                .single();
 
-                    if (matchedSiswa && !error) {
-                        currentUser = { role: 'siswa', id: matchedSiswa.id, nama: matchedSiswa.nama, kelas: matchedSiswa.kelas, kelompok: matchedSiswa.kelompok || 'Reguler' };
-                    } else {
-                        alert('ID Registrasi Siswa atau Password Salah, atau pastikan tabel slc_siswa sudah dibuat di Supabase!');
-                        return;
-                    }
-                }
+            if (matchedAdmin && !error) {
+                currentUser = { role: 'admin', id: matchedAdmin.id, nama: matchedAdmin.nama };
+                setupDashboard(); // Refresh ulang dashboard dengan data asli dari database
+            } else {
+                alert('ID Registrasi Admin atau Password Salah!');
+                handleLogout(); // Kembalikan ke login jika salah
+            }
+        } else if (role === 'siswa') {
+            const { data: matchedSiswa, error } = await supabaseClient
+                .from('slc_siswa')
+                .select('*')
+                .ilike('id', id)
+                .eq('password', pass)
+                .single();
 
-                document.getElementById('login-section').classList.add('hidden');
-                document.getElementById('app-section').classList.remove('hidden');
-                setupDashboard();
-            } catch (err) {
-                console.error("Gagal melakukan login:", err);
-                alert("Terjadi kesalahan koneksi ke database Supabase. Pastikan URL dan Anon Key sudah diisi dengan benar.");
+            if (matchedSiswa && !error) {
+                currentUser = { role: 'siswa', id: matchedSiswa.id, nama: matchedSiswa.nama, kelas: matchedSiswa.kelas };
+                setupDashboard(); // Refresh ulang dashboard dengan data asli dari database
+            } else {
+                alert('ID Registrasi Siswa atau Password Salah!');
+                handleLogout(); // Kembalikan ke login jika salah
             }
         }
+    } catch (err) {
+        console.error("Gagal melakukan login:", err);
+        alert("Terjadi kesalahan koneksi ke database Supabase.");
+        handleLogout();
+    }
+}
 
         function handleLogout() {
             currentUser = null;
@@ -1597,21 +1611,21 @@ async function saveConfigAdmin(e) {
     }
     
     const cfg = {
-        appName: document.getElementById('cfg-app-name') ? document.getElementById('cfg-app-name').value.trim() : '',
-        schoolName: document.getElementById('cfg-school-name') ? document.getElementById('cfg-school-name').value.trim() : '',
-        slogan: document.getElementById('cfg-slogan') ? document.getElementById('cfg-slogan').value.trim() : '',
-        timeZone: document.getElementById('cfg-timezone') ? document.getElementById('cfg-timezone').value : 'WIB',
-        logoUrl: document.getElementById('cfg-logourl') ? document.getElementById('cfg-logourl').value.trim() : '',
-        logo_rapor_url: document.getElementById('input-logo-rapor-url') ? document.getElementById('input-logo-rapor-url').value.trim() : '',
-        glowColor: document.getElementById('cfg-glowcolor') ? document.getElementById('cfg-glowcolor').value : '#3b82f6',
-        signatureUrl: document.getElementById('cfg-sigurl') ? document.getElementById('cfg-sigurl').value.trim() : (document.getElementById('cfg-signatureurl') ? document.getElementById('cfg-signatureurl').value.trim() : ''),
-        stampUrl: document.getElementById('cfg-stampurl') ? document.getElementById('cfg-stampurl').value.trim() : '',
-        themeOverall: document.getElementById('cfg-themeoverall') ? document.getElementById('cfg-themeoverall').value : '',
-        address: document.getElementById('cfg-address') ? document.getElementById('cfg-address').value.trim() : '',
-        paperSize: document.getElementById('cfg-papersize') ? document.getElementById('cfg-papersize').value : 'a4',
-        orientation: document.getElementById('cfg-orientation') ? document.getElementById('cfg-orientation').value : 'portrait',
-        pdfMargin: document.getElementById('cfg-pdfmargin') ? document.getElementById('cfg-pdfmargin').value : '10'
-    };
+    appName: document.getElementById('cfg-app-name') ? document.getElementById('cfg-app-name').value.trim() : '',
+    schoolName: document.getElementById('cfg-school-name') ? document.getElementById('cfg-school-name').value.trim() : '',
+    slogan: document.getElementById('cfg-slogan') ? document.getElementById('cfg-slogan').value.trim() : '',
+    timeZone: document.getElementById('cfg-timezone') ? document.getElementById('cfg-timezone').value : 'WIB',
+    logoUrl: document.getElementById('cfg-logourl') ? document.getElementById('cfg-logourl').value.trim() : '',
+    logo_rapor_url: document.getElementById('input-logo-rapor-url') ? document.getElementById('input-logo-rapor-url').value.trim() : '',
+    glowColor: document.getElementById('glowColorInput') ? document.getElementById('glowColorInput').value : '#3b82f6',
+    signatureUrl: document.getElementById('cfg-sigurl') ? document.getElementById('cfg-sigurl').value.trim() : '',
+    stampUrl: document.getElementById('cfg-stampurl') ? document.getElementById('cfg-stampurl').value.trim() : '',
+    themeOverall: document.getElementById('themeOverallSelect') ? document.getElementById('themeOverallSelect').value : 'default',
+    address: document.getElementById('cfg-address') ? document.getElementById('cfg-address').value.trim() : '',
+    paperSize: document.getElementById('cfg-papersize') ? document.getElementById('cfg-papersize').value : 'a4',
+    orientation: document.getElementById('cfg-orientation') ? document.getElementById('cfg-orientation').value : 'portrait',
+    pdfMargin: document.getElementById('cfg-pdfmargin') ? document.getElementById('cfg-pdfmargin').value : '10'
+};
 
     try {
         await saveConfig(cfg);
@@ -1877,8 +1891,8 @@ const listNilaiSiswa = (nilaiList || []).sort((a, b) => {
                                 <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                                     ${adminList.map(a => `
                                         <tr>
-                                            <td class="p-2 font-bold text-blue-600 font-mono">${a.id}</td>
-                                            <td class="p-2 font-mono font-bold text-slate-600">${a.password}</td>
+                                            <td class="p-2 font-bold font-mono">${a.id}</td>
+                                            <td class="p-2 font-mono font-bold">${a.password}</td>
                                             <td class="p-2 font-semibold">${a.nama}</td>
                                             <td class="p-2 text-center space-x-2">
                                                 <button onclick="editAdminModal('${a.id}')" class="px-2 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded hover:bg-amber-500/20 font-bold">Edit</button>
@@ -1919,7 +1933,7 @@ const listNilaiSiswa = (nilaiList || []).sort((a, b) => {
                                 <input type="text" id="cfg-logourl" value="${cfg.logoUrl || ''}" placeholder="https://..." class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-800 text-xs">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-700 mb-1">URL Logo Rapor</label>
+                                <label class="block text-xs font-semibold mb-1 text-slate-300">URL Logo Rapor</label>
                                 <input type="text" id="input-logo-rapor-url" value="${cfg.logo_rapor_url || ''}" placeholder="https://..." class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-800 text-xs">
                             </div>
                             <div>
@@ -1953,7 +1967,7 @@ const listNilaiSiswa = (nilaiList || []).sort((a, b) => {
 
                         <div>
                             <label class="block text-xs font-semibold mb-1">Alamat Lembaga</label>
-                            <textarea id="cfg-address" rows="2" class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-800 text-xs">${cfg.address}</textarea>
+                            <input type="text" id="..." class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500" value="Dengan hati kami mengajari, Dengan inspirasi kami memotivasi">
                         </div>
 
                         <h3 class="font-bold font-header text-xs text-slate-700 dark:text-slate-300 uppercase border-b border-slate-200 dark:border-slate-700 pb-2 pt-2">🖨️ Pengaturan Ukuran Kertas & Margin</h3>
@@ -3037,11 +3051,11 @@ async function loadSavedConfig() {
             if (document.getElementById('cfg-slogan')) document.getElementById('cfg-slogan').value = data.slogan || '';
             if (document.getElementById('cfg-timezone')) document.getElementById('cfg-timezone').value = data.time_zone || '';
             if (document.getElementById('cfg-logourl')) document.getElementById('cfg-logourl').value = data.logo_url || '';
-            if (document.getElementById('cfg-glowcolor')) document.getElementById('cfg-glowcolor').value = data.glow_color || '#3b82f6';
+            if (document.getElementById('glowColorInput')) document.getElementById('glowColorInput').value = data.glow_color || '#3b82f6';
             if (document.getElementById('cfg-sigurl')) document.getElementById('cfg-sigurl').value = data.signature_url || '';
             if (document.getElementById('cfg-signatureurl')) document.getElementById('cfg-signatureurl').value = data.signature_url || '';
             if (document.getElementById('cfg-stampurl')) document.getElementById('cfg-stampurl').value = data.stamp_url || '';
-            if (document.getElementById('cfg-themeoverall')) document.getElementById('cfg-themeoverall').value = data.theme_overall || '';
+            if (document.getElementById('themeOverallSelect')) document.getElementById('themeOverallSelect').value = data.theme_overall || 'default';
             if (document.getElementById('cfg-address')) document.getElementById('cfg-address').value = data.address || '';
             if (document.getElementById('cfg-papersize')) document.getElementById('cfg-papersize').value = data.paper_size || 'a4';
             if (document.getElementById('cfg-orientation')) document.getElementById('cfg-orientation').value = data.orientation || 'portrait';
