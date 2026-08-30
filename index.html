@@ -319,9 +319,133 @@ html.dark select {
     color: #f43f5e !important;
     background-color: rgba(244, 63, 94, 0.2) !important;
   }
+/* 1. Kartu dan tabel di halaman utama tetap super bening */
+    div[class*="bg-slate-900"]:not([id*="modal"]):not([class*="fixed"]), 
+    div[class*="bg-white"]:not([id*="modal"]):not([class*="fixed"]), 
+    .glow-card:not(:has([id*="modal"])) {
+      background-color: rgba(15, 23, 42, 0.03) !important;
+      backdrop-filter: blur(0.5px) !important;
+      -webkit-backdrop-filter: blur(0.5px) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05) !important;
+    }
+
+    /* 2. Menghilangkan warna gelap di luar modal */
+    div[id^="modal-"]:not(.hidden), 
+    div[class*="fixed"][class*="inset-0"]:not(.hidden) {
+      background-color: rgba(0, 0, 0, 0.15) !important;
+      backdrop-filter: none !important;
+    }
+
+    /* 3. Ukuran pop-up modal input data */
+    div[id^="modal-"]:not(.hidden) > div, 
+    div[class*="fixed"][class*="inset-0"]:not(.hidden) > div {
+      max-width: 480px !important;
+      width: 85% !important;
+      max-height: none !important;
+      height: auto !important;
+      overflow-y: visible !important;
+      padding: 0.5rem 0.75rem !important;
+      gap: 0.15rem !important;
+      background-color: var(--modal-bg) !important;
+      color: var(--modal-text) !important;
+      backdrop-filter: blur(16px) !important;
+      -webkit-backdrop-filter: blur(16px) !important;
+      border: 2px solid var(--modal-border) !important;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3) !important;
+      margin: 0 auto !important;
+    }
+
+    /* 4. Ukuran input & select di dalam modal */
+    div[id^="modal-"] input:not([type="checkbox"]):not([type="radio"]), 
+    div[id^="modal-"] select {
+      width: 100% !important;
+      box-sizing: border-box !important;
+      height: 1.85rem !important;
+      min-height: 1.85rem !important;
+      padding: 0.25rem 0.5rem !important;
+      font-size: 0.85rem !important;
+    }
+
+    /* 5. Khusus textarea alamat di modal */
+    div[id^="modal-"] textarea {
+      width: 100% !important;
+      box-sizing: border-box !important;
+      height: 3.5rem !important;
+      min-height: 3.5rem !important;
+      max-height: 5rem !important;
+      padding: 0.35rem 0.5rem !important;
+      font-size: 0.85rem !important;
+      resize: none !important;
+    }
+
+    /* ==========================================================
+       KODE KHUSUS CETAK LAPORAN (Agar Teks & Tabel Kembali Normal)
+       ========================================================== */
+    @media print {
+      body {
+        background: white !important;
+        color: black !important;
+      }
+      
+      /* Mengembalikan ukuran tabel laporan cetak */
+      .print-area table, div[id*="report"] table, #sertifikat-modal table, div[id*="certificate"] table {
+        width: 100% !important;
+      }
+
+      /* Memastikan teks dan padding cetak laporan kembali normal */
+      .print-area tr td, .print-area tr th, 
+      div[id*="report"] tr td, div[id*="report"] tr th,
+      #certificate-render-area td, #certificate-render-area th {
+        padding: 0.5rem !important;
+        font-size: 1rem !important;
+        color: black !important;
+      }
+    }
+ /* Memposisikan modal preview dan background-nya agar pas di tengah layar laptop dan selebar kertas laporan */
+  div[id^="modal-rapor"]:not(.hidden), 
+  div[id*="certificate-modal"]:not(.hidden),
+  div[class*="fixed"][class*="inset-0"]:has(#certificate-render-area):not(.hidden) {
+    overflow-y: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    padding-top: 5rem !important; 
+    padding-bottom: 4rem !important;
+  }
+
+  /* Membuat kotak pembungkus/background preview menyesuaikan persis dengan lebar kertas laporan A4 */
+  div[id^="modal-rapor"]:not(.hidden) > div,
+  div[id*="certificate-modal"]:not(.hidden) > div,
+  div[class*="fixed"][class*="inset-0"]:has(#certificate-render-area):not(.hidden) > div {
+    width: 210mm !important;
+    max-width: 95vw !important;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Memastikan area render kertas laporan berada tepat di tengah tanpa bergeser */
+ #certificate-render-area, 
+  div[id*="report"] {
+    width: 210mm !important;
+    max-width: 100% !important;
+    min-height: auto !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    margin: 1rem auto !important;
+    padding: 10mm 12mm !important; /* Mengurangi padding luar agar isi laporan lebih dekat dengan garis tepi */
+    box-sizing: border-box !important;
+    background-color: white !important;
+    color: black !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
+    position: relative !important;
+    flex-shrink: 0 !important;
+  }
 </style>
 </head>
-<body class="dark p-3 md:p-6 text-sm flex flex-col justify-center min-h-screen">
+<body class="dark p-3 md:p-6 text-sm flex flex-col justify-center min-h-screen bg-transparent text-slate-100">
     <canvas id="canvas-3d-bg" class="fixed inset-0 z-[-1] pointer-events-none"></canvas>
 
 
@@ -782,56 +906,66 @@ async function updateSettingsInSupabase(columnName, value) {
     </div>
 
     <!-- MODAL INPUT / EDIT HASIL BELAJAR -->
-    <div id="modal-nilai-siswa" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="glow-card max-w-lg w-full p-6 space-y-4 bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-slate-700">
-            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-3">
-                <h3 id="modal-nilai-title" class="font-bold font-header text-base text-blue-600 dark:text-blue-400">⭐ Kelola Hasil Belajar</h3>
-                <button onclick="closeModalNilai()" class="text-slate-400 hover:text-rose-500 font-bold text-lg">&times;</button>
-            <form onsubmit="simpanNilaiSiswa(event)" class="space-y-3 text-xs">
-    <input type="hidden" id="modal-nilai-id" value="">
-    
-    <div>
-        <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Periode / Bulan Laporan</label>
-        <select id="filter-periode" class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-white text-xs">
-    <option value="Agustus 2026">Agustus 2026</option>
-    <option value="September 2026">September 2026</option>
-    <option value="Oktober 2026">Oktober 2026</option>
-    <option value="November 2026">November 2026</option>
-    <option value="Desember 2026">Desember 2026</option>
-</select>
-    </div>
-
-    <div>
-        <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">1. Mata Pelajaran</label>
-        <select id="modal-nilai-mapel" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-white">
-            <option value="">Pilih Mata Pelajaran</option>
-            <option value="Matematika">Matematika</option>
-            <option value="Bahasa Indonesia">Bahasa Indonesia</option>
-            <option value="Bahasa Inggris">Bahasa Inggris</option>
-            <option value="IPA">IPA</option>
-            <option value="IPS">IPS</option>
-            <option value="Pendidikan Pancasila">Pendidikan Pancasila</option>
-            <option value="IPAS">IPAS</option>
-        </select>
-    </div>
-                    <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">2. Bab / Materi / Level Game</label>
-                    <input type="text" id="modal-nilai-bab" placeholder="Contoh: Bab 1 - Aljabar" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
-                </div>
-                <div>
-                    <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">3. Capaian Belajar</label>
-                    <input type="text" id="modal-nilai-capaian" placeholder="Contoh: Sangat Baik / Tuntas" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
-                </div>
-                <div>
-                    <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">4. Nilai (0 - 100)</label>
-                    <input type="number" min="0" max="100" id="modal-nilai-angka" placeholder="85" required class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-bold">
-                </div>
-                <div class="flex gap-2 pt-3 border-t border-slate-200 dark:border-slate-700">
-                    <button type="button" onclick="closeModalNilai()" class="w-1/2 py-2.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl">Batal</button>
-                    <button type="submit" class="w-1/2 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg">Simpan Nilai</button>
-                </div>
-            </form>
+    <div id="modal-nilai-siswa" class="fixed inset-0 z-50 bg-black/20 backdrop-blur-xs hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-indigo-500/30 rounded-3xl p-6 max-w-xl w-full shadow-2xl backdrop-blur-xl">
+        <!-- Header Modal -->
+        <div class="flex justify-between items-center mb-5 pb-3 border-b border-slate-800">
+            <h3 id="modal-nilai-title" class="font-bold text-sm text-indigo-300">⭐ Input Hasil Belajar</h3>
+            <button onclick="document.getElementById('modal-nilai-siswa').classList.add('hidden')" class="text-slate-400 hover:text-white font-bold px-2 py-1 rounded-lg bg-slate-800 text-xs">✕</button>
         </div>
+
+        <!-- Form Input Terstruktur Rapih ke Bawah -->
+        <form onsubmit="simpanNilaiSiswa(event)" class="space-y-4 text-xs">
+           <input type="hidden" id="modal-nilai-id">
+            <div>
+                <label class="block font-semibold text-slate-300 mb-1.5">Periode / Bulan Laporan</label>
+                <select id="modal-nilai-periode" class="w-full p-2.5 rounded-xl bg-slate-800 text-white border border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="Agustus 2026">Agustus 2026</option>
+                    <option value="September 2026">September 2026</option>
+                    <option value="Oktober 2026">Oktober 2026</option>
+                    <option value="November 2026">November 2026</option>
+                    <option value="Desember 2026">Desember 2026</option>
+                </select>
+            </div>
+
+            <div>
+    <label class="block font-semibold text-slate-300 mb-1.5">Mata Pelajaran</label>
+    <select id="modal-nilai-mapel" required class="w-full p-2.5 rounded-xl bg-slate-800 text-white border border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500">
+        <option value="Matematika">Matematika</option>
+        <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+        <option value="Bahasa Inggris">Bahasa Inggris</option>
+        <option value="IPA">IPA</option>
+        <option value="IPS">IPS</option>
+        <option value="Pendidikan Pancasila">Pendidikan Pancasila</option>
+        <option value="IPAS">IPAS</option>
+    </select>
+</div>
+
+
+            <div>
+                <label class="block font-semibold text-slate-300 mb-1.5">Bab / Materi / Level</label>
+                <input type="text" id="modal-nilai-bab" placeholder="Contoh: Bab 1" required class="w-full p-2.5 rounded-xl bg-slate-800 text-white border border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1.5">Capaian Belajar</label>
+                    <input type="text" id="modal-nilai-capaian" value="Tuntas" required class="w-full p-2.5 rounded-xl bg-slate-800 text-white border border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1.5">Nilai (0 - 100)</label>
+                    <input type="number" id="modal-nilai-angka" placeholder="85" required class="w-full p-2.5 rounded-xl bg-slate-800 text-white border border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+            </div>
+
+            <!-- Tombol Aksi Bawah -->
+            <div class="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-slate-800">
+                <button type="button" onclick="document.getElementById('modal-nilai-siswa').classList.add('hidden')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-medium transition text-xs">Batal</button>
+                <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold transition text-xs shadow-lg shadow-indigo-600/30">Simpan Nilai</button>
+            </div>
+        </form>
     </div>
+</div>
 
     <!-- MODAL PREVIEW & DOWNLOAD LAPORAN HASIL BELAJAR -->
     <div id="modal-rapor-sertifikat" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md hidden flex items-center justify-center p-2 md:p-6 overflow-y-auto">
@@ -929,10 +1063,11 @@ async function updateSettingsInSupabase(columnName, value) {
 
         <!-- Bagian Kanan: Tanggal & Kepala Lembaga -->
         <div style="text-align: center; width: 40%;">
-            <div id="tanggal-terbit" style="margin-bottom: 4px;">Jombang, 15 Agustus 2026</div>
-            <div style="font-weight: bold; margin-bottom: 40px;">Kepala Lembaga SLC</div>
-            <div style="font-weight: 500;">Management SLC World</div>
-        </div>
+    <div id="tanggal-terbit" style="margin-bottom: 4px;">Jombang, 15 Agustus 2026</div>
+    <div style="visibility: hidden; margin-bottom: 40px;">&nbsp;</div>
+    <div style="font-weight: bold; text-decoration: underline; margin-bottom: 2px;">Mohammad Eko Wahyudhi, S.Pd.I.</div>
+    <div style="font-weight: 500;">Direktur</div>
+</div>
 
     </div>
 
@@ -1570,61 +1705,72 @@ async function saveConfigAdmin(e) {
         bodyEl.innerHTML = htmlHeaderPilihan + `<div class="text-center py-10 text-slate-400 italic">Silakan pilih siswa terlebih dahulu...</div>`;
     } else {
         const { data: nilaiList } = await supabaseClient.from('slc_nilai').select('*').eq('id_siswa', selectedSiswaAdmin.id);
-        const listNilaiSiswa = nilaiList || [];
+        const urutanBulan = {
+    "Januari": 1, "Februari": 2, "Maret": 3, "April": 4, "Mei": 5, "Juni": 6,
+    "Juli": 7, "Agustus": 8, "September": 9, "Oktober": 10, "November": 11, "Desember": 12
+};
+
+const listNilaiSiswa = (nilaiList || []).sort((a, b) => {
+    const [bulanA, tahunA] = (a.periode || '').split(' ');
+    const [bulanB, tahunB] = (b.periode || '').split(' ');
+    const tA = parseInt(tahunA) || 0;
+    const tB = parseInt(tahunB) || 0;
+    if (tA !== tB) return tA - tB;
+    return (urutanBulan[bulanA] || 0) - (urutanBulan[bulanB] || 0);
+});
                    
         bodyEl.innerHTML = htmlHeaderPilihan + `
-                        <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800/80 mb-4 shadow-xl backdrop-blur-md w-full">
-    <!-- Baris Judul Tabel & Kontrol Sejajar -->
+                        <div class="p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-indigo-500/30 shadow-2xl shadow-indigo-950/20 text-slate-100">
+    <!-- Baris Judul & Tombol Kontrol -->
     <div class="flex flex-wrap justify-between items-center gap-4 mb-4">
-        <!-- Judul Tabel di Sisi Kiri Atas -->
-        <h3 class="font-bold font-header text-xs text-slate-300 uppercase tracking-wider">📊 Tabel Capaian & Nilai Mata Pelajaran</h3>
-        
-        <!-- Urutan Tombol di Sisi Kanan -->
+        <h3 class="font-bold text-xs text-slate-800 dark:text-slate-300 uppercase tracking-wider">Tabel Capaian & Nilai Mata Pelajaran</h3>
         <div class="flex items-center gap-2.5">
-            <button onclick="tambahNilaiModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3.5 py-2 rounded-xl text-xs shadow-lg transition">+ Input Nilai Baru</button>
-            <select id="pilih-periode-utama" class="bg-slate-800 text-white border border-slate-700 px-3 py-2 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 outline-none">
+            <button onclick="tambahNilaiModal()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-md transition">+ Input Nilai Baru</button>
+            <select id="filter-periode" onchange="loadDataNilaiSiswa(selectedSiswaAdmin.id)" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-white rounded-xl border border-slate-700 text-sm focus:outline-none">
                 <option value="Agustus 2026">Agustus 2026</option>
                 <option value="September 2026">September 2026</option>
                 <option value="Oktober 2026">Oktober 2026</option>
                 <option value="November 2026">November 2026</option>
                 <option value="Desember 2026">Desember 2026</option>
             </select>
-            <button onclick="bukaRaporSertifikat(selectedSiswaAdmin.id, document.getElementById('pilih-periode-utama').value)" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3.5 py-2 rounded-xl text-xs shadow-lg transition">Cetak Laporan</button>
+            <button onclick="bukaRaporSertifikat(selectedSiswaAdmin.id, document.getElementById('filter-periode').value)" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl shadow-md transition">Cetak Laporan</button>
         </div>
     </div>
 
-    <!-- Area Tabel Full Lebar -->
-    <div class="overflow-x-auto w-full">
-                        
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse text-xs">
-                                <thead>
-                                    <tr class="border-b border-slate-200 dark:border-slate-700 text-slate-500 font-bold uppercase">
-                                        <th class="p-2">Nama Siswa</th>
-                                        <th class="p-2">Mata Pelajaran</th>
-                                        <th class="p-2">Bab / Level</th>
-                                        <th class="p-2">Capaian</th>
-                                        <th class="p-2">Nilai</th>
-                                        <th class="p-2 text-center">Aksi (Edit / Hapus)</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                                    ${listNilaiSiswa.length === 0 ? `<tr><td colspan="6" class="p-4 text-center text-slate-400 italic">Belum ada data nilai untuk siswa ini.</td></tr>` : listNilaiSiswa.map((n) => `
-                                        <tr>
-                                            <td class="p-2 font-semibold text-slate-700 dark:text-slate-300">${n.nama}</td>
-                                            <td class="p-2 font-bold text-blue-600 dark:text-blue-400">${n.mapel}</td>
-                                            <td class="p-2 font-semibold">${n.bab}</td>
-                                            <td class="p-2"><span class="bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded font-bold text-[10px]">${n.capaian || 'Tuntas'}</span></td>
-                                            <td class="p-2 font-black text-sm">${n.nilai}</td>
-                                            <td class="p-2 text-center space-x-2">
-                                                <button onclick="editNilaiModal('${n.id}')" class="px-2 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded">Edit</button>
-                                                <button onclick="hapusNilai('${n.id}')" class="px-2 py-1 bg-rose-500/10 text-rose-600 dark:text-rose-400 rounded">Hapus</button>
-                                            </td>
-                                        </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
+    <!-- Tabel Data -->
+    <table class="w-full text-left border-collapse">
+        <thead>
+            <tr class="border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 text-xs uppercase tracking-wider">
+                <th class="py-3 pl-5 pr-2 w-[28%] font-semibold">Nama Siswa</th>
+                <th class="py-3 px-2 w-[18%] font-semibold">Periode</th>
+                <th class="py-3 px-2 w-[22%] font-semibold">Mata Pelajaran</th>
+                <th class="py-3 px-2 w-[15%] font-semibold">Bab / Level</th>
+                <th class="py-3 px-2 w-[15%] font-semibold">Capaian</th>
+                <th class="py-3 px-2 w-[10%] font-semibold">Nilai</th>
+                <th class="py-3 px-2 pr-5 text-right w-[10%] font-semibold">Aksi (Edit / Hapus)</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60 text-xs">
+            ${listNilaiSiswa.length === 0 ? `<tr><td colspan="6" class="py-6 text-center text-slate-500 italic">Belum ada data nilai untuk periode ini.</td></tr>` : 
+            listNilaiSiswa.map(n => `
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition">
+                    <td class="py-3 pl-5 pr-2 font-semibold text-slate-900 dark:text-slate-300 align-middle">${n.nama}</td>
+                    <td class="py-3 px-2">${n.periode || '-'}</td>
+                    <td class="py-3 px-2 font-bold text-blue-600 dark:text-blue-400 align-middle">${n.mapel}</td>
+                    <td class="py-3 px-2 text-slate-700 dark:text-slate-300 align-middle">${n.bab}</td>
+                    <td class="py-3 px-2 align-middle"><span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300">Tuntas</span></td>
+                    <td class="py-3 px-2 font-bold text-slate-900 dark:text-white text-sm align-middle">${n.nilai}</td>
+                    <td class="py-3 px-2 pr-5 align-middle text-right">
+                        <div class="inline-flex items-center justify-end gap-1.5">
+                            <button onclick="editNilaiModal('${n.id}')" class="px-2.5 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded-lg text-xs font-medium transition">Edit</button>
+                            <button onclick="hapusNilai('${n.id}')" class="px-2.5 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 rounded-lg text-xs font-medium transition">Hapus</button>
                         </div>
+                    </td>
+                </tr>
+            `).join('')}
+        </tbody>
+    </table>
+</div>
                     `;
     }
 
@@ -2124,36 +2270,37 @@ async function saveConfigAdmin(e) {
         }
 
         function tambahNilaiModal() {
-            if (!selectedSiswaAdmin) {
-                alert('Pilih siswa terlebih dahulu.');
-                return;
-            }
-            document.getElementById('modal-nilai-title').textContent = `⭐ Input Hasil Belajar: ${selectedSiswaAdmin.nama}`;
-            document.getElementById('modal-nilai-id').value = '';
-            document.getElementById('modal-nilai-bab').value = '';
-            document.getElementById('modal-nilai-capaian').value = 'Tuntas';
-            document.getElementById('modal-nilai-angka').value = '';
-            document.getElementById('modal-nilai-siswa').classList.remove('hidden');
-        }
+    if (!selectedSiswaAdmin) {
+        alert('Pilih siswa terlebih dahulu.');
+        return;
+    }
+    // Mengunci periode sesuai pilihan di filter tabel utama
+    const filterBulan = document.getElementById('filter-bulan-nilai')?.value || "Agustus 2026";
+    
+    document.getElementById('modal-nilai-title').textContent = `⭐ Input Hasil Belajar: ${selectedSiswaAdmin.nama}`;
+    document.getElementById('modal-nilai-id').value = '';
+    document.getElementById('modal-nilai-periode').value = filterBulan;
+    document.getElementById('modal-nilai-mapel').value = '';
+    document.getElementById('modal-nilai-bab').value = '';
+    document.getElementById('modal-nilai-capaian').value = 'Tuntas';
+    document.getElementById('modal-nilai-angka').value = '';
+    document.getElementById('modal-nilai-siswa').classList.remove('hidden');
+}
 
-        async function editNilaiModal(id) {
+async function editNilaiModal(id) {
     const { data, error } = await supabaseClient.from('slc_nilai').select('*').eq('id', id).single();
     if (error || !data) {
         alert("Data nilai tidak ditemukan.");
         return;
     }
-
-    // Sinkronkan periode modal dengan periode yang sedang dipilih di halaman utama
-    const periodeUtama = document.getElementById('pilih-periode-utama');
-    if (periodeUtama) {
-        document.getElementById('filter-periode').value = data.periode || periodeUtama.value;
-    }
-
+    
+    document.getElementById('modal-nilai-title').textContent = `⭐ Edit Hasil Belajar: ${selectedSiswaAdmin.nama}`;
     document.getElementById('modal-nilai-id').value = data.id;
-    document.getElementById('modal-nilai-mapel').value = data.mapel;
-    document.getElementById('modal-nilai-bab').value = data.bab;
-    document.getElementById('modal-nilai-capaian').value = data.capaian;
-    document.getElementById('modal-nilai-angka').value = data.nilai;
+    document.getElementById('modal-nilai-periode').value = data.periode || "Agustus 2026";
+    document.getElementById('modal-nilai-mapel').value = data.mapel || '';
+    document.getElementById('modal-nilai-bab').value = data.bab || '';
+    document.getElementById('modal-nilai-capaian').value = data.capaian || 'Tuntas';
+    document.getElementById('modal-nilai-angka').value = data.nilai || '';
     document.getElementById('modal-nilai-siswa').classList.remove('hidden');
 }
 
@@ -2166,7 +2313,7 @@ async function saveConfigAdmin(e) {
     
     if (!selectedSiswaAdmin) return;
 
-    const periode = document.getElementById('filter-periode') ? document.getElementById('filter-periode').value : 'Agustus 2026';
+    const periode = document.getElementById('modal-nilai-periode').value;
     const mapel = document.getElementById('modal-nilai-mapel').value;
     const bab = document.getElementById('modal-nilai-bab').value.trim();
     const capaian = document.getElementById('modal-nilai-capaian').value.trim();
