@@ -78,6 +78,38 @@
       animation: spin-slow 4s linear infinite;
     }
 
+  <style>
+  /* Default Mode Terang (Light Mode) */
+  select, input, datalist {
+    color-scheme: light;
+  }
+  select option {
+    background-color: #ffffff;
+    color: #1e293b;
+  }
+  select option:checked,
+  select option:hover {
+    background-color: #e0e7ff !important;
+    color: #1e293b !important;
+  }
+
+  /* Otomatis Berubah saat Mode Gelap (Dark Mode Aktif) */
+  html.dark select, body.dark select, .dark select,
+  html.dark input, body.dark input, .dark input {
+    color-scheme: dark;
+  }
+  .dark select option, html.dark select option {
+    background-color: #0f172a;
+    color: #f1f5f9;
+  }
+  .dark select option:checked,
+  .dark select option:hover,
+  html.dark select option:checked,
+  html.dark select option:hover {
+    background-color: #4f46e5 !important; /* Warna sorot kontras ungu-biru */
+    color: #ffffff !important;
+  }
+
 </style>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- jsPDF & html2canvas -->
@@ -450,6 +482,14 @@ html.dark select {
     position: relative !important;
     flex-shrink: 0 !important;
   }
+  #filter-periode {
+  background-color: #ffe4e6 !important;
+  color: #9f1239 !important;
+  border: 1px solid #fda4af !important;
+  text-align: center !important;
+  text-align-last: center !important; /* Memastikan teks pilihan utama juga rata tengah di berbagai browser */
+  padding-left: 20px !important; /* Memberikan dorongan agar titik tengahnya pas */
+}
 </style>
 </head>
 <body class="dark p-3 md:p-6 text-sm flex flex-col justify-center min-h-screen bg-transparent text-slate-100">
@@ -686,7 +726,7 @@ async function updateSettingsInSupabase(columnName, value) {
             
             <div class="space-y-2 flex-shrink-0">
                 <div id="login-logo-frame" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl mx-auto bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center shadow-lg overflow-hidden">
-                    <span id="login-logo-text">SLC</span>
+                    <span id="login-logo-text"></span>
                 </div>
                 <h1 id="app-name-login" class="text-xl sm:text-2xl font-black font-header animated-gradient-text uppercase tracking-wide">SLC WORLD</h1>
                 <p id="school-name-login" class="text-[11px] sm:text-xs font-bold tracking-widest text-slate-700 dark:text-slate-300 font-header">SHIHWA LEARNING CENTER</p>
@@ -733,9 +773,9 @@ async function updateSettingsInSupabase(columnName, value) {
   <!-- Kiri: Logo dan Teks Informasi Header -->
   <div class="flex items-center gap-4 w-full md:w-auto">
     <!-- Bingkai Logo Berputar -->
-    <div id="header-logo-frame" class="relative w-14 h-14 rounded-full p-[2px] flex items-center justify-center" style="box-shadow: 0 0 50px 20px rgba(168, 85, 247, 1), 0 0 100px 40px rgba(216, 180, 254, 0.7); background: rgba(168, 85, 247, 0.5); border: 2px solid rgba(255, 255, 255, 0.9);">
-    <div class="relative w-full h-full bg-slate-900 dark:bg-zinc-950 rounded-full flex items-center justify-center overflow-hidden">
-        <img src="..." alt="Logo" class="w-full h-full object-cover rounded-full logo-img" />
+    <div id="header-logo-frame" class="relative w-14 h-14 min-w-[56px] min-h-[56px] aspect-square p-[2px] flex items-center justify-center bg-white/70 dark:bg-black backdrop-blur-md border border-indigo-200/50 dark:border-slate-800 glow-card" style="border-radius: 50% !important; overflow: hidden !important; box-shadow: 0 0 25px rgba(168, 85, 247, 0.6), 0 0 50px rgba(59, 130, 246, 0.4) !important;">
+    <div class="relative w-full h-full bg-white dark:bg-black flex items-center justify-center" style="border-radius: 50% !important; overflow: hidden !important;">
+        <img src="..." alt="Logo" class="w-full h-full object-cover logo-img" style="border-radius: 50% !important;" />
     </div>
 </div>
     
@@ -1740,7 +1780,7 @@ const listNilaiSiswa = (nilaiList || []).sort((a, b) => {
         <h3 class="font-bold text-xs text-slate-800 dark:text-slate-300 uppercase tracking-wider">Tabel Capaian & Nilai Mata Pelajaran</h3>
         <div class="flex items-center gap-2.5">
             <button onclick="tambahNilaiModal()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-md transition">+ Input Nilai Baru</button>
-            <select id="filter-periode" onchange="loadDataNilaiSiswa(selectedSiswaAdmin.id)" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-white rounded-xl border border-slate-700 text-sm focus:outline-none">
+            <select id="filter-periode" onchange="loadDataNilaiSiswa(selectedSiswaAdmin.id)" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white text-slate-800 border border-slate-300 dark:bg-slate-800 dark:text-slate-100 dark:border-slate-700">
                 <option value="Agustus 2026">Agustus 2026</option>
                 <option value="September 2026">September 2026</option>
                 <option value="Oktober 2026">Oktober 2026</option>
@@ -1839,10 +1879,10 @@ const listNilaiSiswa = (nilaiList || []).sort((a, b) => {
                         </div>
                         <div>
                             <label class="block text-xs font-bold mb-1 text-slate-600 dark:text-slate-300">Tingkat Kelas</label>
-                            <select id="filter-kelas" onchange="filterMateriAdmin()" class="w-full p-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold">
-                                <option value="ALL">-- Semua Kelas --</option>
-                                ${listKelas.map(k => `<option value="${k}">${k}</option>`).join('')}
-                            </select>
+                            <select id="filter-kelas" onchange="filterMateriAdmin()" class="w-full p-2 rounded-xl border border-slate-700 bg-slate-900 text-slate-100 dark:bg-slate-900 dark:text-slate-100">
+    <option value="ALL" class="bg-slate-900 text-slate-100">-- Semua Kelas --</option>
+    ${listKelas.sort((a, b) => (parseInt(a.replace(/[^0-9]/g, '')) || 0) - (parseInt(b.replace(/[^0-9]/g, '')) || 0)).map(k => `<option value="${k}">${k}</option>`).join('')}
+</select>
                         </div>
                         <div>
                             <label class="block text-xs font-bold mb-1 text-slate-600 dark:text-slate-300">Mata Pelajaran</label>
@@ -2057,21 +2097,21 @@ const listNilaiSiswa = (nilaiList || []).sort((a, b) => {
                 renderRiwayatAbsenSiswa();
             }
             else if (menuId === 'pembelajaran_siswa') {
-                titleEl.textContent = `🎮 Pembelajaran Mandiri (${currentUser.kelas})`;
-
-                bodyEl.innerHTML = `
-                    <div class="p-4 rounded-2xl bg-blue-50 dark:bg-slate-800/60 border border-blue-200 dark:border-slate-700 space-y-3">
-                        <label class="block font-bold text-xs text-blue-900 dark:text-blue-300">📚 Pilih Mata Pelajaran (<span class="text-emerald-600 font-black">${currentUser.kelas}</span>):</label>
-                        <select id="siswa-pilih-mapel" onchange="renderGameLevelsSiswa()" class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-bold">
-                            <option value="">-- Pilih Mata Pelajaran --</option>
-                            ${listMapel.map(m => `<option value="${m}">${m}</option>`).join('')}
-                        </select>
-                    </div>
-                    <div id="siswa-game-levels-container" class="space-y-3">
-                        <div class="text-center py-8 text-slate-400 italic text-xs">Silakan pilih Mata Pelajaran di atas untuk menampilkan modul dan level pembelajaran ${currentUser.kelas}.</div>
-                    </div>
-                `;
-            }
+        titleEl.className = "font-bold";
+        titleEl.style.color = "#93c5fd";
+        titleEl.textContent = `🎮 Pembelajaran Mandiri (${currentUser.kelas})`;
+        
+        bodyEl.innerHTML = `
+            <div class="p-4 rounded-2xl bg-blue-50 dark:bg-slate-800/60 border border-blue-200 dark:border-slate-700 space-y-3">
+                <label class="block font-bold text-xs text-blue-900 dark:text-blue-300">Pilih Mata Pelajaran (${currentUser.kelas}):</label>
+                <select id="siswa-pilih-mapel" onchange="renderGameLevelsSiswa()" class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold">
+                    <option value="">-- Pilih Mata Pelajaran --</option>
+                    ${listMapel.map(m => `<option value="${m}">${m}</option>`).join('')}
+                </select>
+            </div>
+            <div id="siswa-game-levels-container" class="space-y-3"></div>
+        `;
+    }
             else if (menuId === 'hasil_belajar_siswa') {
                 titleEl.textContent = '🏆 Capaian & Hasil Belajar';
                 actionsEl.innerHTML = `<button onclick="bukaRaporSertifikat('${currentUser.id}')" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs shadow flex items-center gap-1">📜 Cetak Laporan</button>`;
@@ -2710,7 +2750,11 @@ async function prosesValidasiAbsensiSiswa() {
                 const matchMapel = (mapel === 'ALL' || m.mapel === mapel);
                 return matchKat && matchKel && matchMapel;
             });
-
+filtered.sort((a, b) => {
+        let numA = parseInt((a.kelas || '').replace(/[^0-9]/g, '')) || 0;
+        let numB = parseInt((b.kelas || '').replace(/[^0-9]/g, '')) || 0;
+        return numA - numB;
+    });
             const tbody = document.getElementById('materi-table-body');
             tbody.innerHTML = filtered.length === 0 ? `<tr><td colspan="7" class="p-4 text-center text-slate-400 italic">Belum ada data pembelajaran.</td></tr>` : filtered.map(m => `
                 <tr>
@@ -2909,7 +2953,7 @@ async function prosesValidasiAbsensiSiswa() {
         }
 
         // Tampilan teks nilai & status tombol
-        let infoNilai = nilaiSiswa !== null ? `<span class="text-xs font-bold text-emerald-600">Nilai: ${nilaiSiswa}</span>` : `<span class="text-xs text-amber-500 italic">Belum dikerjakan</span>`;
+        let infoNilai = nilaiSiswa !== null ? `<span class="text-sm font-bold text-white">Nilai: ${nilaiSiswa}</span>` : '';
         
         let tombolHtml = '';
         if (statusBuka) {
@@ -2919,16 +2963,14 @@ async function prosesValidasiAbsensiSiswa() {
         }
 
         return `
-            <div class="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-3 shadow-sm">
+            <div class="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-3">
                 <div class="flex justify-between items-center">
-                    <div>
-                        <span class="px-2 py-0.5 rounded font-bold text-[10px] bg-blue-100 text-blue-800">Bab ${index + 1}</span>
-                        <h4 class="font-bold text-sm text-slate-800 dark:text-slate-100 mt-1">${m.bab}</h4>
-                        <p class="text-xs text-slate-500">KKM: ${kkm}</p>
-                    </div>
-                    <div class="text-right">
-                        ${infoNilai}
-                    </div>
+                    <h4 class="font-bold text-sm text-slate-800 dark:text-slate-100">${m.bab}</h4>
+                    <span class="px-2 py-0.5 rounded font-bold text-[10px] bg-blue-100 text-blue-800">Bab ${index + 1}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <p class="text-[10px] font-bold text-blue-800 dark:text-blue-300">KKM: ${kkm}</p>
+                    ${infoNilai}
                 </div>
                 ${tombolHtml}
             </div>
