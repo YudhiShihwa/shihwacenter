@@ -1111,7 +1111,7 @@ async function updateSettingsInSupabase(columnName, value) {
         <div style="text-align: center; width: 40%;">
     <div id="tanggal-terbit" style="margin-bottom: 4px;">Jombang, 15 Agustus 2026</div>
     <div style="visibility: hidden; margin-bottom: 40px;">&nbsp;</div>
-    <div style="font-weight: bold; text-decoration: underline; margin-bottom: 2px;">Mohammad Eko Wahyudhi, S.Pd.I.</div>
+    <div style="font-weight: bold; border-bottom: 1.5px solid black; display: inline-block; padding-bottom: 3px; margin-bottom: 2px;">Mohammad Eko Wahyudhi, S.Pd.I.</div>
     <div style="font-weight: 500;">Direktur</div>
 </div>
 
@@ -1698,11 +1698,17 @@ async function saveConfigAdmin(e) {
             if (menuId === 'data_siswa') {
                 titleEl.textContent = '🎓 Kelola Data Siswa Bimbel';
                 actionsEl.innerHTML = `
-                    <div class="flex gap-2">
-                        <button onclick="bukaModalImporSiswa()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs shadow flex items-center gap-1">📥 Impor Excel</button>
-                        <button onclick="tambahSiswaModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs shadow">+ Tambah Siswa Baru</button>
-                    </div>
-                `;
+    <div class="flex items-center gap-2">
+        <select id="filter-periode-siswa" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-pink-950/80 text-pink-300 border border-pink-700/60 focus:outline-none focus:ring-1 focus:ring-pink-500">
+            <option value="Agustus 2026" class="bg-slate-900 text-pink-300">Agustus 2026</option>
+            <option value="September 2026" class="bg-slate-900 text-pink-300">September 2026</option>
+            <option value="Oktober 2026" class="bg-slate-900 text-pink-300">Oktober 2026</option>
+            <option value="November 2026" class="bg-slate-900 text-pink-300">November 2026</option>
+            <option value="Desember 2026" class="bg-slate-900 text-pink-300">Desember 2026</option>
+        </select>
+        <button onclick="bukaRaporSertifikat('${currentUser.id}', document.getElementById('filter-periode-siswa').value)" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs shadow flex items-center gap-1">Cetak Laporan</button>
+    </div>
+`;
                 
                 bodyEl.innerHTML = `
                     <div class="overflow-x-auto">
@@ -1777,19 +1783,19 @@ const listNilaiSiswa = (nilaiList || []).sort((a, b) => {
                         <div class="p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-indigo-500/30 shadow-2xl shadow-indigo-950/20 text-slate-100">
     <!-- Baris Judul & Tombol Kontrol -->
     <div class="flex flex-wrap justify-between items-center gap-4 mb-4">
-        <h3 class="font-bold text-xs text-slate-800 dark:text-slate-300 uppercase tracking-wider">Tabel Capaian & Nilai Mata Pelajaran</h3>
-        <div class="flex items-center gap-2.5">
-            <button onclick="tambahNilaiModal()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-md transition">+ Input Nilai Baru</button>
-            <select id="filter-periode" onchange="loadDataNilaiSiswa(selectedSiswaAdmin.id)" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white text-slate-800 border border-slate-300 dark:bg-slate-800 dark:text-slate-100 dark:border-slate-700">
-                <option value="Agustus 2026">Agustus 2026</option>
-                <option value="September 2026">September 2026</option>
-                <option value="Oktober 2026">Oktober 2026</option>
-                <option value="November 2026">November 2026</option>
-                <option value="Desember 2026">Desember 2026</option>
-            </select>
-            <button onclick="bukaRaporSertifikat(selectedSiswaAdmin.id, document.getElementById('filter-periode').value)" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl shadow-md transition">Cetak Laporan</button>
-        </div>
+    <h3 class="font-bold text-xs text-slate-800 dark:text-slate-300 uppercase tracking-wider">Tabel Capaian & Nilai</h3>
+    <div class="flex items-center gap-2.5">
+        <button onclick="tambahNilaiModal()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow">Tambah Nilai</button>
+        <select id="filter-periode" onchange="loadDataNilaiSiswa(selectedSiswaAdmin.id)" class="px-3.5 py-2 rounded-xl text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 font-semibold text-indigo-600 dark:text-indigo-400">
+            <option value="Agustus 2026">Periode: Agustus 2026</option>
+            <option value="September 2026">Periode: September 2026</option>
+            <option value="Oktober 2026">Periode: Oktober 2026</option>
+            <option value="November 2026">Periode: November 2026</option>
+            <option value="Desember 2026">Periode: Desember 2026</option>
+        </select>
+        <button onclick="bukaModalPilihPeriodeCetak(selectedSiswaAdmin.id)" class="px-3.5 py-2 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-xl shadow">Cetak Laporan</button>
     </div>
+</div>
 
     <!-- Tabel Data -->
     <table class="w-full text-left border-collapse">
@@ -2114,29 +2120,46 @@ const listNilaiSiswa = (nilaiList || []).sort((a, b) => {
     }
             else if (menuId === 'hasil_belajar_siswa') {
                 titleEl.textContent = '🏆 Capaian & Hasil Belajar';
-                actionsEl.innerHTML = `<button onclick="bukaRaporSertifikat('${currentUser.id}')" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs shadow flex items-center gap-1">📜 Cetak Laporan</button>`;
+                actionsEl.innerHTML = `
+    <div class="flex items-center gap-2">
+        <select id="filter-periode-siswa" style="background-color: #581c87 !important; color: #f472b6 !important; border: 1px solid #db2777 !important;" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold focus:outline-none">
+            <option value="Agustus 2026" style="background-color: #3b0764; color: #f472b6;">Agustus 2026</option>
+            <option value="September 2026" style="background-color: #3b0764; color: #f472b6;">September 2026</option>
+            <option value="Oktober 2026" style="background-color: #3b0764; color: #f472b6;">Oktober 2026</option>
+            <option value="November 2026" style="background-color: #3b0764; color: #f472b6;">November 2026</option>
+            <option value="Desember 2026" style="background-color: #3b0764; color: #f472b6;">Desember 2026</option>
+        </select>
+        <button onclick="bukaRaporSertifikat('${currentUser.id}', document.getElementById('filter-periode-siswa').value)" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs shadow flex items-center gap-1">Cetak Laporan</button>
+    </div>
+`;
 
                 const myNilai = nilaiList.filter(n => n.id_siswa === currentUser.id);
                 bodyEl.innerHTML = `
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse text-xs">
-                            <thead>
-                                <tr class="border-b border-slate-200 dark:border-slate-700 text-slate-500 font-bold uppercase">
-                                    <th class="p-2">Nama Siswa</th><th class="p-2">Mata Pelajaran</th><th class="p-2">Bab / Level</th><th class="p-2">Capaian</th><th class="p-2">Nilai Total</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                                ${myNilai.length === 0 ? `<tr><td colspan="5" class="p-4 text-center text-slate-400 italic">Belum ada hasil belajar. Nilai hanya dapat diinput oleh Admin Bimbel.</td></tr>` : myNilai.map(n => `
-                                    <tr>
-                                        <td class="p-2 font-semibold text-slate-700 dark:text-slate-300">${currentUser.nama || n.nama}</td>
-                                        <td class="p-2 font-bold text-blue-600 dark:text-blue-400">${n.mapel}</td>
-                                        <td class="p-2 font-semibold">${n.bab}</td>
-                                        <td class="p-2"><span class="bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded font-bold text-[10px]">${n.capaian || 'Tuntas'}</span></td>
-                                        <td class="p-2 font-black text-sm">${n.nilai}</td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
+    <thead>
+    <tr class="border-b border-slate-200 dark:border-slate-700 text-slate-500 font-bold uppercase">
+        <th class="p-2">Nama Siswa</th>
+        <th class="p-2">Periode</th>
+        <th class="p-2">Mata Pelajaran</th>
+        <th class="p-2">Bab / Level</th>
+        <th class="p-2">Capaian</th>
+        <th class="p-2">Nilai Total</th>
+    </tr>
+</thead>
+    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+        ${myNilai.length === 0 ? `<tr><td colspan="6" class="p-4 text-center text-slate-400 italic">Belum ada hasil belajar. Nilai hanya dapat diinput oleh Admin Bimbel.</td></tr>` : myNilai.map(n => `
+            <tr>
+                <td class="p-2 font-semibold text-slate-700 dark:text-slate-300">${currentUser.nama || n.nama}</td>
+                <td class="p-2 font-semibold text-slate-600 dark:text-slate-400">${n.periode || 'Agustus 2026'}</td>
+                <td class="p-2 font-bold text-blue-600 dark:text-blue-400">${n.mapel}</td>
+                <td class="p-2 font-semibold">${n.bab}</td>
+                <td class="p-2"><span class="bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded font-bold text-[10px]">${n.capaian || 'Tuntas'}</span></td>
+                <td class="p-2 font-black text-sm">${n.nilai}</td>
+            </tr>
+        `).join('')}
+    </tbody>
+</table>
                     </div>
                 `;
             hitungRataRataDanCatatan(myNilai);
@@ -2964,12 +2987,11 @@ filtered.sort((a, b) => {
 
         return `
             <div class="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-3">
-                <div class="flex justify-between items-center">
+                <div>
                     <h4 class="font-bold text-sm text-slate-800 dark:text-slate-100">${m.bab}</h4>
-                    <span class="px-2 py-0.5 rounded font-bold text-[10px] bg-blue-100 text-blue-800">Bab ${index + 1}</span>
                 </div>
                 <div class="flex justify-between items-center">
-                    <p class="text-[10px] font-bold text-blue-800 dark:text-blue-300">KKM: ${kkm}</p>
+                    <p class="text-sm font-bold text-blue-600 dark:text-blue-400">KKM: ${kkm}</p>
                     ${infoNilai}
                 </div>
                 ${tombolHtml}
