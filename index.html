@@ -149,6 +149,27 @@
         alert('Gagal menyimpan pengaturan. Silakan coba lagi.');
     }
 }
+let debounceTimer;
+function handleInputDelay(callback, delay = 300) {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(callback, delay);
+}
+document.addEventListener("DOMContentLoaded", () => {
+    const inputs = document.querySelectorAll("#login-id, #login-password");
+    const cardBox = document.getElementById("login-card-box");
+    
+    inputs.forEach(input => {
+        input.addEventListener("focus", () => {
+            if (window.innerWidth <= 768) {
+                if (cardBox) cardBox.style.transform = "translateY(-40px)";
+            }
+        });
+        
+        input.addEventListener("blur", () => {
+            if (cardBox) cardBox.style.transform = "translateY(0)";
+        });
+    });
+});
     </script>
 </head>
     <script>
@@ -751,9 +772,8 @@ async function updateSettingsInSupabase(columnName, value) {
 
 </script>
     <!-- 1. HALAMAN LOGIN UTAMA -->
-    <section id="login-section" class="flex items-center justify-center min-h-[90vh] py-4" style="position: relative; z-index: 10;">
-        <div class="login-card-9-16 glow-card p-5 sm:p-6 flex flex-col justify-between text-center mx-auto overflow-y-auto" onclick="triggerGlow(this)">
-            
+    <section id="login-section" class="flex items-center justify-center min-h-screen py-4" style="position: relative;">
+    <div id="login-card-box" class="login-card-9-16 glow-card p-5 sm:p-6 flex flex-col justify-between text-center mx-auto transition-all duration-300">   
             <div class="space-y-2 flex-shrink-0">
                 <div id="login-logo-frame" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl mx-auto bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center shadow-lg overflow-hidden">
                     <span id="login-logo-text"></span>
@@ -1050,15 +1070,15 @@ async function updateSettingsInSupabase(columnName, value) {
                 <h3 class="font-bold font-header text-base text-blue-700 flex items-center gap-2">
                     📜 Preview Laporan Hasil Belajar
                 </h3>
-                <div class="flex gap-2">
-                    <button onclick="unduhPDFSertifikat()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs shadow flex items-center gap-1">
-                        📥 Download Laporan
-                    </button>
-                    <button onclick="closeModalSertifikat()" class="px-3 py-1.5 bg-red-600 text-white font-bold rounded-lg shadow-md inline-block opacity-100 visible">
-    ✕
-</button>
-                </div>
-            </div>
+                <div class="flex items-center gap-2 opacity-100 visible">
+    <button onclick="unduhPDFSertifikat()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 opacity-100">
+        📥 Download Laporan
+    </button>
+    <button onclick="closeModalSertifikat()" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs opacity-100">
+        ✕ Tutup
+    </button>
+</div>
+</div>
 <!-- AREA RENDER PDF (BINGKAI & SELURUH ISI RAPOR LENGKAP) -->
         <div id="certificate-render-area" class="px-4 pb-4 pt-2 space-y-1.5 rounded-2xl bg-white text-slate-800">
             <!-- Garis Bingkai Dalam Bergaya Cekungan Elegan (IKUT TERCETAK CANTIK) -->
@@ -1129,21 +1149,22 @@ async function updateSettingsInSupabase(columnName, value) {
                 <!-- Kontainer Tanda Tangan & Tanggal (Sejajar Sempurna) -->
     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 20px; width: 100%; font-size: 13px;">
         
-        <!-- Bagian Kiri: Orang Tua / Wali Siswa -->
-        <div style="text-align: center; width: 40%;">
-            <!-- Spasi kosong pengimbang baris tanggal di kanan -->
-            <div style="visibility: hidden; margin-bottom: 4px;">&nbsp;</div>
-            <div style="margin-bottom: 40px;"></div>
-            <div></div>
+        <!-- Bagian Kiri: Mengetahui, & Direktur Shihwa Learning Center -->
+       <div style="text-align: left; width: 45%;">
+            <div style="margin-bottom: 4px;">Mengetahui,</div>
+            <div style="visibility: hidden; margin-bottom: 42px;">&nbsp;</div>
+            <div style="font-weight: bold; border-bottom: 1.5px solid black; display: inline-block; padding-bottom: 5px; margin-bottom: 0px;">Mohammad Eko Wahyudhi, S.Pd.I.</div>
+            <div style="font-weight: 500; margin-top: -3px;">Direktur Shihwa Learning Center</div>
         </div>
 
-        <!-- Bagian Kanan: Tanggal & Kepala Lembaga -->
-        <div style="text-align: center; width: 40%;">
+        <!-- Bagian Kanan: Tanggal & Koordinator Akademik -->
+        <div style="text-align: left; width: 42%; padding-left: 75px;">
     <div id="tanggal-terbit" style="margin-bottom: 4px;">Jombang, 15 Agustus 2026</div>
-    <div style="visibility: hidden; margin-bottom: 40px;">&nbsp;</div>
-    <div style="font-weight: bold; border-bottom: 1.5px solid black; display: inline-block; padding-bottom: 3px; margin-bottom: 2px;">Mohammad Eko Wahyudhi, S.Pd.I.</div>
-    <div style="font-weight: 500;">Direktur</div>
-</div>
+    <div style="visibility: hidden; margin-bottom: 42px;">&nbsp;</div>
+            <div style="font-weight: bold; border-bottom: 1.5px solid black; display: inline-block; padding-bottom: 5px; margin-bottom: 0px;">Evi Ruvaidah, S.Kom</div>
+            <div style="font-weight: 500; margin-top: -3px;">Koordinator Akademik</div>
+        </div>
+    </div>
 
     </div>
 
@@ -1727,18 +1748,6 @@ async function saveConfigAdmin(e) {
 
             if (menuId === 'data_siswa') {
                 titleEl.textContent = '🎓 Kelola Data Siswa Bimbel';
-                actionsEl.innerHTML = `
-    <div class="flex items-center gap-2">
-        <select id="filter-periode-siswa" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-pink-950/80 text-pink-300 border border-pink-700/60 focus:outline-none focus:ring-1 focus:ring-pink-500">
-            <option value="Agustus 2026" class="bg-slate-900 text-pink-300">Agustus 2026</option>
-            <option value="September 2026" class="bg-slate-900 text-pink-300">September 2026</option>
-            <option value="Oktober 2026" class="bg-slate-900 text-pink-300">Oktober 2026</option>
-            <option value="November 2026" class="bg-slate-900 text-pink-300">November 2026</option>
-            <option value="Desember 2026" class="bg-slate-900 text-pink-300">Desember 2026</option>
-        </select>
-        <button onclick="bukaRaporSertifikat('${currentUser.id}', document.getElementById('filter-periode-siswa').value)" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs shadow flex items-center gap-1">Cetak Laporan</button>
-    </div>
-`;
                 
                 bodyEl.innerHTML = `
                     <div class="overflow-x-auto">
