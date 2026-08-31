@@ -108,9 +108,48 @@
   html.dark select option:hover {
     background-color: #4f46e5 !important; /* Warna sorot kontras ungu-biru */
     color: #ffffff !important;
-  }
+    
+    html, body {
+    width: 100%;
+    overflow-x: hidden;
+    scroll-behavior: auto !important; /* Mematikan smooth scroll yang bikin delay */
+    -webkit-text-size-adjust: 100%;
+}
 
+/* Mencegah pergeseran layout (layout shift) saat elemen dimuat */
+* {
+    box-sizing: border-box;
+    transition: none !important; /* Hilangkan transisi global yang memicu lag */
+}
+body.login-page {
+    height: 100vh;
+    height: 100dvh; /* Menyesuaikan tinggi dinamis layar ponsel saat keyboard muncul */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    overflow: hidden;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+    transition: transform 0.3s ease;
+}
+  
 </style>
+<script>
+    const inputs = document.querySelectorAll('input, select');
+    inputs.forEach(element => {
+        element.addEventListener('focus', function() {
+            setTimeout(() => {
+                this.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        });
+    });
+</script>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- jsPDF & html2canvas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
