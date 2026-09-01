@@ -7,7 +7,24 @@
     <!-- Google Fonts & Tailwind CSS CDN -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@600;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        
+       @media (max-width: 768px) {
+        /* Membungkus tabel agar bisa digeser horizontal dengan lancar ala aplikasi modern */
+        .overflow-x-auto, div:has(> table) {
+            width: 100% !important;
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            display: block !important;
+        }
+
+        /* Memastikan tabel di dalam kontainer tetap mempertahankan format rapi saat digeser */
+        table {
+            width: max-content !important;
+            min-width: 100% !important;
+        }
+    } 
     /* Hapus atau nonaktifkan baris di bawah ini agar logo rapor tidak tersembunyi */
+    
 /*
 .flex > img[alt=""]:first-child {
     display: none !important;
@@ -685,6 +702,48 @@ html.dark select {
         </div>
     </div>
 
+    <script>
+    function cetakLaporanAdminBaru() {
+    let idSiswaTarget = "";
+    
+    // 1. Cek langsung dari variabel global admin yang aktif di sistem Anda
+    if (typeof selectedSiswaAdmin !== 'undefined' && selectedSiswaAdmin) {
+        idSiswaTarget = selectedSiswaAdmin.id || selectedSiswaAdmin.id_registrasi || selectedSiswaAdmin.nis;
+    }
+    
+    // 2. Jika belum, ambil teks dari elemen kotak "Pilih Data Siswa" yang sedang tampil di layar
+    if (!idSiswaTarget) {
+        // Mencari elemen teks yang menampilkan nama/ID siswa aktif di panel admin
+        const elemenTeksSiswa = document.querySelector('div.pilih-data-siswa, div[class*="border"][class*="rounded"]');
+        if (elemenTeksSiswa) {
+            const teks = elemenTeksSiswa.innerText;
+            const angkaMatch = teks.match(/\d+/); // Mengambil angka pertama (ID Siswa)
+            if (angkaMatch) idSiswaTarget = angkaMatch[0];
+        }
+    }
+
+    // 3. Fallback terakhir: cek elemen input/select lain
+    if (!idSiswaTarget) {
+        idSiswaTarget = document.getElementById('id-siswa-aktif')?.value || document.querySelector('select')?.value;
+    }
+
+    if (!idSiswaTarget) {
+        alert('Silakan pilih data siswa terlebih dahulu!');
+        return;
+    }
+
+    const periodePilih = document.getElementById('filter-periode')?.value || "Agustus 2026";
+    
+    // Eksekusi fungsi buka rapor/sertifikat
+    if (typeof bukaRaporSertifikat === 'function') {
+        bukaRaporSertifikat(idSiswaTarget, periodePilih);
+    } else if (typeof bukaModalPilihPeriodeCetak === 'function') {
+        bukaModalPilihPeriodeCetak(idSiswaTarget);
+    } else {
+        alert('Fungsi cetak laporan belum siap.');
+    }
+}
+</script>
 <script>
     // Inisialisasi Scene, Camera, dan Renderer Three.js
 const container = document.getElementById('molecule-bg');
@@ -1103,8 +1162,8 @@ async function updateSettingsInSupabase(columnName, value) {
 </div>
 
     <!-- MODAL PREVIEW & DOWNLOAD LAPORAN HASIL BELAJAR -->
-    <div id="modal-rapor-sertifikat" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md hidden flex items-center justify-center p-2 md:p-6 overflow-y-auto">
-        <div class="bg-white max-w-4xl w-full p-6 space-y-4 bg-white text-slate-800 shadow-2xl rounded-2xl border border-amber-300 my-auto">
+    <div id="modal-rapor-sertifikat" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md hidden flex items-center justify-center p-2 md:p-6 overflow-auto">
+    <div class="bg-white min-w-[800px] w-[800px] p-6 space-y-4 text-slate-800 shadow-2xl rounded-2xl border border-amber-300 my-auto">
             <div class="flex justify-between items-center border-b pb-3">
                 <h3 class="font-bold font-header text-base text-blue-700 flex items-center gap-2">
                     📜 Preview Laporan Hasil Belajar
@@ -1863,15 +1922,15 @@ const listNilaiSiswa = (nilaiList || []).sort((a, b) => {
     <div class="flex flex-wrap justify-between items-center gap-4 mb-4">
     <h3 class="font-bold text-xs text-slate-800 dark:text-slate-300 uppercase tracking-wider">Tabel Capaian & Nilai</h3>
     <div class="flex items-center gap-2.5">
-        <button onclick="tambahNilaiModal()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow">Tambah Nilai</button>
-        <select id="filter-periode" onchange="loadDataNilaiSiswa(selectedSiswaAdmin.id)" class="px-3.5 py-2 rounded-xl text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 font-semibold text-indigo-600 dark:text-indigo-400">
-            <option value="Agustus 2026">Periode: Agustus 2026</option>
-            <option value="September 2026">Periode: September 2026</option>
-            <option value="Oktober 2026">Periode: Oktober 2026</option>
-            <option value="November 2026">Periode: November 2026</option>
-            <option value="Desember 2026">Periode: Desember 2026</option>
+        <button onclick="tambahNilaiModal()" class="w-36 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-full shadow text-center">Tambah Nilai</button>
+        <select id="filter-periode" onchange="loadDataNilaiSiswa(selectedSiswaAdmin.id)" style="border: none !important; box-shadow: none !important;" class="w-36 py-2 rounded-full text-xs bg-rose-100 font-semibold text-rose-800 border-0 outline-none focus:ring-0 focus:border-0 cursor-pointer text-center">
+            <option value="Agustus 2026">Agustus 2026</option>
+            <option value="September 2026">September 2026</option>
+            <option value="Oktober 2026">Oktober 2026</option>
+            <option value="November 2026">November 2026</option>
+            <option value="Desember 2026">Desember 2026</option>
         </select>
-        <button onclick="bukaModalPilihPeriodeCetak(selectedSiswaAdmin.id)" class="px-3.5 py-2 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-xl shadow">Cetak Laporan</button>
+        <button onclick="cetakLaporanAdminBaru()" class="w-36 py-2 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-full shadow text-center">Cetak Laporan</button>
     </div>
 </div>
 
@@ -2199,16 +2258,16 @@ const listNilaiSiswa = (nilaiList || []).sort((a, b) => {
             else if (menuId === 'hasil_belajar_siswa') {
                 titleEl.textContent = '🏆 Capaian & Hasil Belajar';
                 actionsEl.innerHTML = `
-    <div class="flex items-center gap-2 pl-2">
-        <select id="filter-periode-siswa" style="background-color: #581c87 !important; color: #ffffff !important; text-align: center; text-align-last: center; border: 1px solid #7c3aed !important; width: 118px;" class="py-2 rounded-xl text-xs font-semibold focus:outline-none shadow">
-            <option value="Agustus 2026" style="background-color: #3b0764; color: #ffffff; text-align: center;">Agustus 2026</option>
-            <option value="September 2026" style="background-color: #3b0764; color: #ffffff; text-align: center;">September 2026</option>
-            <option value="Oktober 2026" style="background-color: #3b0764; color: #ffffff; text-align: center;">Oktober 2026</option>
-            <option value="November 2026" style="background-color: #3b0764; color: #ffffff; text-align: center;">November 2026</option>
-            <option value="Desember 2026" style="background-color: #3b0764; color: #ffffff; text-align: center;">Desember 2026</option>
-        </select>
-        <button onclick="bukaRaporSertifikat('${currentUser.id}', document.getElementById('filter-periode-siswa').value)" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs shadow flex items-center gap-1">Cetak Laporan</button>
-    </div>
+    <div class="flex items-center gap-1.5 pl-1 w-full">
+    <select id="filter-periode-siswa" onchange="loadDataNilaiSiswa(window.currentUser?.id)" style="background-color: #ffe4e6 !important; color: #9f1239 !important; width: 110px; border: none !important;" class="py-1.5 rounded-full text-[11px] font-semibold outline-none focus:ring-0 focus:border-0 cursor-pointer text-center shadow">
+        <option value="Agustus 2026">Agustus 2026</option>
+        <option value="September 2026">September 2026</option>
+        <option value="Oktober 2026">Oktober 2026</option>
+        <option value="November 2026">November 2026</option>
+        <option value="Desember 2026">Desember 2026</option>
+    </select>
+    <button onclick="bukaRaporSertifikat('${currentUser.id}', document.getElementById('filter-periode-siswa').value)" style="width: 110px;" class="py-1.5 bg-amber-600 hover:bg-amber-500 text-white font-bold text-[11px] rounded-full shadow-md transition text-center">Cetak Laporan</button>
+</div>
 `;
 
                 const myNilai = nilaiList.filter(n => n.id_siswa === currentUser.id);
