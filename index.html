@@ -8,23 +8,111 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@600;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         
-       @media (max-width: 768px) {
-        /* Membungkus tabel agar bisa digeser horizontal dengan lancar ala aplikasi modern */
-        .overflow-x-auto, div:has(> table) {
-            width: 100% !important;
-            overflow-x: auto !important;
-            -webkit-overflow-scrolling: touch !important;
-            display: block !important;
-        }
+      @media (max-width: 768px) {
+    /* Membungkus tabel agar bisa digeser horizontal */
+    .overflow-x-auto, div:has(> table) {
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        display: block !important;
+    }
 
-        /* Memastikan tabel di dalam kontainer tetap mempertahankan format rapi saat digeser */
-        table {
-            width: max-content !important;
-            min-width: 100% !important;
-        }
-    } 
-    /* Hapus atau nonaktifkan baris di bawah ini agar logo rapor tidak tersembunyi */
-    
+    table {
+        width: max-content !important;
+        min-width: 100% !important;
+    }
+
+    /* Penataan vertikal untuk filter dan tombol */
+    .flex.items-center.gap-2:has(#filter-periode-siswa),
+    div:has(> #filter-periode-siswa) {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 8px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    #filter-periode-siswa, 
+    button[onclick*="bukaRaporSertifikat"] {
+        width: 100% !important;
+        font-size: 12px !important;
+        padding: 10px !important;
+        box-sizing: border-box !important;
+    }
+
+    /* 1. Memperkecil dan meratakan kiri teks header (Eduverse, Exactacea, Homey) */
+    header h1, header .font-header, .glow-card h1 {
+        font-size: 10px !important;
+        line-height: 1.2 !important;
+        text-align: left !important;
+        white-space: nowrap !important;
+    }
+
+    header div:has(> span), header p, header span {
+        font-size: 8px !important;
+        text-align: left !important;
+        justify-content: flex-start !important;
+    }
+
+    /* 2. Menggeser tombol Mode dan Log Out mendekati batas kanan layar */
+    header div:has(button), header .flex:has(button) {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: flex-end !important;
+        width: 100% !important;
+        gap: 6px !important;
+        margin-top: 4px !important;
+    }
+
+    header button, header a[href*="logout"], button[onclick*="toggle"] {
+        padding: 4px 8px !important;
+        font-size: 10px !important;
+    }
+
+    /* 3. Memperkecil menu navigasi (Absensi, Pembelajaran, Hasil Belajar) agar pas layar tanpa geser */
+    nav.overflow-x-auto, nav {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        justify-content: space-between !important;
+        gap: 2px !important;
+        padding: 4px !important;
+        width: 100% !important;
+        overflow-x: hidden !important;
+    }
+
+    nav button, nav a, .nav-btn {
+        font-size: 9px !important;
+        padding: 5px 4px !important;
+        flex: 1 !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+    }
+
+    /* 4. Memperkecil size judul utama konten agar cukup ruang */
+    h2#dynamic-title, .glow-card h2, main h2 {
+        font-size: 11px !important;
+        line-height: 1.1 !important;
+        padding-bottom: 4px !important;
+        margin-bottom: 6px !important;
+    }
+
+    /* 5. Mempersempit dan memadatkan tampilan formulir presensi agar praktis */
+    .glow-card {
+        padding: 8px !important;
+        margin-bottom: 8px !important;
+    }
+
+    form, div:has(> form), .space-y-4 > * {
+        margin-bottom: 6px !important;
+    }
+
+    input, select, textarea, button[type="submit"], .glow-card input {
+        font-size: 11px !important;
+        padding: 6px 8px !important;
+        min-height: 32px !important;
+    }
+}
 /*
 .flex > img[alt=""]:first-child {
     display: none !important;
@@ -87,6 +175,17 @@
         animation: rainbowGlow 4s infinite linear;
         border-radius: 50%;
     }
+    #login-card, div:has(> #form-login), .max-w-md, .max-w-lg {
+    max-width: 340px !important;
+    width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+#login-logo-frame {
+    margin-top: 15px !important;
+    margin-bottom: 10px !important;
+}
     @keyframes spin-slow {
       from { transform: rotate(0deg); }
       to { transform: rotate(360deg); }
@@ -95,7 +194,6 @@
       animation: spin-slow 4s linear infinite;
     }
 
-  <style>
   /* Default Mode Terang (Light Mode) */
   select, input, datalist {
     color-scheme: light;
@@ -155,7 +253,49 @@ body.login-page {
     padding: 20px;
     transition: transform 0.3s ease;
 }
-  
+  #form-presensi, .glow-card form, div:has(> #absen-input-status) {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+#absen-input-status, #absen-input-keterangan {
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+/* Memaksa pembungkus utama halaman menjadi layar penuh dan berada di tengah */
+body, html {
+    height: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+/* Memastikan elemen pembungkus terluar aplikasi mengisi layar penuh secara flex */
+#app, .min-h-screen, div:has(> #login-container) {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+}
+
+/* Mengunci ukuran kartu login agar pas di tengah */
+#login-container, .login-card, div:has(#form-login) {
+    position: relative !important;
+    margin: auto !important;
+    max-width: 400px !important;
+    width: 100% !important;
+}
 </style>
 <script>
     const inputs = document.querySelectorAll('input, select');
@@ -922,7 +1062,7 @@ async function updateSettingsInSupabase(columnName, value) {
   <div class="flex items-center gap-4 w-full md:w-auto">
     <!-- Bingkai Logo Berputar -->
     <div id="header-logo-frame" class="relative w-14 h-14 min-w-[56px] min-h-[56px] aspect-square p-[2px] flex items-center justify-center bg-white/70 dark:bg-black backdrop-blur-md border border-indigo-200/50 dark:border-slate-800 glow-card" style="border-radius: 50% !important; overflow: hidden !important; box-shadow: 0 0 25px rgba(168, 85, 247, 0.6), 0 0 50px rgba(59, 130, 246, 0.4) !important;">
-    <div class="relative w-full h-full bg-white dark:bg-black flex items-center justify-center" style="border-radius: 50% !important; overflow: hidden !important;">
+    <div class="relative w-full h-full bg-transparent-full flex items-center justify-center" style="border-radius: 50% !important; overflow: hidden !important;">
         <img src="..." alt="Logo" class="w-full h-full object-cover logo-img" style="border-radius: 50% !important;" />
     </div>
 </div>
@@ -2197,7 +2337,7 @@ const listNilaiSiswa = (nilaiList || []).sort((a, b) => {
                             <h3 class="font-bold text-xs uppercase text-blue-900 dark:text-blue-300 tracking-wide flex items-center gap-2">
                                 📝 Formulir Presensi Kehadiran Siswa
                             </h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                            <div class="space-y-3 text-xs w-full">
                                 <div>
                                     <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Status Kehadiran</label>
                                     <select id="absen-input-status" class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-bold">
