@@ -112,7 +112,31 @@
         padding: 6px 8px !important;
         min-height: 32px !important;
     }
+    /* Pengaturan responsif untuk HP */
+    @media (max-width: 768px) {
+        input, select, textarea, button[type="submit"], .glow-card input {
+            font-size: 11px !important;
+            padding: 6px 8px !important;
+            min-height: 32px !important;
+        }
+        
+        /* Paksa teks EDUVERSE besar dan di tengah khusus di HP */
+        .eduverse-force-center {
+            display: block !important;
+            width: 100% !important;
+            text-align: center !important;
+            font-size: 1.6rem !important;
+            font-weight: 900 !important;
+            letter-spacing: 0.3em !important;
+            text-transform: uppercase !important;
+            background: linear-gradient(to right, #818cf8, #38bdf8) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            margin: 10px 0 !important;
+        }
+    }
 }
+
 /*
 .flex > img[alt=""]:first-child {
     display: none !important;
@@ -131,8 +155,23 @@
     border: 2px solid rgba(233, 213, 255, 0.9) !important;
     filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.9)) !important;
 }
-    /* ... aturan lainnya ... */
-}
+    const observer = new MutationObserver((mutations, obs) => {
+        const cardBox = document.getElementById('login-card-box');
+        if (cardBox) {
+            const headings = cardBox.querySelectorAll('h2, div, span');
+            headings.forEach(el => {
+                if (el.textContent.trim() === 'EDUVERSE' && !el.classList.contains('eduverse-force-center')) {
+                    el.remove();
+                }
+            });
+        }
+    });
+
+    observer.observe(document.documentElement, {
+        childList: true,
+        subtree: true
+    });
+
         body, html { background-color: #ffffff !important; }
         #modal-rapor-sertifikat { background-color: #ffffff !important; backdrop-filter: none !important; }
         #modal-rapor-sertifikat > div {
@@ -296,7 +335,88 @@ body, html {
     max-width: 400px !important;
     width: 100% !important;
 }
+/* Paksa tombol filter dan cetak laporan berjajar horizontal di sebelah kanan */
+div[class*="flex items-center justify-end"], 
+div:has(> #filter-periode) {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 8px !important;
+}
+
+#filter-periode, 
+button[onclick*="cetakLaporan"], 
+button[onclick*="tambahNilaiModal"] {
+    width: auto !important;
+    padding: 6px 10px !important;
+    font-size: 11px !important;
+}
+<style>
+  /* Memaksa kontainer aksi dinamis dan isinya agar selalu horizontal, kecil, dan rata kanan */
+  #dynamic-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 6px !important;
+    width: auto !important;
+    flex-shrink: 0 !important;
+  }
+
+  <style>
+  @keyframes movingGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* Menggunakan selektor ganda agar prioritasnya sangat tinggi dan tidak bisa ditimpa */
+  h1.animated-shihwa-text, 
+  #app-name-login.animated-shihwa-text, 
+  .animated-shihwa-text {
+    display: inline-block !important;
+    width: 100% !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    font-size: 1.3rem !important; /* Ukuran dibuat lebih besar */
+    font-weight: 900 !important; /* Ketebalan maksimal */
+    letter-spacing: 0.03em !important;
+    -webkit-text-stroke: 0.4px rgba(255, 255, 255, 0.6) !important; /* Menebalkan outline teks agar terlihat padat */
+    text-shadow: 0 0 15px rgba(56, 189, 248, 0.5) !important;
+    background: linear-gradient(270deg, #38bdf8, #c084fc, #f43f5e, #38bdf8) !important;
+    background-size: 300% 300% !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-stroke: 0.5px rgba(255, 255, 255, 0.7) !important;
+    -webkit-text-fill-color: transparent !important;
+    color: transparent !important;
+    animation: movingGradient 4s ease infinite !important;
+  }
 </style>
+<script>
+    const observer = new MutationObserver((mutations, obs) => {
+        const cardBox = document.getElementById('login-card-box');
+        if (cardBox) {
+            // Mencari semua elemen yang berpotensi memuat teks EDUVERSE
+            const elements = cardBox.querySelectorAll('h2, h1, div, span, p');
+            let count = 0;
+            elements.forEach(el => {
+                if (el.textContent.trim() === 'EDUVERSE') {
+                    count++;
+                    // Jika ditemukan lebih dari 1, atau bukan kelas utama, hapus seketika
+                    if (count > 1 || !el.classList.contains('eduverse-force-center')) {
+                        el.remove();
+                    }
+                }
+            });
+        }
+    });
+
+    observer.observe(document.documentElement, {
+        childList: true,
+        subtree: true
+    });
+    
+</script>
 <script>
     const inputs = document.querySelectorAll('input, select');
     inputs.forEach(element => {
@@ -306,6 +426,7 @@ body, html {
             }, 300);
         });
     });
+    
 </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- jsPDF & html2canvas -->
@@ -737,6 +858,21 @@ html.dark select {
   text-align-last: center !important; /* Memastikan teks pilihan utama juga rata tengah di berbagai browser */
   padding-left: 20px !important; /* Memberikan dorongan agar titik tengahnya pas */
 }
+  @keyframes movingGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* Mengunci paksa agar JavaScript tidak bisa mengubah warna teks menjadi putih */
+  #app-name-login {
+    background: linear-gradient(270deg, #38bdf8, #c084fc, #f43f5e, #38bdf8) !important;
+    background-size: 300% 300% !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    color: transparent !important;
+    animation: movingGradient 4s ease infinite !important;
+  }
 </style>
 </head>
 <body class="dark p-3 md:p-6 text-sm flex flex-col justify-center min-h-screen bg-transparent text-slate-100">
@@ -1010,49 +1146,61 @@ async function updateSettingsInSupabase(columnName, value) {
 
 </script>
     <!-- 1. HALAMAN LOGIN UTAMA -->
-    <section id="login-section" class="flex items-center justify-center min-h-screen py-4" style="position: relative;">
-    <div id="login-card-box" class="login-card-9-16 glow-card p-5 sm:p-6 flex flex-col justify-between text-center mx-auto transition-all duration-300">   
-            <div class="space-y-2 flex-shrink-0">
-                <div id="login-logo-frame" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl mx-auto bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center shadow-lg overflow-hidden">
-                    <span id="login-logo-text"></span>
-                </div>
-                <h1 id="app-name-login" class="text-xl sm:text-2xl font-black font-header animated-gradient-text uppercase tracking-wide">SLC WORLD</h1>
-                <p id="school-name-login" class="text-[11px] sm:text-xs font-bold tracking-widest text-slate-700 dark:text-slate-300 font-header">SHIHWA LEARNING CENTER</p>
-                <p id="slogan-login" class="text-[11px] sm:text-xs italic font-semibold text-blue-600 dark:text-blue-400 pt-0.5">""</p>
-                <p id="school-address-login" class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 leading-tight">
-                    Perum. Puri Astapada Indah 1 Gang Kavling Barat Tambakrejo Jombang
-                </p>
+<section id="login-section" class="flex items-center justify-center min-h-screen py-4" style="position: relative;">
+    <div id="login-card-box" class="login-card-9-16 glow-card p-6 sm:p-8 flex flex-col justify-between text-center transition-all duration-500" style="box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important; border: 1px solid rgba(255, 255, 255, 0.2) !important;" onmouseover="this.style.boxShadow='0 0 50px rgba(168, 85, 247, 0.9), 0 0 100px rgba(59, 130, 246, 0.7), inset 0 0 30px rgba(255, 255, 255, 0.3)'; this.style.borderColor='rgba(255, 255, 255, 0.6)';" onmouseout="this.style.boxShadow='0 4px 20px rgba(0, 0, 0, 0.1)'; this.style.borderColor='rgba(255, 255, 255, 0.2)';">   
+<!-- Header & Logo dengan Spasi Seimbang -->
+<!-- Sorot dan Timpa Mulai dari Baris 1152 (div class="space-y-2...") sampai sebelum baris <hr> -->
+<div class="flex flex-col items-center justify-center text-center w-full mb-4">
+    
+    <!-- Bingkai Logo -->
+    <div id="login-logo-frame" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/70 dark:bg-slate-900/90 backdrop-blur-md border border-indigo-300/40 dark:border-slate-700/60 flex items-center justify-center shadow-[0_0_20px_rgba(168,85,247,0.4)] mb-3 overflow-hidden p-2 transition-transform duration-300 hover:scale-105">
+        <img src="https://i.ibb.co.com/rfvfXtRx/LOGO-SLC-TENGAH-LINGKARAN.png" alt="Logo Shihwa Learning Center" class="w-full h-full object-contain">
+    </div>
+
+    <!-- Teks Judul Utama: EDUVERSE -->
+    <h2 class="eduverse-force-center text-xl sm:text-2xl font-black tracking-widest text-slate-100 m-0 drop-shadow-md">EDUVERSE</h2>
+    
+    <!-- Teks Lembaga yang Tebal, Besar, dan Bergradasi -->
+    <h1 class="animated-shihwa-text uppercase m-0 text-center mt-1" style="width: 100% !important; text-align: center !important; font-size: 1.15rem !important; font-weight: 900 !important;">SHIHWA LEARNING CENTER</h1>
+    
+    <!-- Slogan & Alamat -->
+    <div class="w-full space-y-1 mt-2">
+        <p class="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200 tracking-wide">Homey and Enjoyable Learning</p>
+        <p class="text-[10px] sm:text-xs text-slate-700 dark:text-slate-300 opacity-90 px-4">Perum. Puri Astapada Indah 1 Gang Kembang Barat Tambakrejo Jombang</p>
+    </div>
+</div>
+
+        <hr class="border-slate-200 dark:border-slate-700 my-3">
+
+        <!-- Form Login -->
+        <form onsubmit="handleLogin(event)" class="space-y-3 sm:space-y-4 text-left my-auto flex-1 flex flex-col justify-center">
+            <div>
+                <label class="block text-[11px] sm:text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">Pilih Tipe Pengguna</label>
+                <select id="login-role" class="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="admin">⚙️ Admin Bimbel</option>
+                    <option value="siswa">🎮 Siswa / Peserta Didik</option>
+                </select>
             </div>
-
-            <hr class="border-slate-200 dark:border-slate-700 my-2">
-
-            <form onsubmit="handleLogin(event)" class="space-y-3 sm:space-y-4 text-left my-auto flex-1 flex flex-col justify-center">
-                <div>
-                    <label class="block text-[11px] sm:text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">Pilih Tipe Pengguna</label>
-                    <select id="login-role" class="w-full px-3.5 py-2 sm:py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="admin">⚙️ Admin Bimbel</option>
-                        <option value="siswa">🎮 Siswa / Peserta Didik</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-[11px] sm:text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">ID Registrasi</label>
-                    <input type="text" id="login-id" required placeholder="Masukkan ID Registrasi" class="w-full px-3.5 py-2.5 pl-4 rounded-xl border border-slate-700 text-white" style="background-color: #1e293b !important; color: #ffffff !important; color-scheme: dark !important;">
-                </div>
-                <div>
-                    <label class="block text-[11px] sm:text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">Password</label>
-                    <input type="password" id="login-password" required placeholder="••••••••" class="w-full px-3.5 py-2.5 pl-4 rounded-xl border border-slate-700 text-white" style="background-color: #1e293b !important; color: #ffffff !important; color-scheme: dark !important;">
-                </div>
-                
-                <button type="submit" class="px-12 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg hover:shadow-[0_0_25px_rgba(59,130,246,0.9)] active:scale-95 transition-all duration-300 mx-auto block">
-                    LOGIN
-                </button>
-            </form>
-
-            <div class="pt-2 text-[10px] text-slate-400 text-center flex-shrink-0">
-                &copy; 2026 Shihwa Center. All Rights Reserved.
+            <div>
+                <label class="block text-[11px] sm:text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">ID Registrasi</label>
+                <input type="text" id="login-id" required placeholder="Masukkan ID Registrasi" class="w-full px-3.5 py-2.5 pl-4 rounded-xl border border-slate-700 text-white" style="background-color: #1e293b !important; color: #ffffff !important; color-scheme: dark !important;">
             </div>
+            <div>
+                <label class="block text-[11px] sm:text-xs font-semibold mb-1 text-slate-600 dark:text-slate-300">Password</label>
+                <input type="password" id="login-password" required placeholder="••••••••" class="w-full px-3.5 py-2.5 pl-4 rounded-xl border border-slate-700 text-white" style="background-color: #1e293b !important; color: #ffffff !important; color-scheme: dark !important;">
+            </div>
+            
+            <button type="submit" class="px-12 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg hover:shadow-[0_0_25px_rgba(59,130,246,0.9)] active:scale-95 transition-all duration-300 mx-auto block mt-2">
+                LOGIN
+            </button>
+        </form>
+
+        <!-- Footer Card -->
+        <div class="pt-3 text-[10px] text-slate-400 text-center flex-shrink-0">
+            &copy; 2026 Shihwa Center. All Rights Reserved.
         </div>
-    </section>
+    </div>
+</section>
 
     <!-- 2. DASHBOARD APLIKASI UTAMA -->
     <div id="app-section" class="hidden w-full max-w-[1400px] mx-auto space-y-4">
@@ -1063,7 +1211,7 @@ async function updateSettingsInSupabase(columnName, value) {
     <!-- Bingkai Logo Berputar -->
     <div id="header-logo-frame" class="relative w-14 h-14 min-w-[56px] min-h-[56px] aspect-square p-[2px] flex items-center justify-center bg-white/70 dark:bg-black backdrop-blur-md border border-indigo-200/50 dark:border-slate-800 glow-card" style="border-radius: 50% !important; overflow: hidden !important; box-shadow: 0 0 25px rgba(168, 85, 247, 0.6), 0 0 50px rgba(59, 130, 246, 0.4) !important;">
     <div class="relative w-full h-full bg-transparent-full flex items-center justify-center" style="border-radius: 50% !important; overflow: hidden !important;">
-        <img src="..." alt="Logo" class="w-full h-full object-cover logo-img" style="border-radius: 50% !important;" />
+        <img src="https://i.ibb.co.com/rfvfXtRx/LOGO-SLC-TENGAH-LINGKARAN.png" alt="Logo Shihwa Learning Center" class="w-full h-full object-contain">
     </div>
 </div>
     
@@ -1091,16 +1239,16 @@ async function updateSettingsInSupabase(columnName, value) {
   </div>
 </header>
 
-        <nav class="overflow-x-auto pb-1">
-            <div id="main-nav-container" class="flex items-center gap-2 min-w-max text-xs font-bold font-header uppercase tracking-wider"></div>
+        <nav class="w-full pb-1">
+    <div id="main-nav-container" class="flex flex-wrap items-center justify-start gap-1.5 w-full text-[10px] sm:text-xs font-bold font-header uppercase tracking-wider">
         </nav>
 
         <main id="content-container" class="space-y-4">
             <div id="view-dynamic-content" class="glow-card p-6 space-y-4" onclick="triggerGlow(this)">
-                <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-3">
-                    <h2 id="dynamic-title" class="text-lg font-black font-header animated-gradient-text uppercase">Judul Section</h2>
-                    <div id="dynamic-actions" class="flex gap-2"></div>
-                </div>
+                <div class="flex flex-row justify-between items-center gap-2 border-b border-slate-200 dark:border-slate-700 pb-3">
+    <h2 id="dynamic-title" class="text-xs sm:text-lg font-bold font-header animated-gradient-text uppercase truncate"></h2>
+    <div id="dynamic-actions" class="flex flex-row items-center gap-1.5 shrink-0 [&>select]:w-auto [&>select]:py-1 [&>select]:px-2 [&>select]:text-[10px] [&>button]:w-auto [&>button]:py-1 [&>button]:px-2 [&>button]:text-[10px]"></div>
+</div>
                 <div id="dynamic-body" class="space-y-4"></div>
             </div>
         </main>
@@ -2058,19 +2206,24 @@ const listNilaiSiswa = (nilaiList || []).sort((a, b) => {
                    
         bodyEl.innerHTML = htmlHeaderPilihan + `
                         <div class="p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-indigo-500/30 shadow-2xl shadow-indigo-950/20 text-slate-100">
-    <!-- Baris Judul & Tombol Kontrol -->
-    <div class="flex flex-wrap justify-between items-center gap-4 mb-4">
+    <!-- Baris Judul & Tombol Kontrol Sejajar Horizontal ke Kanan -->
+<div class="flex flex-row items-center justify-between w-full mb-4">
     <h3 class="font-bold text-xs text-slate-800 dark:text-slate-300 uppercase tracking-wider">Tabel Capaian & Nilai</h3>
-    <div class="flex items-center gap-2.5">
-        <button onclick="tambahNilaiModal()" class="w-36 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-full shadow text-center">Tambah Nilai</button>
-        <select id="filter-periode" onchange="loadDataNilaiSiswa(selectedSiswaAdmin.id)" style="border: none !important; box-shadow: none !important;" class="w-36 py-2 rounded-full text-xs bg-rose-100 font-semibold text-rose-800 border-0 outline-none focus:ring-0 focus:border-0 cursor-pointer text-center">
+    
+    <div class="flex flex-row items-center gap-2">
+        <button onclick="tambahNilaiModal()" class="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow transition-all duration-200">
+            Tambah
+        </button>
+        <select id="filter-periode" onchange="loadDataNilaiSiswa(selectedSiswaAdmin.id)" class="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-slate-800 text-slate-200 border border-slate-700 focus:outline-none">
             <option value="Agustus 2026">Agustus 2026</option>
             <option value="September 2026">September 2026</option>
             <option value="Oktober 2026">Oktober 2026</option>
             <option value="November 2026">November 2026</option>
             <option value="Desember 2026">Desember 2026</option>
         </select>
-        <button onclick="cetakLaporanAdminBaru()" class="w-36 py-2 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-full shadow text-center">Cetak Laporan</button>
+        <button onclick="cetakLaporanAdminBaru()" class="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-amber-600 hover:bg-amber-500 text-white shadow transition-all duration-200">
+            Cetak
+        </button>
     </div>
 </div>
 
