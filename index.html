@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <script>
+    // Paksa hapus penyimpanan lokal Supabase jika tab baru dibuka/ditutup sebelumnya
+    if (!sessionStorage.getItem('shihwa_tab_initialized')) {
+        localStorage.clear();
+        sessionStorage.setItem('shihwa_tab_initialized', 'true');
+    }
+</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SLC World - SHIHWA LEARNING CENTER</title>
