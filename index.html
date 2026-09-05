@@ -444,6 +444,99 @@ button[onclick*="tambahNilaiModal"] {
         }
     }
 </style>
+<style>
+    /* Hanya aktifkan pembersihan saat dibuka di HP (lebar layar di bawah 768px) */
+    @media (max-width: 768px) {
+        #canvas-3d-bg, canvas {
+            display: none !important;
+        }
+        *, *::before, *::after {
+            animation: none !important;
+            transition: none !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            box-shadow: none !important;
+            text-shadow: none !important;
+        }
+    }
+</style>
+<!-- Skrip Optimasi Performa Instan (Antibeku) -->
+    <script>
+        var style = document.createElement('style');
+        style.innerHTML = `
+            *, *::before, *::after {
+                animation: none !important;
+                transition: none !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                box-shadow: none !important;
+            }
+        `;
+        if (document.head) {
+            document.head.prepend(style);
+        } else {
+            document.documentElement.prepend(style);
+        }
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                if (style && style.parentNode) {
+                    style.parentNode.removeChild(style);
+                }
+            }, 500);
+        });
+    </script>
+<script>
+    // Pemulihan sesi aman saat halaman direfresh
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedUser = localStorage.getItem('shihwa_current_user');
+        if (savedUser) {
+            try {
+                currentUser = JSON.parse(savedUser);
+                const loginSec = document.getElementById('login-section');
+                const appSec = document.getElementById('app-section');
+                if (loginSec && appSec) {
+                    loginSec.classList.add('hidden');
+                    appSec.classList.remove('hidden');
+                    
+                    if (typeof setupDashboard === 'function') {
+                        setupDashboard();
+                    }
+                    
+                    // Timpa pemanggilan menu pertama dengan tab terakhir yang aktif di localStorage
+                    setTimeout(() => {
+                        const activeTab = localStorage.getItem('shihwa_active_tab');
+                        if (activeTab) {
+                            const btnTarget = Array.from(document.querySelectorAll('.nav-menu-btn')).find(b => b.getAttribute('onclick')?.includes(activeTab));
+                            if (typeof switchTab === 'function') {
+                                switchTab(activeTab, btnTarget);
+                            }
+                        }
+                    }, 100); // Jeda sedikit agar elemen tombol menu selesai dirender
+                }
+            } catch (e) {
+                localStorage.removeItem('shihwa_current_user');
+            }
+        }
+    });
+</script>
+<script>
+    // Sembunyikan login sejak awal jika sesi tersimpan agar tidak ada kilbatan
+    if (localStorage.getItem('shihwa_current_user')) {
+        document.write('<style>#login-section { display: none !important; }</style>');
+    }
+</script>
+<script>
+    // Pembersihan khusus perangkat seluler agar laptop tetap aman menampilkan animasi 3D
+    (function() {
+        const isMobile = window.innerWidth <= 768 || /Mobi|Android/i.test(navigator.userAgent);
+        if (isMobile) {
+            document.addEventListener('DOMContentLoaded', () => {
+                const bgCanvas = document.getElementById('canvas-3d-bg');
+                if (bgCanvas) bgCanvas.remove();
+            });
+        }
+    })();
+</script>
 <script>
     // Langsung eksekusi pembersihan elemen berat sebelum render browser
     (function() {
@@ -1112,6 +1205,25 @@ html.dark select {
 }
 </script>
 <script>
+    // Optimasi instan: Hapus animasi dan elemen berat jika terasa lambat/berat
+    document.addEventListener('DOMContentLoaded', () => {
+        // Hentikan pemrosesan animasi CSS yang membebani CPU saat startup
+        const perfStyle = document.createElement('style');
+        perfStyle.innerHTML = `
+            * {
+                animation-duration: 0.001s !important;
+                transition-duration: 0.001s !important;
+            }
+        `;
+        document.head.appendChild(perfStyle);
+        
+        // Kembalikan normal sesaat setelah halaman selesai dirender sempurna
+        setTimeout(() => {
+            perfStyle.remove();
+        }, 300);
+    });
+</script>
+<script>
     // Inisialisasi Scene, Camera, dan Renderer Three.js
 const container = document.getElementById('molecule-bg');
 const scene = new THREE.Scene();
@@ -1699,12 +1811,6 @@ window.addEventListener('DOMContentLoaded', paksaTampilTombol);
         const SUPABASE_ANON_KEY = 'sb_publishable_M6eU4z56rBzvllh9AheItg_gV7sCJ6d';
         
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-// Cek sesi aktif Supabase saat halaman dimuat/refresh agar tidak kembali ke login
-supabaseClient.auth.getSession().then(({ data: { session } }) => {
-    if (session) {
-        currentUser = session.user;
-    }
-});
 
 supabaseClient.auth.onAuthStateChange((event, session) => {
     if (session) {
@@ -2159,22 +2265,14 @@ function getDirectImageUrl(url) {
             ]
         };
 
-        async function handleLogin(e) {
-    e.preventDefault();
+        // Di dalam fungsi handleLogin(e), pastikan bagian validasi menggunakan kode ini:
+async function handleLogin(e) {
+    if (e) e.preventDefault();
     const role = document.getElementById('login-role').value;
     const id = document.getElementById('login-id').value.trim();
     const pass = document.getElementById('login-password').value;
 
-    // 1. PINDAHKAN INI KE ATAS: Langsung buka dashboard secara instan agar tidak ada jeda di layar
-    document.getElementById('login-section').classList.add('hidden');
-    document.getElementById('app-section').classList.remove('hidden');
-    
-    // Set data sementara agar dashboard langsung termuat
-    currentUser = { role: role, id: id, nama: role === 'admin' ? 'Admin' : 'Siswa' };
-    setupDashboard();
-
     try {
-        // 2. Lakukan pengecekan database Supabase di latar belakang (background)
         if (role === 'admin') {
             const { data: matchedAdmin, error } = await supabaseClient
                 .from('slc_admins')
@@ -2185,10 +2283,12 @@ function getDirectImageUrl(url) {
 
             if (matchedAdmin && !error) {
                 currentUser = { role: 'admin', id: matchedAdmin.id, nama: matchedAdmin.nama };
-                setupDashboard(); // Refresh ulang dashboard dengan data asli dari database
+                localStorage.setItem('shihwa_current_user', JSON.stringify(currentUser));
+                document.getElementById('login-section').classList.add('hidden');
+                document.getElementById('app-section').classList.remove('hidden');
+                setupDashboard(); 
             } else {
                 alert('ID Registrasi Admin atau Password Salah!');
-                handleLogout(); // Kembalikan ke login jika salah
             }
         } else if (role === 'siswa') {
             const { data: matchedSiswa, error } = await supabaseClient
@@ -2200,25 +2300,49 @@ function getDirectImageUrl(url) {
 
             if (matchedSiswa && !error) {
                 currentUser = { role: 'siswa', id: matchedSiswa.id, nama: matchedSiswa.nama, kelas: matchedSiswa.kelas };
-                setupDashboard(); // Refresh ulang dashboard dengan data asli dari database
+                localStorage.setItem('shihwa_current_user', JSON.stringify(currentUser));
+                document.getElementById('login-section').classList.add('hidden');
+                document.getElementById('app-section').classList.remove('hidden');
+                setupDashboard(); 
             } else {
                 alert('ID Registrasi Siswa atau Password Salah!');
-                handleLogout(); // Kembalikan ke login jika salah
             }
         }
     } catch (err) {
         console.error("Gagal melakukan login:", err);
         alert("Terjadi kesalahan koneksi ke database Supabase.");
-        handleLogout();
     }
 }
 
-        function handleLogout() {
-            currentUser = null;
-            selectedSiswaAdmin = null;
-            document.getElementById('app-section').classList.add('hidden');
-            document.getElementById('login-section').classList.remove('hidden');
+async function handleLogout() {
+    try {
+        // 1. Tutup sesi aktif Supabase jika tersedia
+        if (typeof supabase !== 'undefined' && supabase.auth) {
+            await supabase.auth.signOut();
         }
+    } catch (err) {
+        console.error("Error saat sign out Supabase:", err);
+    }
+
+    // 2. Hapus data sesi di localStorage
+    localStorage.removeItem('shihwa_current_user');
+    localStorage.removeItem('shihwa_active_tab');
+
+    // 3. Sembunyikan bagian dasbor
+    const appSec = document.getElementById('app-section');
+    if (appSec) {
+        appSec.classList.add('hidden');
+    }
+
+    // 4. Tampilkan kembali kartu login
+    const loginSec = document.getElementById('login-section');
+    if (loginSec) {
+        loginSec.classList.remove('hidden');
+    }
+
+    // 5. Muat ulang halaman untuk memastikan semua memori bersih total
+    location.reload();
+}
 
         function setupDashboard() {
             document.getElementById('header-user-name').textContent = currentUser.nama;
@@ -2236,9 +2360,22 @@ function getDirectImageUrl(url) {
                 navContainer.appendChild(btn);
             });
 
-            switchTab(menus[0].id, navContainer.children[0]);
+            const savedTab = localStorage.getItem('shihwa_active_tab');
+    const targetMenuObj = menus.find(m => m.id === savedTab) || menus[0];
+    const targetIndex = menus.findIndex(m => m.id === targetMenuObj.id);
+    
+    setTimeout(() => {
+        const targetBtn = navContainer.children[targetIndex] || navContainer.children[0];
+        if (targetBtn) {
+            // Berikan kelas aktif dan warna latar belakang solid secara langsung
+            targetBtn.classList.add('active');
+            targetBtn.className = 'nav-pill nav-menu-btn px-4 py-2.5 rounded-full font-bold transition-all duration-300 flex items-center gap-2 bg-blue-600 text-white shadow-lg shadow-blue-500/30';
+        }
+        switchTab(targetMenuObj.id, targetBtn);
+    }, 10);
         }
 function switchTab(tabId, elementBtn) {
+    localStorage.setItem('shihwa_active_tab', tabId);
     // 1. Reset semua tombol menu ke tampilan transparan & tidak menyala
     document.querySelectorAll('.nav-menu-btn').forEach(b => {
         b.className = `nav-pill nav-menu-btn px-4 py-2.5 rounded-full font-bold transition-all duration-300 flex items-center gap-1 bg-transparent text-slate-600 dark:text-slate-300 hover:bg-blue-500/10 hover:text-blue-600 dark:hover:text-blue-400 hover:shadow-[0_0_12px_rgba(59,130,246,0.3)]`;
