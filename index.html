@@ -1130,7 +1130,7 @@ html.dark select {
     <canvas id="canvas-3d-bg" class="fixed inset-0 z-[-1] pointer-events-none"></canvas>
 
 
-    <div id="modal-tambah-soal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div id="modal-tambah-soal" class="fixed inset-0 z-[999999] bg-slate-950/95 backdrop-blur-xl hidden flex items-center justify-center p-4 overflow-y-auto">
         <div class="glow-card max-w-lg w-full p-6 space-y-4 bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-slate-700">
             <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-3">
                 <h3 id="modal-soal-title" class="font-bold font-header text-base text-blue-600 dark:text-blue-400">➕ Tambah Pembelajaran</h3>
@@ -1639,7 +1639,7 @@ async function updateSettingsInSupabase(columnName, value) {
     </div>
 
     <!-- MODAL INPUT / EDIT HASIL BELAJAR -->
-    <div id="modal-nilai-siswa" class="fixed inset-0 z-50 bg-black/20 backdrop-blur-xs hidden flex items-center justify-center p-4">
+    <div id="modal-nilai-siswa" class="fixed inset-0 z-[999999] bg-slate-950/95 backdrop-blur-xl hidden flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-slate-900 border border-indigo-500/30 rounded-3xl p-6 max-w-xl w-full shadow-2xl backdrop-blur-xl">
         <!-- Header Modal -->
         <div class="flex justify-between items-center mb-5 pb-3 border-b border-slate-800">
@@ -1699,25 +1699,28 @@ async function updateSettingsInSupabase(columnName, value) {
         </form>
     </div>
 </div>
-
 <!-- Modal Preview Absensi -->
-<div id="modal-preview-absensi" class="fixed inset-0 z-50 bg-slate-900/85 backdrop-blur-md hidden flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-800 w-full max-w-4xl p-6 space-y-4 shadow-2xl rounded-2xl border border-slate-300 dark:border-slate-700 flex flex-col max-h-[90vh]">
+<div id="modal-preview-absensi" class="fixed inset-0 z-[99999] bg-slate-950/95 backdrop-blur-xl hidden overflow-y-auto flex justify-center pt-6 pb-16">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-4xl my-8 flex flex-col p-6 space-y-4 shadow-2xl rounded-2xl border border-slate-300 dark:border-slate-700">
+
         <div class="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-slate-700">
             <h3 class="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">📄 Pratinjau Laporan Absensi</h3>
-            <button onclick="document.getElementById('modal-preview-absensi').classList.add('hidden')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-xl font-bold text-sm">✕ Tutup</button>
+            <button type="button" onclick="event.preventDefault(); document.getElementById('modal-preview-absensi').style.display = 'none';" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium">✕ Tutup</button>
         </div>
+
         <div id="preview-content-absensi" class="overflow-y-auto flex-1 p-4 bg-slate-50 dark:bg-slate-900 rounded-xl text-slate-800 dark:text-slate-200 text-sm">
             <!-- Konten tabel rekap akan masuk otomatis ke sini -->
         </div>
+
         <div class="flex justify-end gap-3 pt-3 border-t border-slate-200 dark:border-slate-700">
-    <button onclick="document.getElementById('modal-preview-absensi').classList.add('hidden')" class="px-4 py-2 bg-slate-300 dark:bg-slate-700 text-slate-800 dark:text-white rounded-xl font-bold">Batal</button>
-    <button onclick="window.downloadActualPDF()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold flex items-center gap-2">📥 Cetak</button>
+            <button type="button" onclick="event.preventDefault(); document.getElementById('modal-preview-absensi').style.display = 'none';" class="px-4 py-2 bg-slate-300 hover:bg-slate-400 text-slate-800 dark:bg-slate-700 dark:text-slate-200 rounded-lg text-xs font-medium">Batal</button>
+            <button onclick="window.downloadActualPDF()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold flex items-center gap-2">📥 Cetak</button>
+        </div>
+    </div>
 </div>
-</div>    
 
 <!-- MODAL PREVIEW & DOWNLOAD LAPORAN HASIL BELAJAR -->
-    <div id="modal-rapor-sertifikat" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md hidden flex items-center justify-center p-2 md:p-6 overflow-auto">
+    <div id="modal-rapor-sertifikat" class="fixed inset-0 z-[999999] bg-slate-950/95 backdrop-blur-xl hidden overflow-y-auto flex justify-center pt-6 pb-16">
     <div class="bg-white min-w-[800px] w-[800px] p-6 space-y-4 text-slate-800 shadow-2xl rounded-2xl border border-amber-300 my-auto">
             <div class="border-b pb-3 space-y-2">
     <!-- Baris 1: Judul dan Tombol Tutup -->
@@ -1725,8 +1728,8 @@ async function updateSettingsInSupabase(columnName, value) {
         <h3 class="font-bold font-header text-base text-blue-700 flex items-center gap-2">
             📄 Preview Laporan Hasil Belajar
         </h3>
-        <button onclick="closeModalSertifikat()" style="background-color: #dc2626 !important; opacity: 1 !important; visibility: visible !important;" class="px-3 py-1.5 hover:bg-red-700 font-bold rounded-xl text-xs shadow">
-    <span style="color: #ffffff !important; opacity: 1 !important; visibility: visible !important; display: inline !important;">✕ Tutup</span>
+        <button onclick="tutupModalRaporSertifikat()" style="background-color: #dc2626 !important; color: #ffffff !important;" class="px-3 py-1.5 rounded-lg text-xs font-bold shadow cursor-pointer">
+    ✕ Tutup
 </button>
 </div>
     
@@ -2628,7 +2631,7 @@ const listNilaiSiswa = (nilaiList || []).sort((a, b) => {
     </div>
 
     <!-- Kanan: Tombol & Filter (Berjajar rapi ke bawah di sebelah kanan) -->
-    <div class="flex flex-col items-end gap-2 w-full md:w-auto ml-auto">
+    <div class="flex flex-wrap items-center gap-2 w-full md:w-auto ml-auto">
         <!-- 1. Tombol Tambah Absen -->
         <button onclick="tambahAbsenAdminModal()" class="h-9 px-4 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition flex items-center justify-center shadow-md whitespace-nowrap w-full sm:w-56">Tambah Absen</button>
         
@@ -2640,7 +2643,7 @@ const listNilaiSiswa = (nilaiList || []).sort((a, b) => {
         <!-- 3. Dropdown Semua Bulan -->
         <select id="filterBulanAdmin" onchange="renderRekapAbsen()" class="h-9 px-2 text-xs font-semibold bg-amber-100 text-amber-900 rounded-xl border border-transparent focus:outline-none shadow-md w-full sm:w-56">
             <option value="">-- Semua Bulan --</option>
-            <option value="2026-08">✔️ Agustus 2026</option>
+            <option value="2026-08">Agustus 2026</option>
             <option value="2026-09">September 2026</option>
             <option value="2026-10">Oktober 2026</option>
             <option value="2026-11">November 2026</option>
@@ -2648,7 +2651,7 @@ const listNilaiSiswa = (nilaiList || []).sort((a, b) => {
         </select>
 
         <!-- 4. Tombol Cetak (Paling Kanan) -->
-        <button onclick="window.downloadPDFabsensi()" class="h-9 px-4 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition flex items-center justify-center shadow-md whitespace-nowrap w-full sm:w-56">🖨️ Cetak</button>
+        <button id="btn-eksekusi-absen" onclick="bukaModalAbsensi()" class="h-9 px-4 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition flex items-center justify-center shadow-md whitespace-nowrap w-full sm:w-56">🖨️ Cetak Absen</button>
     </div>
 </div>
     `;
@@ -2678,7 +2681,7 @@ const listNilaiSiswa = (nilaiList || []).sort((a, b) => {
 }
             else if (menuId === 'pembelajaran_admin') {
                 titleEl.textContent = '📖 Manajemen Modul & Level Soal Pembelajaran';
-                actionsEl.innerHTML = `<button onclick="tambahSoalModal()" class="bg-blue-600 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs shadow">+ Tambah Pembelajaran</button>`;
+                actionsEl.innerHTML = `<button onclick="tambahSoalModal()" class="bg-blue-600 text-white font-bold px-4.5 py-2.5 rounded-xl text-xs shadow">+ Tambah Pembelajaran</button>`;
 
                 bodyEl.innerHTML = `
                     <div class="p-4 rounded-2xl bg-white/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -3942,41 +3945,38 @@ async function renderRekapAbsen() {
             tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400 italic text-xs">Belum ada data absensi</td></tr>`;
             return;
         }
-
-        // Ambil nilai dari dropdown filter admin secara langsung
+requestAnimationFrame(() => {
         const filterSiswaVal = document.getElementById('filterAbsensiAdmin')?.value || '';
         const filterBulanVal = document.getElementById('filterBulanAdmin')?.value || '';
 
-        // Filter data list absensi berdasarkan dropdown
         let listFiltered = absensiList.filter(a => {
             let matchSiswa = true;
             let matchBulan = true;
-
+            
             if (filterSiswaVal) {
                 let rawId = String(a.id_siswa || '').trim();
                 let cleanId = rawId.split(' ')[0];
                 matchSiswa = (cleanId === filterSiswaVal);
             }
-
             if (filterBulanVal) {
                 let waktu = String(a.tanggal || a.waktu || '');
                 matchBulan = waktu.includes(filterBulanVal);
             }
-
             return matchSiswa && matchBulan;
         });
 
+        if (!tbody) return;
+
         if (listFiltered.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400 italic text-xs">Tidak ada data absensi untuk filter tersebut</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400 italic text-xs">Tidak ada data absensi untuk periode ini.</td></tr>`;
             return;
         }
 
-        tbody.innerHTML = listFiltered.map(a => {
-            let rawIdSiswa = String(a.id_siswa || '').trim();
-            let cleanIdSiswa = rawIdSiswa.split(' ')[0];
-            
-            let matchedSiswa = typeof siswaData !== 'undefined' ? siswaData.find(s => String(s.id).trim() == cleanIdSiswa || String(s.nis).trim() == cleanIdSiswa) : null;
-            let namaFinal = a.nama_siswa && a.nama_siswa !== 'undefined' ? a.nama_siswa : (matchedSiswa ? matchedSiswa.nama : '-');
+        tbody.innerHTML = listFiltered.map((a, idx) => {
+            let rawId = String(a.id_siswa || '').trim();
+            let cleanIdSiswa = rawId.split(' ')[0];
+            let namaSiswaFull = String(a.nama_siswa || '-');
+            let namaFinal = namaSiswaFull.replace(/^\d+\s*-\s*/, '').trim();
 
             return `
                 <tr>
@@ -3986,12 +3986,13 @@ async function renderRekapAbsen() {
                     <td class="p-3"><span class="px-2 py-1 rounded bg-slate-700 text-xs">${a.status || '-'}</span></td>
                     <td class="p-3">${a.keterangan || '-'}</td>
                     <td class="p-3 space-x-2">
-                        <button onclick="editAbsenAdmin('${a.id}')" class="bg-amber-600 px-2 py-1 rounded text-white text-xs">Edit</button>
-                        <button onclick="hapusAbsenAdmin('${a.id}')" class="bg-rose-600 px-2 py-1 rounded text-white text-xs">Hapus</button>
+                        <button onclick="editAbsenAdmin('${a.id}')" class="px-2 py-1 rounded text-white bg-amber-600">Edit</button>
+                        <button onclick="hapusAbsenAdmin('${a.id}')" class="px-2 py-1 rounded text-white bg-rose-600">Hapus</button>
                     </td>
                 </tr>
             `;
         }).join('');
+    });
 
     } catch (err) {
         console.error("Terjadi kesalahan saat memuat rekap:", err);
@@ -4111,23 +4112,25 @@ function hitungRataRataDanCatatan(scores) {
         totalScore += Number(item.nilai || item.score) || 0;
     });
 
-    let avgScore = listScores.length > 0 ? Math.round(totalScore / listScores.length) : 0;
-    
+    let kkm = 75;
+    let avgScore = 0;
+    let text = "";
+
+    if (listScores.length > 0) {
+        avgScore = Math.round(totalScore / listScores.length);
+        if (avgScore >= 85) {
+            text = `Luar biasa! Siswa menunjukkan pemahaman yang sangat mendalam dan konsisten di atas KKM (${kkm}). Pertahankan prestasi cemerlang ini dan teruslah tingkatkan semangat belajar!`;
+        } else if (avgScore >= kkm) {
+            text = `Sangat baik! Siswa telah tuntas dan melampaui Standar KKM (${kkm}) dengan hasil yang memuaskan. Pertahankan kedisiplinan dan fokus belajar ke depannya!`;
+        } else {
+            text = `Siswa telah berusaha dengan baik dalam proses bimbingan. Mari tingkatkan kembali frekuensi latihan agar pada evaluasi berikutnya dapat melampaui KKM (${kkm}) dengan lebih baik lagi. Semangat!`;
+        }
+    }
+
     const avgEl = document.getElementById('cert-avg-score');
     if (avgEl) avgEl.innerText = avgScore;
 
     const noteEl = document.getElementById('cert-auto-note');
-    let kkm = 75;
-    let text = "";
-
-    if (avgScore >= 85) {
-        text = `Luar biasa! Siswa menunjukkan pemahaman yang sangat mendalam dan konsisten di atas KKM (${kkm}). Pertahankan prestasi cemerlang ini dan teruslah tingkatkan semangat belajar!`;
-    } else if (avgScore >= kkm) {
-        text = `Sangat baik! Siswa telah tuntas dan melampaui Standar KKM (${kkm}) dengan hasil yang memuaskan. Pertahankan kedisiplinan dan fokus belajar ke depannya!`;
-    } else {
-        text = `Siswa telah berusaha dengan baik dalam proses bimbingan. Mari tingkatkan kembali frekuensi latihan agar pada evaluasi berikutnya dapat melampaui KKM (${kkm}) dengan lebih baik lagi. Semangat!`;
-    }
-
     if (noteEl) noteEl.innerText = text;
 }
     // --- ENGINE BACKGROUND ANIMASI CANVAS 3D INTERAKTIF ---
@@ -4276,46 +4279,179 @@ function cetakLaporanDariPilihan() {
     
     bukaRaporSertifikat(siswaIdAktif, periodeTerpilih);
 }
-window.downloadActualPDF = function downloadActualPDF() {
-    const modalPreview = document.getElementById('modal-preview-absensi');
-    if (modalPreview) modalPreview.classList.add('hidden');
-    
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.setFontSize(14);
-    doc.text('REKAP ABSENSI SISWA - SHIHWA LEARNING CENTER', 14, 15);
-    
-    const siswaSelect = document.getElementById('filterAbsensiAdmin');
-    const bulanSelect = document.getElementById('filterBulanAdmin');
-    const namaSiswaText = siswaSelect && siswaSelect.selectedIndex >= 0 ? siswaSelect.options[siswaSelect.selectedIndex].text : '';
-    const bulanText = bulanSelect && bulanSelect.selectedIndex >= 0 ? bulanSelect.options[bulanSelect.selectedIndex].text : '';
-    
-    doc.setFontSize(10);
-    doc.text(`Filter - Siswa: ${namaSiswaText || 'Semua'} | Periode: ${bulanText || 'Semua'}`, 14, 22);
-    
-    const previewEl = document.getElementById('preview-content-absensi');
-    const items = previewEl ? previewEl.querySelectorAll('li') : [];
-    let y = 30;
-    
-    items.forEach((li, idx) => {
-        if (y > 280) {
-            doc.addPage();
-            y = 20;
+// Pengaman tambahan agar tombol cetak absen dinamis selalu merespons
+document.addEventListener('click', function(e) {
+    if (e.target && e.target.id === 'btn-eksekusi-absen') {
+        e.preventDefault();
+        if (typeof bukaModalAbsensi === 'function') {
+            bukaModalAbsensi();
         }
-        doc.text(`${idx + 1}. ${li.innerText.replace(/<[^>]*>?/gm, '')}`, 14, y);
-        y += 8;
-    });
+    }
+});
+function bukaModalAbsensi() {
+    // 1. Sembunyikan modal rapor agar tidak tumpang tindih
+    const modalRapor = document.getElementById('modal-rapor-sertifikat');
+    if (modalRapor) {
+        modalRapor.classList.add('hidden');
+        modalRapor.style.display = 'none';
+    }
+
+    // 2. Tampilkan modal absensi
+    const modalAbsen = document.getElementById('modal-preview-absensi');
+    if (modalAbsen) {
+        modalAbsen.classList.remove('hidden');
+        modalAbsen.style.display = 'flex';
+    }
+
+    // 3. Salin data tabel absensi asli ke dalam area preview modal secara otomatis
+    const tabelAsli = document.querySelector('table'); // Sesuaikan dengan selector tabel absensi Anda jika ada yang spesifik
+    const previewKonten = document.getElementById('preview-content-absensi');
     
-    let namaFilePdf = "Rekap_Absensi";
-if (siswaSelect && siswaSelect.selectedIndex !== -1) {
-    let rawText = siswaSelect.options[siswaSelect.selectedIndex].text;
-    namaFilePdf = rawText.replace(/[^a-zA-Z0-9]/g, '_');
+    if (tabelAsli && previewKonten) {
+        // Buat salinan list atau tabel agar terbaca oleh pembuat PDF
+        let htmlData = '<ul>';
+        const rows = tabelAsli.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            const cols = row.querySelectorAll('td');
+            if (cols.length >= 3) {
+                let tanggal = cols[0] ? cols[0].innerText : '';
+                let nama = cols[2] ? cols[2].innerText : '';
+                let status = cols[3] ? cols[3].innerText : '';
+                htmlData += `<li class="py-1 border-b border-slate-700/50">${tanggal} - ${nama} (${status})</li>`;
+            }
+        });
+        htmlData += '</ul>';
+        previewKonten.innerHTML = htmlData;
+    }
 }
-doc.save(`${namaFilePdf}.pdf`);
-}
+window.downloadActualPDF = function() {
+    const modalPreview = document.getElementById('modal-preview-absensi');
+    if (modalPreview) {
+        modalPreview.classList.add('hidden');
+        modalPreview.style.display = 'none';
+    }
+    
+    if (window.jspdf) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // Header Kop Instansi
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(14);
+        doc.text('SHIHWA LEARNING CENTER', 14, 15);
+        
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.text('Perum. Puri Astapada Indah 1 Gang Kavling Barat Tambakrejo Jombang', 14, 21);
+        
+        // Garis Pembatas Kop
+        doc.setLineWidth(0.5);
+        doc.line(14, 25, 196, 25);
+        
+        // Judul Laporan
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(12);
+        doc.text('REKAP ABSENSI SISWA', 14, 33);
+        
+        // Informasi Filter
+        const siswaSelect = document.getElementById('filterAbsensiAdmin');
+        const bulanSelect = document.getElementById('filterBulanAdmin');
+        const namaSiswaText = siswaSelect && siswaSelect.selectedIndex >= 0 ? siswaSelect.options[siswaSelect.selectedIndex].text : '';
+        let bulanText = '';
+        if (bulanSelect && bulanSelect.selectedIndex >= 0) {
+            let rawBulan = bulanSelect.options[bulanSelect.selectedIndex].text;
+            // Hanya membersihkan simbol seperti kutip atau karakter 'p' jika ada di awal, 
+            // tanpa memotong huruf pertama dari nama bulan yang sebenarnya
+            bulanText = rawBulan.replace(/^['`]?p\s+/i, '').trim();
+        }
+        
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9);
+        doc.text('Siswa', 14, 40);
+    doc.text(':', 27, 40);
+    doc.text(`${namaSiswaText || 'Semua Siswa'}`, 31, 40);
 
+    doc.text('Periode', 14, 46);
+    doc.text(':', 27, 46);
+    doc.text(`${bulanText || 'Semua Periode'}`, 31, 46);
+        
+        // Header Tabel
+        let startY = 54;
+        doc.setFillColor(51, 65, 85); // Warna latar header tabel (slate-700)
+        doc.rect(14, startY, 182, 8, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(9);
+        doc.text('No.', 17, startY + 5.5);
+        doc.text('Tanggal & Waktu', 28, startY + 5.5);
+        doc.text('Nama Siswa', 75, startY + 5.5);
+        doc.text('Status', 165, startY + 5.5);
+        
+        // Isi Data Tabel
+        const previewEl = document.getElementById('preview-content-absensi');
+        const items = previewEl ? previewEl.querySelectorAll('li') : [];
+        
+        doc.setTextColor(0, 0, 0);
+        doc.setFont("helvetica", "normal");
+        let y = startY + 14;
+        
+        if (items.length === 0) {
+            doc.text('Tidak ada data absensi untuk periode ini.', 14, y);
+        } else {
+            items.forEach((li, idx) => {
+                if (y > 275) {
+                    doc.addPage();
+                    y = 20;
+                }
+                
+                let teksAsli = li.innerText;
+                let parts = teksAsli.split(' - ');
+                let waktu = parts[0] || '';
+                let sisaTeks = parts[1] || '';
+                
+                let namaSiswa = sisaTeks;
+                let statusSiswa = '';
+                
+                let matchStatus = sisaTeks.match(/\(([^)]+)\)/);
+                if (matchStatus) {
+                    statusSiswa = matchStatus[1];
+                    namaSiswa = sisaTeks.replace(/\s*\([^)]+\)/, '').trim();
+                }
+                
+                // Koordinat X disamakan persis dengan posisi header di atasnya
+                doc.text((idx + 1) + '.', 17, y);
+                doc.text(waktu, 28, y);
+                doc.text(namaSiswa, 75, y);
+                doc.text(statusSiswa, 165, y);
+                
+                // Garis tipis antar baris tabel
+                doc.setLineWidth(0.1);
+                doc.line(14, y + 3, 196, y + 3);
+                
+                y += 8;
+            });
+        }
+        
+        let namaFilePdf = "Rekap_Absensi";
+        if (siswaSelect && siswaSelect.selectedIndex !== -1) {
+            let rawText = siswaSelect.options[siswaSelect.selectedIndex].text;
+            namaFilePdf = rawText.replace(/[^a-zA-Z0-9]/g, '_');
+        }
+        doc.save(`${namaFilePdf}.pdf`);
+    } else {
+        alert('Modul PDF belum dimuat sepenuhnya. Silakan coba beberapa saat lagi.');
+    }
+};
 </script>
-
+<script>
+    function tutupModalRaporSertifikat() {
+        const modal = document.getElementById('modal-rapor-sertifikat');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
+    }
+</script>
 </body>
 
 </html>
