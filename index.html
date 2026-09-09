@@ -91,6 +91,18 @@
         box-shadow: 0 0 60px rgba(168, 85, 247, 1), 0 0 120px rgba(59, 130, 246, 0.85), inset 0 0 35px rgba(255, 255, 255, 0.4) !important;
         border-color: rgba(255, 255, 255, 0.9) !important;
     }
+    /* Paksa presisi rata tengah untuk kontainer rekap absen pada tampilan mobile */
+    @media (max-width: 768px) {
+        #dynamic-actions .flex.flex-col.items-center {
+            align-items: center !important;
+            text-align: center !important;
+        }
+        #dynamic-actions select, 
+        #dynamic-actions button {
+            text-align-last: center !important;
+            text-align: center !important;
+        }
+    }
 @media (max-width: 768px) {
     /* Aturan tabel Anda sebelumnya */
     .overflow-x-auto, div:has(> table) {
@@ -1474,7 +1486,7 @@ async function updateSettingsInSupabase(columnName, value) {
         <span id="header-user-role" class="text-blue-600 dark:text-blue-400 font-bold uppercase">ROLE</span>
         <span class="text-slate-300 dark:text-slate-700">|</span>
         <span class="text-blue-500 font-mono flex items-center gap-1 font-bold">🕒 <span id="realtime-clock">--:--:--</span></span>
-        <span id="slogan-header" class="italic text-[11px] !text-black dark:!text-slate-300">"Homey and Enjoyable Learning"</span>
+        <span id="slogan-header" class="italic text-[11px] !text-black dark:!text-slate-300">"Dengan hati kami mengajari, Dengan inspirasi kami memotivasi"</span>
       </div>
     </div>
   </div>
@@ -2481,31 +2493,31 @@ async function saveConfigAdmin(e) {
             const adminList = dataAdmins || [];
 
             if (menuId === 'data_siswa') {
-    titleEl.style.width = '100%';
-    titleEl.innerHTML = `
-        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 mb-4 p-4 bg-slate-900 dark:bg-slate-900 rounded-2xl w-full text-left shadow-lg relative z-10">
-            <!-- Judul / Kiri -->
-            <div class="flex items-center gap-2 w-full md:w-auto">
-                <span class="font-bold text-slate-100 text-base md:text-lg">📁 KELOLA DATA SISWA BIMBEL</span>
-            </div>
-
-            <!-- Kanan: Kotak Pencarian & Tombol Aksi (Sejajar di Laptop, Vertikal di HP) -->
-            <div class="flex flex-col md:flex-row items-stretch md:items-center gap-2 w-full md:w-auto">
-                <!-- 1. Kotak Pencarian -->
-                <div class="relative w-full md:w-48">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400 text-xs">🔍</span>
-                    <input type="text" id="search-siswa" placeholder="Cari nama atau ID..." oninput="filterDataSiswa(this.value)" onkeypress="if(event.key === 'Enter') filterDataSiswa(this.value)" class="h-9 w-full pl-8 pr-3 text-xs border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white dark:bg-orange-950/30 border-orange-200 dark:border-orange-800 text-slate-900 dark:text-slate-50 placeholder:text-slate-400">
+        titleEl.style.width = '100%';
+        titleEl.innerHTML = `
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 mb-4 p-4 bg-slate-900 dark:bg-slate-900 rounded-2xl w-full text-left shadow-lg relative z-10">
+                <!-- Judul Utama Tunggal -->
+                <div class="flex items-center gap-2 w-full md:w-auto">
+                    <span class="font-bold text-slate-100 text-base md:text-lg">📁 L</span>
                 </div>
 
-                <!-- 2. Tombol Impor Excel -->
-                <button onclick="bukaModalImporSiswa()" class="h-9 px-4 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow flex items-center justify-center gap-1 whitespace-nowrap">
-                    📊 Impor Excel
-                </button>
+                <!-- Kontrol Kanan: Search & Tombol -->
+                <div class="flex flex-col md:flex-row items-stretch md:items-center gap-2 w-full md:w-auto">
+                    <!-- 1. Kotak Pencarian -->
+                    <div class="relative w-full md:w-48">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400 text-xs">🔍</span>
+                        <input type="text" id="search-siswa" placeholder="Cari nama atau ID..." oninput="filterDataSiswa(this.value)" onkeypress="if(event.key === 'Enter') filterDataSiswa(this.value)" class="h-9 w-full pl-8 pr-3 text-xs border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white dark:bg-orange-950/30 border-orange-200 dark:border-orange-800 text-slate-900 dark:text-slate-50 placeholder:text-slate-400">
+                    </div>
 
-                <!-- 3. Tombol Tambah Siswa -->
+                    <!-- 2. Tombol Impor Excel -->
+                <button onclick="bukaModalImporSiswa()" class="h-9 px-4 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow flex items-center justify-center gap-1 whitespace-nowrap">
+                        📊 Impor Excel
+                    </button>
+
+                    <!-- 3. Tombol Tambah Siswa -->
                 <button onclick="tambahSiswaModal()" class="h-9 px-4 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow flex items-center justify-center gap-1 whitespace-nowrap">
-                    + Tambah Siswa
-                </button>
+                        + Tambah Siswa
+                    </button>
             </div>
         </div>
     `;
@@ -2546,7 +2558,7 @@ async function saveConfigAdmin(e) {
                 `;
             } 
             else if (menuId === 'hasil_belajar_admin') {
-                titleEl.textContent = '⭐ Processing & Evaluasi Hasil Belajar Siswa';
+                titleEl.textContent = '⭐ Evaluasi Belajar';
                 
                 let htmlHeaderPilihan = `
                     <div class="p-4 rounded-2xl bg-white/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3">
@@ -2641,7 +2653,8 @@ const listNilaiSiswa = (nilaiList || []).sort((a, b) => {
     hitungRataRataDanCatatan(listNilaiSiswa);
 
 
-} else if (menuId === 'absensi_admin') {
+} 
+else if (menuId === 'absensi_admin') {
     
     let opsiSiswaHtml = '<option value="">-- Semua Siswa --</option>';
     if (typeof siswaList !== 'undefined' && Array.isArray(siswaList)) {
@@ -2660,17 +2673,17 @@ const listNilaiSiswa = (nilaiList || []).sort((a, b) => {
             <!-- Kanan: Tombol & Filter (Tersusun rapi di tengah pada HP, menyamping di Laptop) -->
             <div class="flex flex-col md:flex-row items-center gap-2 w-full md:w-auto">
                 <!-- 1. Tombol Tambah Absen -->
-        <button onclick="tambahAbsenAdminModal()" class="h-9 w-full md:w-auto px-4 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow">
+        <button onclick="tambahAbsenAdminModal()" class="h-9 w-full md:w-15 px-4 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow">
                     + Tambah Absen
                 </button>
         
         <!-- 2. Dropdown Semua Siswa -->
-        <select id="filterAbsensiAdmin" class="h-9 w-full md:w-auto px-3 text-xs font-semibold bg-purple-100 dark:bg-purple-950/60 text-purple-900 dark:text-purple-200 border border-purple-200 dark:border-purple-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-center md:text-left">
+        <select id="filterAbsensiAdmin" class="h-9 w-full md:w-15 px-3 text-xs font-semibold bg-purple-100 dark:bg-purple-950/60 text-purple-900 dark:text-purple-200 border border-purple-200 dark:border-purple-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-center md:text-left">
                     ${opsiSiswaHtml}
                 </select>
 
         <!-- 3. Dropdown Semua Bulan -->
-        <select id="filterBulanAdmin" onchange="renderRekapAbsen()" class="h-9 w-full md:w-auto px-3 text-xs font-semibold bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 border border-amber-200 dark:border-amber-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-center md:text-left">
+        <select id="filterBulanAdmin" onchange="renderRekapAbsen()" class="h-9 w-full md:w-15 px-3 text-xs font-semibold bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 border border-amber-200 dark:border-amber-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-center md:text-left">
             <option value="">-- Semua Bulan --</option>
             <option value="2026-08">Agustus 2026</option>
             <option value="2026-09">September 2026</option>
@@ -2680,7 +2693,7 @@ const listNilaiSiswa = (nilaiList || []).sort((a, b) => {
         </select>
 
         <!-- 4. Tombol Cetak (Paling Kanan) -->
-        <button id="btn-eksekusi-absen" onclick="bukaModalAbsensi()" class="h-9 w-full md:w-auto px-4 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow">
+        <button id="btn-eksekusi-absen" onclick="bukaModalAbsensi()" class="h-9 w-full md:w-15 px-4 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow">
                     🖨️ Cetak
                 </button>
     </div>
@@ -2711,7 +2724,7 @@ const listNilaiSiswa = (nilaiList || []).sort((a, b) => {
     renderRekapAbsen();
 }
             else if (menuId === 'pembelajaran_admin') {
-                titleEl.textContent = '📖 Manajemen Modul & Level Soal Pembelajaran';
+                titleEl.textContent = '📖 Manajemen';
                 actionsEl.innerHTML = `<button onclick="tambahSoalModal()" class="bg-blue-600 text-white font-bold px-4.5 py-2.5 rounded-xl text-xs shadow">+ Tambah Pembelajaran</button>`;
 
                 bodyEl.innerHTML = `
@@ -3934,7 +3947,7 @@ filtered.sort((a, b) => {
                     <div class="flex items-center justify-between">
                         <span class="px-2 py-0.5 text-[10px] font-bold bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-500/40 rounded-md">MODUL</span>
                     </div>
-                    <a href="${modulItem.link || '#'}" target="_blank" class="block w-full text-center py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition shadow-lg shadow-purple-500/30">Selamat Belajar</a>
+                    <a href="${modulItem.link || '#'}" target="_blank" class="block w-full text-center py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition shadow-lg shadow-purple-500/30">Mulai Belajar</a>
                 </div>
             `;
         }
@@ -3946,7 +3959,7 @@ filtered.sort((a, b) => {
             let tombolSoal = '';
             
             if (statusBuka) {
-                tombolSoal = `<a href="${soalItem.link || '#'}" target="_blank" class="block w-full text-center py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition shadow-lg shadow-blue-500/30">Selamat Mengerjakan</a>`;
+                tombolSoal = `<a href="${soalItem.link || '#'}" target="_blank" class="block w-full text-center py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition shadow-lg shadow-blue-500/30">Mulai Mengerjakan</a>`;
             } else {
                 tombolSoal = `<button disabled class="w-full text-center py-2 bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 font-bold rounded-xl cursor-not-allowed">🔒 (Selesaikan Bab Sebelumnya)</button>`;
             }
