@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    
     <style>
         #actionEl, #actionEl *, button, select {
             pointer-events: auto !important;
@@ -544,30 +543,6 @@ button[onclick*="tambahNilaiModal"] {
         }
     }
 </style>
-<!-- KODE PAKSA OTOMATIS DI HEAD -->
-<script>
-(function() {
-    // Paksa buat elemen modal dan gambar saat dokumen mulai dibaca
-    document.addEventListener("DOMContentLoaded", function() {
-        if (!document.getElementById('modalMaskot')) {
-            const div = document.createElement('div');
-            div.id = 'modalMaskot';
-            div.style.cssText = "position:fixed!important;top:0!important;left:0!important;width:100vw!important;height:100vh!important;background:rgba(0,0,0,0.85)!important;display:none;align-items:center!important;justify-content:center!important;z-index:9999999!important;";
-            div.innerHTML = `
-                <div style="background:#0f172a;border:2px solid #f59e0b;border-radius:1.25rem;padding:2rem;max-width:340px;width:90%;text-align:center;box-shadow:0 0 40px rgba(245,158,11,0.5);">
-                    <div style="width:130px;height:130px;margin:0 auto 1rem auto;display:flex;align-items:center;justify-content:center;">
-                        <img id="maskotImg" src="" alt="Maskot" style="max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(0 0 12px rgba(255,215,0,0.7));">
-                    </div>
-                    <h3 id="maskotJudul" style="color:#f59e0b;font-weight:bold;font-size:1.2rem;margin-bottom:0.5rem;">PRESENSI BERHASIL</h3>
-                    <p id="maskotPesan" style="color:#cbd5e1;font-size:0.9rem;margin-bottom:1.5rem;">Terima kasih, presensi telah dicatat.</p>
-                    <button onclick="document.getElementById('modalMaskot').style.display='none'" style="background:#f59e0b;color:#0f172a;font-weight:bold;padding:0.6rem 1.8rem;border:none;border-radius:0.75rem;cursor:pointer;">Tutup</button>
-                </div>
-            `;
-            document.body.appendChild(div);
-        }
-    });
-})();
-</script>
 <script>
     // Pembersihan khusus perangkat seluler agar laptop tetap aman menampilkan animasi 3D
     (function() {
@@ -3499,32 +3474,8 @@ async function prosesValidasiAbsensiSiswa() {
     if (error) {
         alert("Gagal mengirim presensi: " + error.message);
     } else {
+        alert("Presensi berhasil dikirim!");
         renderRiwayatAbsenSiswa();
-        // 1. Panggil fungsi render tabel bawaan aplikasi Anda
-                        if (typeof renderRiwayatAbsenSiswa === 'function') {
-                            renderRiwayatAbsenSiswa();
-                        }
-
-                        // 2. Tampilkan Maskot & Putar Audio Sesuai Status
-                        let statusKey = String(status || 'hadir').toLowerCase().trim();
-                        let folderId = '1';
-                        if (statusKey === 'izin') folderId = '2';
-                        else if (statusKey === 'sakit') folderId = '3';
-
-                        const imgTarget = document.getElementById('maskotImg');
-                        if (imgTarget) {
-                            imgTarget.src = `images${folderId}/${statusKey}.png`;
-                        }
-
-                        const modalTarget = document.getElementById('modalMaskot');
-                        if (modalTarget) {
-                            modalTarget.style.display = 'flex';
-                        }
-
-                        try {
-                            new Audio(`audio${folderId}/${statusKey}.mp3`).play();
-                        } catch(e) {}
-                    
     }
 }
 
@@ -4572,108 +4523,7 @@ window.downloadActualPDF = function() {
             modal.style.display = 'none';
         }
     }
-    <script>
-    <!-- ========================================================== -->
-<!-- JALAN PINTAS UTAMA: MODAL, GAMBAR, SUARA & PENYIMPANAN    -->
-<!-- ========================================================== -->
-<div id="modalMaskotInstan" style="position:fixed!important;top:0!important;left:0!important;width:100vw!important;height:100vh!important;background:rgba(0,0,0,0.85)!important;display:none;align-items:center!important;justify-content:center!important;z-index:9999999!important;">
-    <div style="background:#0f172a;border:2px solid #f59e0b;border-radius:1.25rem;padding:2rem;max-width:340px;width:90%;text-align:center;box-shadow:0 0 40px rgba(245,158,11,0.5);">
-        <div style="width:130px;height:130px;margin:0 auto 1rem auto;display:flex;align-items:center;justify-content:center;">
-            <img id="imgMaskotInstan" src="" alt="Maskot" style="max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(0 0 12px rgba(255,215,0,0.7));">
-        </div>
-        <h3 style="color:#f59e0b;font-weight:bold;font-size:1.2rem;margin-bottom:0.5rem;">PRESENSI BERHASIL</h3>
-        <p style="color:#cbd5e1;font-size:0.9rem;margin-bottom:1.5rem;">Terima kasih, kehadiran Anda telah dicatat.</p>
-        <button onclick="document.getElementById('modalMaskotInstan').style.display='none'" style="background:#f59e0b;color:#0f172a;font-weight:bold;padding:0.6rem 1.8rem;border:none;border-radius:0.75rem;cursor:pointer;">Tutup</button>
-    </div>
-</div>
-
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    // Pastikan tabel riwayat punya tbody
-    let table = document.querySelector('table');
-    if (table && !document.getElementById('absen-table-body')) {
-        let tbody = document.createElement('tbody');
-        tbody.id = 'absen-table-body';
-        table.appendChild(tbody);
-    }
-
-    // Tangkap semua tombol kirim/presensi di halaman
-    document.addEventListener('click', function(e) {
-        const btn = e.target.closest('button, input[type="submit"]');
-        if (!btn) return;
-        
-        const text = (btn.textContent + btn.id + btn.className).toLowerCase();
-        if (text.includes('kirim') || text.includes('presensi') || text.includes('absen')) {
-            setTimeout(() => {
-                // Ambil status dari select
-                const select = document.querySelector('select');
-                const statusVal = select ? select.value : 'Hadir';
-                const statusLower = statusVal.toLowerCase().trim();
-
-                // Tentukan folder gambar & audio
-                let folderId = '1';
-                if (statusLower === 'izin') folderId = '2';
-                else if (statusLower === 'sakit') folderId = '3';
-
-                const imgSrc = `images${folderId}/${statusLower}.png`;
-                const audioSrc = `audio${folderId}/${statusLower}.mp3`;
-
-                // Tampilkan modal dan set gambar
-                const modal = document.getElementById('modalMaskotInstan');
-                const img = document.getElementById('imgMaskotInstan');
-                if (modal && img) {
-                    img.src = imgSrc;
-                    modal.style.display = 'flex';
-                    try { new Audio(audioSrc).play(); } catch(err){}
-                }
-
-                // Simpan ke LocalStorage agar tabel riwayat langsung terisi
-                let riwayat = JSON.parse(localStorage.getItem('slc_local_absen') || '[]');
-                riwayat.unshift({
-                    tanggal: new Date().toISOString(),
-                    status: statusVal,
-                    keterangan: 'Mandiri'
-                });
-                localStorage.setItem('slc_local_absen', JSON.stringify(riwayat));
-
-                // Render tabel
-                const tbody = document.getElementById('absen-table-body');
-                if (tbody) {
-                    tbody.innerHTML = riwayat.map(item => `
-                        <tr style="border-bottom:1px solid #334155;font-size:0.75rem;color:#cbd5e1;">
-                            <td style="padding:0.75rem;">${new Date(item.tanggal).toLocaleString()}</td>
-                            <td style="padding:0.75rem;"><span style="padding:0.25rem 0.5rem;border-radius:0.25rem;background:rgba(16,185,129,0.2);color:#34d399;font-weight:600;">${item.status}</span></td>
-                            <td style="padding:0.75rem;">Mandiri</td>
-                            <td style="padding:0.75rem;color:#34d399;">Tersimpan</td>
-                        </tr>
-                    `).join('');
-                }
-            }, 300);
-        }
-    });
-});
-<!-- WADAH HTML OTOMATIS UNTUK MASKOT & TABEL -->
-<div id="modalMaskot" style="position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.85) !important; display: none; align-items: center !important; justify-content: center !important; z-index: 9999999 !important;">
-    <div style="background: #0f172a; border: 2px solid #f59e0b; border-radius: 1.25rem; padding: 2rem; max-width: 340px; width: 90%; text-align: center; box-shadow: 0 0 40px rgba(245,158,11,0.5);">
-        <div style="width: 130px; height: 130px; margin: 0 auto 1rem auto; display: flex; align-items: center; justify-content: center;">
-            <img id="maskotImg" src="" alt="Maskot SLC" style="max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 0 12px rgba(255,215,0,0.7));">
-        </div>
-        <h3 id="maskotJudul" style="color: #f59e0b; font-weight: bold; font-size: 1.2rem; margin-bottom: 0.5rem;">PRESENSI BERHASIL</h3>
-        <p id="maskotPesan" style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 1.5rem;">Terima kasih, presensi telah dicatat.</p>
-        <button onclick="document.getElementById('modalMaskot').style.display='none'" style="background: #f59e0b; color: #0f172a; font-weight: bold; padding: 0.6rem 1.8rem; border: none; border-radius: 0.75rem; cursor: pointer;">Tutup</button>
-    </div>
-</div>
-
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    // Memastikan elemen tbody untuk tabel riwayat selalu ada di halaman
-    let table = document.querySelector('table');
-    if (table && !document.getElementById('absen-table-body')) {
-        let tbody = document.createElement('tbody');
-        tbody.id = 'absen-table-body';
-        table.appendChild(tbody);
-    }
-});
 </script>
 </body>
+
 </html>
