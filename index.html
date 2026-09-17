@@ -747,51 +747,149 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
         function handleCetakRapor() {
-    const idSiswa = window.currentUser?.id || window.userId || '2627046';
-    const periodeSelect = document.getElementById('filter-periode-siswa');
-    const periode = periodeSelect ? periodeSelect.value : 'Agustus 2026';
+    const userObj = window.currentUser || window.userData || (typeof currentUser !== 'undefined' ? currentUser : {});
     
-    // Kode Ampuh: Paksa buat modal secara dinamis jika elemen aslinya terhalang atau gagal dibuka
+    const idsiswa = userObj.id || userObj.id_siswa || userObj.user_id || '';
+    const namaSiswa = userObj.nama_lengkap || userObj.nama || userObj.nama_siswa || '-';
+    const nomorId = idsiswa || '-';
+    
+    const kelasSiswa = userObj.kelas || userObj.kelas_siswa || userObj.tingkat || userObj.jenjang || '-';
+    
+    // Nilai default awal sebelum data dari database ditarik
+    let sekolahSiswa = userObj.sekolah || userObj.asal_sekolah || userObj.nama_sekolah || userObj.asal || '-';
+    
+    // Cari dropdown periode bulan secara spesifik (menghindari dropdown soal/kategori lain)
+    const periodeSelect = document.getElementById('filter periode siswa') || 
+                          document.getElementById('filter-periode') || 
+                          document.getElementById('periode') ||
+                          document.querySelector('select[id*="periode"]') || 
+                          document.querySelector('.periode-select') ||
+                          document.querySelector('select:not([id*="soal"])');
+                          
+    let periodePilih = 'Agustus 2026';
+    if (periodeSelect) {
+        periodePilih = periodeSelect.options[periodeSelect.selectedIndex]?.text || periodeSelect.value;
+    }
+
+    // 1. Tampilkan modal rapor
     let modal = document.getElementById('modal-rapor-sertifikat');
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'modal-rapor-sertifikat';
-        modal.className = 'fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4';
-        modal.innerHTML = `
-            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 max-w-lg w-full text-slate-100 shadow-2xl relative">
-                <h3 class="text-lg font-bold mb-3 text-amber-400">Rapor & Sertifikat Siswa</h3>
-                <p class="text-sm mb-4">Periode: <span class="font-semibold text-white">${periode}</span> (ID Siswa: ${idSiswa})</p>
-                <div id="modal-rapor-content" class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/50 mb-4 text-sm">
-                    Memuat data rapor...
-                </div>
-                <div class="flex justify-end gap-2">
-                    <button onclick="window.print()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-sm">Cetak / Simpan PDF</button>
-                    <button onclick="document.getElementById('modal-rapor-sertifikat').remove()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-lg text-sm">Tutup</button>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(modal);
-    } else {
+    if (modal) {
         modal.classList.remove('hidden');
         modal.classList.add('flex');
         modal.style.display = 'flex';
+        
+        // Tombol tutup (Close)
+        const closeButtons = modal.querySelectorAll('button, [class*="close"], [id*="tutup"]');
+        closeButtons.forEach(btn => {
+            if (btn.innerText.includes('Tutup') || btn.innerText.includes('✕') || btn.classList.contains('close')) {
+                btn.onclick = function() {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                    modal.style.display = 'none';
+                };
+            }
+        });
+
+        // 2. Isi teks identitas awal ke elemen HTML
+        const elNama = document.getElementById('cert-nama-siswa');
+        const elId = document.getElementById('cert-id-siswa');
+        const elKelas = document.getElementById('cert-kelas-siswa');
+        const elSekolah = document.getElementById('cert-sekolah-siswa');
+        const elPeriode = document.getElementById('cert-periode-teks');
+
+        if (elNama) elNama.innerText = namaSiswa;
+        if (elId) elId.innerText = nomorId;
+        if (elKelas) elKelas.innerText = kelasSiswa;
+        if (elSekolah) elSekolah.innerText = sekolahSiswa;
+        // PERBAIKAN DI SINI: Menggunakan periodePilih agar teks bulannya muncul di rapor
+        if (elPeriode) elPeriode.innerText = periodePilih;
     }
-document.addEventListener('click', function(e) {
-    if (e.target && e.target.textContent.trim() === 'Cetak Laporan') {
-        e.preventDefault();
-        e.stopPropagation();
-        handleCetakRapor();
-    }
-}, true);
-    // Eksekusi fungsi asli secara aman di balik layar jika ada
-    try {
-        if (typeof bukaRaporSertifikat === 'function') {
-            bukaRaporSertifikat(idSiswa, periode);
+
+    // 3. Ambil data Asal Sekolah langsung dari tabel 'slc_siswa' Supabase
+    if (typeof supabaseClient !== 'undefined' && idsiswa) {
+        supabaseClient
+            .from('slc_siswa')
+            .select('*')
+            .eq('id', idsiswa)
+            .single()
+            .then(({ data: sData, error: sErr }) => {
+                if (!sErr && sData) {
+                    const realSekolah = sData.sekolah || sData.asal_sekolah || sData.nama_sekolah || sData.asal;
+                    if (realSekolah) {
+                        const elSekolah = document.getElementById('cert-sekolah-siswa');
+                        if (elSekolah) elSekolah.innerText = realSekolah;
+                    }
+                }
+            })
+            .catch(() => {});
+
+        // 4. Tarik data nilai dari slc_nilai DENGAN FILTER PERIODE BULAN
+        supabaseClient
+            .from('slc_nilai')
+            .select('*')
+            .eq('id_siswa', idsiswa)
+            .eq('periode', periodePilih)
+            .then(({ data, error }) => {
+                if (error) {
+                    console.error("Gagal mengambil data nilai:", error);
+                    return;
+                }
+
+                const tbody = document.getElementById('cert-table-body') || (modal ? modal.querySelector('tbody') : null);
+                if (!tbody) return;
+
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-slate-400 italic">Belum ada catatan nilai untuk periode ${periodePilih}.</td></tr>`;
+                    const avgEl = document.getElementById('cert-avg-score');
+                    if (avgEl) avgEl.innerText = '0';
+                    const noteEl = document.getElementById('cert-auto-note');
+                    if (noteEl) noteEl.innerText = `Belum ada data evaluasi untuk periode ${periodePilih}.`;
+                    return;
+                }
+
+                tbody.innerHTML = data.map(item => `
+                    <tr class="border-b border-slate-300">
+                        <td class="border border-slate-300 p-2">${item.mata_pelajaran || item.mapel || '-'}</td>
+                        <td class="border border-slate-300 p-2">${item.bab || item.pokok_bahasan || item.materi || '-'}</td>
+                        <td class="border border-slate-300 p-2">${item.capaian || item.capaian_performance || item.deskripsi || '-'}</td>
+                        <td class="border border-slate-300 p-2 text-center font-bold">${item.nilai || item.nilai_total || '0'}</td>
+                    </tr>
+                `).join('');
+
+                // Hitung rata-rata & catatan otomatis (Sesuai kode lama)
+        let totalScore = 0;
+        let listScores = data || [];
+        
+        listScores.forEach(item => {
+            totalScore += Number(item.nilai || item.score || item.nilai_total) || 0;
+        });
+
+        let kkm = 75;
+        let avgScore = 0;
+        let text = "";
+
+        if (listScores.length > 0) {
+            avgScore = Math.round(totalScore / listScores.length);
+      
+            if (avgScore >= 85) {
+                text = `Luar biasa! Siswa menunjukkan pemahaman yang sangat mendalam dan konsisten di atas KKM (${kkm}). Pertahankan prestasi cemerlang ini dan teruslah tingkatkan semangat belajar!`;
+            } else if (avgScore >= kkm) {
+                text = `Sangat baik! Siswa telah tuntas dan melampaui Standar KKM (${kkm}) dengan hasil yang memuaskan. Pertahankan kedisiplinan dan fokus belajar ke depannya!`;
+            } else {
+                text = `Siswa telah berusaha dengan baik dalam proses bimbingan. Mari tingkatkan kembali frekuensi latihan agar pada evaluasi berikutnya dapat melampaui KKM (${kkm}) dengan lebih baik lagi. Semangat!`;
+            }
         }
-    } catch (e) {
-        console.warn("Fungsi bawaan dilewati:", e);
+
+        const avgEl = document.getElementById('cert-avg-score');
+        if (avgEl) avgEl.innerText = avgScore;
+
+        const noteEl = document.getElementById('cert-auto-note');
+        if (noteEl) noteEl.innerText = text;
+        })
+            .catch(err => console.warn("Error koneksi Supabase:", err));
     }
 }
+
     </script>
     <!-- Three.js CDN -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -3013,6 +3111,20 @@ else if (menuId === 'absensi_admin') {
 `;
 
                 const myNilai = nilaiList.filter(n => n.id_siswa === currentUser.id);
+                const urutanBulan = {
+            "Januari": 1, "Februari": 2, "Maret": 3, "April": 4,
+            "Mei": 5, "Juni": 6, "Juli": 7, "Agustus": 8,
+            "September": 9, "Oktober": 10, "November": 11, "Desember": 12
+        };
+
+        myNilai.sort((a, b) => {
+            const parseP = (p) => {
+                if (!p) return 0;
+                const parts = p.trim().split(' ');
+                return (parseInt(parts[1]) || 2026) * 100 + (urutanBulan[parts[0]] || 0);
+            };
+            return parseP(a.periode) - parseP(b.periode);
+        });
                 bodyEl.innerHTML = `
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse text-xs">
@@ -4684,6 +4796,7 @@ document.addEventListener("DOMContentLoaded", function() {
         table.appendChild(tbody);
     }
 });
+
 </script>
 </body>
 </html>
