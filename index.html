@@ -1737,7 +1737,165 @@ async function updateSettingsInSupabase(columnName, value) {
             </div>
         </div>
     </div>
+<!-- MODAL IMPOR NILAI KOLEKTIF -->
+<div id="modal-impor-nilai" class="fixed inset-0 z-[999999] bg-slate-950/95 backdrop-blur-xl hidden items-center justify-center p-4 overflow-y-auto">
+    <!-- Konten Modal -->
+    <div class="glow-card max-w-md w-full p-6 space-y-4 bg-white dark:bg-slate-900 shadow-2xl rounded-2xl border border-slate-200 dark:border-slate-800 text-xs">
+        <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-3">
+            <h3 class="font-bold text-base text-emerald-600 dark:text-emerald-400">Impor Nilai Hasil Belajar Kolektif</h3>
+            <button type="button" onclick="tutupModalImporNilai()" class="text-slate-400 hover:text-rose-500 font-bold text-lg">&times;</button>
+        </div>
 
+        <div class="space-y-3 text-xs">
+            <p class="text-slate-600 dark:text-slate-300">
+                Unggah file Excel (.xlsx / .xls) atau CSV yang berisi data nilai siswa secara kolektif.
+            </p>
+            <div class="mb-3">
+        <button type="button" onclick="
+    const data = [
+        ['id_siswa', 'periode', 'mata_pelajaran', 'bab', 'capaian', 'nilai'],
+        ['2627017', 'Agustus 2026', 'Matematika', 'Bab 1', 'Tuntas', 85],
+        ['2627017', 'Agustus 2026', 'Bahasa Indonesia', 'Bab 1', 'Tuntas', 90]
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'DataNilai');
+    XLSX.writeFile(wb, 'Template_Impor_Nilai_SLC.xlsx');
+" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 flex items-center gap-1.5 cursor-pointer">
+    📥 Unduh Template Excel (.xlsx)
+</button>
+    </div>
+            <div>
+                <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Pilih File Excel / CSV</label>
+                <input type="file" id="file-excel-nilai" class="w-full text-xs text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl file:mr-2.5 file:py-0.5 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 file:cursor-pointer cursor-pointer py-1.5 px-2.5" accept=".xlsx, .xls, .csv">
+            </div>
+        </div>
+
+        <div class="flex gap-2 pt-3 border-t border-slate-200 dark:border-slate-700">
+            <button type="button" onclick="tutupModalImporNilai()" class="w-1/2 py-2.5 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white font-bold rounded-xl">Batal</button>
+            <button type="button" onclick="prosesImporNilaiExcel()" class="w-1/2 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl">Proses Impor</button>
+        </div>
+    </div>
+</div>
+
+<script>
+async function prosesImporNilaiExcel() {
+    const fileInput = document.getElementById('file-excel-nilai');
+    if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+        alert('Silakan pilih file Excel terlebih dahulu!');
+        return;
+    }
+
+    const SUPABASE_URL = 'https://yngxwxnuiplowwjgpjax.supabase.co';
+    
+    // Kunci Publishable Supabase Anda
+    const SUPABASE_ANON_KEY = 'sb_publishable_M6eU4z56rBzvllh9AheItg_gV7sCJ6d';
+
+    if (SUPABASE_ANON_KEY.includes('MASUKKAN_KUNCI')) {
+        alert('Mohon masukkan API Key anon Supabase Anda yang valid ke dalam kode!');
+        return;
+    }
+
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+
+    reader.onload = async function(e) {
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+            
+            if (!rows || rows.length <= 1) {
+                alert('File Excel kosong atau tidak ada data di dalamnya!');
+                return;
+            }
+
+            let insertCount = 0;
+
+            for (let i = 1; i < rows.length; i++) {
+                const cols = rows[i];
+                if (!cols || cols.length === 0) continue;
+
+                // Pemetaan berdasarkan urutan kolom template Excel Anda:
+                // 0: id_siswa, 1: nama, 2: kelas, 3: mapel, 4: bab, 5: capaian, 6: nilai, 7: periode
+                const id_siswa = cols[0] ? String(cols[0]).trim() : '';
+                const nama = cols[1] ? String(cols[1]).trim() : '-';
+                const kelas = cols[2] ? String(cols[2]).trim() : '-';
+                const mapel = cols[3] ? String(cols[3]).trim() : '-';
+                const bab = cols[4] ? String(cols[4]).trim() : '-';
+                const capaian = cols[5] ? String(cols[5]).trim() : '-';
+                const nilai = cols[6] !== undefined && cols[6] !== '' ? String(cols[6]).trim() : '0';
+                const periode = cols[7] ? String(cols[7]).trim() : 'Augustus 2026';
+
+                if (!id_siswa) continue;
+
+                // 1. Cek apakah data dengan kombinasi siswa, mapel, bab, dan periode ini SUDAH ADA di database
+                const checkResponse = await fetch(`${SUPABASE_URL}/rest/v1/slc_nilai?id_siswa=eq.${id_siswa}&mapel=eq.${encodeURIComponent(mapel)}&bab=eq.${encodeURIComponent(bab)}&periode=eq.${encodeURIComponent(periode)}`, {
+                    method: 'GET',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+
+                const existingData = await checkResponse.json();
+
+                // 2. Jika data sudah ada di database, LEWATI (jangan diapa-apakan / abaikan)
+                if (existingData && existingData.length > 0) {
+                    continue; 
+                }
+
+                // 3. Jika data BELUM ADA, LAKUKAN INSERT (tambahkan sebagai data baru)
+                const uniqueId = 'val_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+
+                const payload = {
+                    id: uniqueId,
+                    id_siswa: id_siswa,
+                    nama: nama,
+                    kelas: kelas,
+                    mapel: mapel,
+                    bab: bab,
+                    capaian: capaian,
+                    nilai: nilai,
+                    periode: periode
+                };
+
+                const insertResponse = await fetch(`${SUPABASE_URL}/rest/v1/slc_nilai`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (insertResponse.ok || insertResponse.status === 201) {
+                    insertCount++;
+                } else {
+                    const errText = await insertResponse.text();
+                    console.error("Gagal simpan baris:", errText);
+                }
+            }
+
+            // Informasi hanya menampilkan jumlah data baru yang berhasil ditambahkan
+            alert(`Berhasil menambahkan: ${insertCount} data siswa baru`);
+            if (typeof tutupModalImporNilai === 'function') tutupModalImporNilai();
+            location.reload();
+            
+        } catch (err) {
+            console.error("Detail Error Proses Excel:", err);
+            alert('Gagal memproses file Excel: ' + err.message);
+        }
+    };
+
+    reader.readAsArrayBuffer(file);
+}
+</script>
     <!-- MODAL TAMBAH / EDIT ABSENSI OLEH ADMIN -->
     <div id="modal-absensi-admin" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="glow-card max-w-md w-full p-6 space-y-4 bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-slate-700">
@@ -2723,6 +2881,9 @@ const listNilaiSiswa = (nilaiList || []).sort((a, b) => {
         <button onclick="tambahNilaiModal()" class="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow transition-all duration-200">
             Tambah
         </button>
+    <button type="button" onclick="bukaModalImporNilai()" class="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer">
+    Impor Nilai Excel
+</button>
         <select id="filter-periode" onchange="loadDataNilaiSiswa(selectedSiswaAdmin.id)" class="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-slate-800 text-slate-200 border border-slate-700 focus:outline-none">
             <option value="Agustus 2026">Agustus 2026</option>
             <option value="September 2026">September 2026</option>
@@ -3513,6 +3674,25 @@ document.getElementById('cert-periode-teks').textContent = periodePilih;
         function closeModalSertifikat() {
             document.getElementById('modal-rapor-sertifikat').classList.add('hidden');
         }
+
+        // Fungsi Buka & Tutup Modal yang Aman
+function bukaModalImporNilai() {
+    const modal = document.getElementById('modal-impor-nilai');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    } else {
+        console.error('Elemen #modal-impor-nilai tidak ditemukan di HTML!');
+    }
+}
+
+function tutupModalImporNilai() {
+    const modal = document.getElementById('modal-impor-nilai');
+    if (modal) {
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
+    }
+}
 
       async function simpanPengaturan() {
     try {
@@ -4687,6 +4867,15 @@ window.downloadActualPDF = function() {
 };
 </script>
 <script>
+function tutupModalRaporsertifikat() {
+    const modal = document.getElementById('modal-rapor-sertifikat');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+    }
+}
+</script>
+<script>
     function tutupModalRaporSertifikat() {
         const modal = document.getElementById('modal-rapor-sertifikat');
         if (modal) {
@@ -4694,7 +4883,7 @@ window.downloadActualPDF = function() {
             modal.style.display = 'none';
         }
     }
-    <script>
+    </script>
     <!-- ========================================================== -->
 <!-- JALAN PINTAS UTAMA: MODAL, GAMBAR, SUARA & PENYIMPANAN    -->
 <!-- ========================================================== -->
@@ -4786,9 +4975,8 @@ document.addEventListener("DOMContentLoaded", function() {
     </div>
 </div>
 
-<script>
+// Memastikan elemen tbody untuk tabel riwayat selalu ada di halaman
 document.addEventListener("DOMContentLoaded", function() {
-    // Memastikan elemen tbody untuk tabel riwayat selalu ada di halaman
     let table = document.querySelector('table');
     if (table && !document.getElementById('absen-table-body')) {
         let tbody = document.createElement('tbody');
@@ -4797,6 +4985,45 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
+
+// Pengaman Global & Spesifik agar tombol pasti merespons
+document.addEventListener("DOMContentLoaded", () => {
+    // Metode 1: Berdasarkan ID khusus
+    const btnImpor = document.getElementById('btn-impor-nilai-excel');
+    const modalImpor = document.getElementById('modal-impor-nilai');
+
+    if (btnImpor && modalImpor) {
+        btnImpor.addEventListener('click', (e) => {
+            e.preventDefault();
+            bukaModalImporNilai();
+        });
+    }
+
+    // Metode 2: Delegasi global berdasarkan teks tombol (jika ID belum terpasang di HTML)
+    document.addEventListener('click', function(e) {
+        const targetBtn = e.target.closest('button');
+        if (targetBtn && targetBtn.textContent.includes('Impor Nilai Excel')) {
+            e.preventDefault();
+            bukaModalImporNilai();
+        }
+    });
+});
+
+// Fungsi Unduh Template Contoh Excel Nilai
+function downloadTemplateExcel() {
+    const dataTemplate = [
+        ["id_siswa", "nama", "kelas", "mapel", "bab", "capaian", "nilai", "periode"],
+        ["2627045", "Scientia Shihwa Nayudhivia", "7", "Matematika", "Bab 1", "Tuntas", 85, "Augustus 2026"],
+        ["2627045", "Scientia Shihwa Nayudhivia", "7", "Bahasa Indonesia", "Bab 1", "Tuntas", 90, "Augustus 2026"]
+    ];
+
+    const worksheet = XLSX.utils.aoa_to_sheet(dataTemplate);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "DataNilai");
+
+    // Mengunduh file Excel (.xlsx) baru
+    XLSX.writeFile(workbook, "Template_Impor_Nilai_SLC.xlsx");
+}
 </script>
 </body>
 </html>
