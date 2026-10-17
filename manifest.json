@@ -11,6 +11,12 @@
   "icons": [
     {
       "src": "https://yngwxwnuiplowwjgpjax.supabase.co/storage/v1/object/public/assets_slc/maskot-slc.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://yngwxwnuiplowwjgpjax.supabase.co/storage/v1/object/public/assets_slc/maskot-slc.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
