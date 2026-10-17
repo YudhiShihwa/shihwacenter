@@ -1,7 +1,11 @@
-self.addEventListener('install', (e) => {
+self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-self.addEventListener('fetch', (e) => {
-  // Service Worker dasar PWA
+self.addEventListener('activate', (event) => {
+  event.waitUntil(clients.claim());
+});
+
+self.addEventListener('fetch', (event) => {
+  // Service Worker aktif
 });
