@@ -9,6 +9,14 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="https://yngwxwnuiplowwjgpjax.supabase.co/storage/v1/object/public/assets_slc/maskot-slc.png">
+
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js');
+        });
+      }
+    </script>
     <style>
         #actionEl, #actionEl *, button, select {
             pointer-events: auto !important;
