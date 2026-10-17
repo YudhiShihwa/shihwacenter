@@ -1,15 +1,19 @@
 {
   "name": "Shihwa Learning Center",
   "short_name": "EDUVERSE SLC",
+  "id": "/",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "https://yngwxwnuiplowwjgpjax.supabase.co/storage/v1/object/public/assets_slc/maskot-slc.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
